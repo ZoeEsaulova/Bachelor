@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--bootstrap-->
+    <link href="bootstrap-3.3.5/docs/examples/starter-template/starter-template.css" rel="stylesheet">
+    <script type="text/javascript" src="bootstrap-3.3.5/docs/assets/js/ie-emulation-modes-warning.js"></script>
+    <link href="bootstrap-3.3.5/dist/css/bootstrap.min.css" rel="stylesheet">  
+    <!-- jQuery -->
+    <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.slidepanel.setup.js"></script>
+
+    <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.imgareaselect.pack.js"></script>
+    <link rel="stylesheet" type="text/css" href="javascripts/jquery.imgareaselect-0.9.10/css/imgareaselect-default.css" />
+    <!-- Open Layers 3 -->
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.10.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.10.1/build/ol.js" type="text/javascript"></script>
+    <!-- LayerSwitcher -->
+    <link rel="stylesheet" href="ol3-layerswitcher-master/src/ol3-layerswitcher.css" />
+    <link rel="stylesheet" href="ol3-layerswitcher-master/examples/layerswitcher.css" />
+    <script src="ol3-layerswitcher-master/src/ol3-layerswitcher.js"></script>
+    <script src="ol3-layerswitcher-master/examples/layerswitcher.js"></script>
+    <script src="ol3-layerswitcher-master/examples/addlayer.js"></script>
+    <title>Geotagged images</title>
+    <style>
+
+      img {
+        width: 100%;
+        margin: 0;
+      }    
+      #map {
+        margin: 0;
+        height: 100%;
+      }
+      #next {
+        position: absolute;
+        right: 10px;
+      }
+      div.upload {
+          width: 157px;
+          height: 57px;
+          background: url(https://lh6.googleusercontent.com/-dqTIJRTqEAQ/UJaofTQm3hI/AAAAAAAABHo/w7ruR1SOIsA/s157/upload.png);
+          overflow: hidden;
+          white-space: nowrap;
+      }
+
+      div.upload input {
+          display: block !important;
+          width: 157px !important;
+          height: 57px !important;
+          opacity: 0 !important;
+          overflow: hidden !important;
+          white-space: nowrap;
+      }
+
+      div.upload:hover {
+
+        border-style: solid;
+        border-color: rgba(238,233,233,0.1);
+      }
+
+    </style>
+  </head>
+
+  <body onload="showMarker(<%= properties %>)">
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="/">Geotagged images</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+              <ul class="nav navbar-nav">
+              <li>
+              <!-- Upload a new image -->
+                <div class="upload">
+                  <form id="uploadForm" action='/upload' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
+                    <input id="file" type="file" name="image" data-buttonText="Upload photo">
+                  </form>
+                </div>
+                </li>
+                <li><a href="/osm">test osm</a></li>
+                <li><a href="/rotation">test transform</a></li>
+                <li><a href="/survey">Start Survey</a></li>
+              </ul>
+            </div>
+          </div>
+    </nav>
+
+    <!-- Map placeholder -->
+    <div class="row">
+        <div class="col-lg-12">
+          <div id="map" ></div>
+        </div>
+    </div>
+
+    <!-- Upload image functionality -->
+    <script type="text/javascript">
+
+      $(function () {
+        document.getElementById("file").onchange = function() {
+          document.getElementById("uploadForm").submit();
+        };
+      });
+    </script>
+
+    <script type="text/javascript">
+
+      /* Openlayers 3 */
+
+      // create satellite layer
+      var sourceBingMaps = new ol.source.BingMaps({
+          key: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
+          imagerySet: 'Aerial',
+      });
+
+      // create interactions and controls
+        var mouseZoom = new ol.interaction.MouseWheelZoom();
+        var interaction = new ol.interaction.DragRotate();
+        var pan = new ol.interaction.DragPan();
+        var rotateControl = new ol.control.Rotate();
+        var zoomControl = new ol.control.Zoom();
+        var layerSwitcher = new ol.control.LayerSwitcher();
+
+      // create map
+        var map = new ol.Map({
+            target: 'map',
+            controls: [rotateControl, zoomControl, layerSwitcher],
+            layers: [
+              new ol.layer.Tile({
+                title: 'OSM',
+                type: 'base',
+                visible: true,
+                source: new ol.source.OSM()
+              }),
+              new ol.layer.Tile({
+                title: 'Satellite',
+                type: 'base',
+                visible: false,
+                source: sourceBingMaps
+              })
+            ],
+            view: new ol.View({
+              center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
+              zoom: 17
+            }),
+            interactions: [ interaction, mouseZoom, pan ]
+          });
+
+        /* add marker 
+        * @param properties: marker coordinates
+        */
+        function showMarker(properties) {
+          
+          if (properties) {
+            var lat = properties[0]
+            var lon = properties[1]
+      
+            var iconFeatures=[];
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+              name: 'Muenster'
+            });
+            iconFeatures.push(iconFeature);
+            var vectorSource = new ol.source.Vector({
+              features: iconFeatures 
+            });
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+              anchor: [ 0.5, 200],
+              scale: 0.2,
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'pixels',
+              src: "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+              }))
+            });
+            var vectorLayer = new ol.layer.Vector({
+              source: vectorSource,
+              style: iconStyle
+            });
+            var newView = new ol.View({
+              center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+              zoom: 17
+            })
+
+            map.addLayer(vectorLayer)
+            map.setView(newView)
+          }
+        }
+
+        /* convert radians to degrees 
+        * @param rad: angle in radians
+        * @return angle in degrees
+        */
+        function radToDegree(rad) {
+          var degrees = Math.abs(rad)*(180/Math.PI)
+          if (degrees > 360) { 
+            degrees = degrees - (Math.floor(degrees / 360)*360) 
+          } 
+          if (rad<0) {
+            degrees = 360 - degrees
+          }
+          return degrees
+        }
+
+        /* convert degrees to radian 
+        * @param rad: angle in degrees
+        * @return angle in radians
+        */
+        function DegreeToRad(degree) {
+          return degree*Math.PI/180
+        }
+
+    </script>
+  </body>
+</html>
