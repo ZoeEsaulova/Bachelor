@@ -4,7 +4,7 @@ var MyImage = require('../models/image');
 var Entry = require('../models/entry');
 var multer = require('multer');
 router.use(multer({ dest: './public/images', inMemory: true }).single('image'));
-var MAU = require('./modify-and-upload');
+
 var im = require('imagemagick');
 var gm = require('gm').subClass({ imageMagick: true });
 var fs = require('fs');
@@ -23,18 +23,17 @@ var exif = require('exif-reader');
 /* proceed to the next image */
 router.post('/next', function(req, res) {
   console.log("RESUUUUUUUUULT: " + req.body.lat + " " + req.body.lon + " " + req.body.mapRotation + " " + req.body.nextImage)
-var next = Number(req.body.nextImage) + 1
-var names = [
-  125965433,
-  125965576,
-  125965583
-]
-
-// read exif
-      var buf = fs.readFileSync('C:/bachelor/public/images/' + next + ".jpg");      
-      var parser = require('exif-parser').create(buf);
-      var result = parser.parse();
-      var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+  var next = Number(req.body.nextImage) + 1
+  var names = [
+    125965433,
+    125965576,
+    125965583
+  ]
+  // read exif
+  var buf = fs.readFileSync('C:/bachelor/public/images/' + next + ".jpg");      
+  var parser = require('exif-parser').create(buf);
+  var result = parser.parse();
+  var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
 
    res.render('home_for_survey.ejs', { 
     imageSource: "http://static.panoramio.com/photos/large/" + names[next] + ".jpg",
@@ -186,16 +185,16 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
 
 /* display polygon on map */
 router.get('/showPolygon', function(req, res) {
-console.log("I'm in triangle")
-var result = findPolygonFromRotation(1.176352, req.query.mapRotation, req.query.lat, req.query.lon)
- 
-res.send({ 
-  coords: result.out, 
-  lat: req.query.lat, 
-  lon: req.query.lon, 
-  targetLat: result.targetGeo.lat,
-  targetLon: result.targetGeo.lon
-  })
+  console.log("I'm in triangle")
+  var result = findPolygonFromRotation(1.176352, req.query.mapRotation, req.query.lat, req.query.lon)
+   
+  res.send({ 
+    coords: result.out, 
+    lat: req.query.lat, 
+    lon: req.query.lon, 
+    targetLat: result.targetGeo.lat,
+    targetLon: result.targetGeo.lon
+    })
 
 });
 
@@ -207,19 +206,21 @@ router.get('/survey', function(req, res) {
     var image = req.query.nextImage
   }
   
-      // read exif
-      var buf = fs.readFileSync('C:/bachelor/public/images/' + image + ".jpg");      
-      var parser = require('exif-parser').create(buf);
-      var result = parser.parse();
-      var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
-console.log("AAAAAAAAAAAAAAAAAAAAAA: " + JSON.stringify(dec))
-      res.render('home_for_survey.ejs', { 
-        coordsString: 'Home page', 
-        imageSource:"http://static.panoramio.com/photos/large/125965433.jpg",
-        properties: JSON.stringify(dec),
-        nextImage: "0"
-        });
+  // read exif
+  var buf = fs.readFileSync('C:/bachelor/public/images/' + image + ".jpg");      
+  var parser = require('exif-parser').create(buf);
+  var result = parser.parse();
+  var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+  res.render('home_for_survey.ejs', { 
+    coordsString: 'Home page', 
+    imageSource:"http://static.panoramio.com/photos/large/125965433.jpg",
+    properties: JSON.stringify(dec),
+    nextImage: "0"
+  });
 });
+
+
+/* GET home page */
 router.get('/', function(req, res) {
 
       res.render('home.ejs', { 
@@ -230,38 +231,52 @@ router.get('/', function(req, res) {
 
 
 });
-/* GET home page. */
-router.get('/error', function(req, res) {
-  res.render('error.ejs', { title: 'Home page' });
-}); 
 
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
   console.log("COORDSSTRING: " + req.body.polyCoords)
-
-  var data = 'way(poly:"' + req.body.polyCoords + '")["building"];'
-  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out;';
+  // 51.964112, 7.612124, 51.964059, 7.614774, 51.962793, 7.613277
+  //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
+  var polygon = req.body.polyCoords
+  var data = 'way(poly:"' + polygon + '")["building"];'
+  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
   request(
       { method: 'GET'
       , uri: url
       , gzip: true
       }
     , function (error, response, body) {
-      console.log("Get response: " + response);
-      console.log("Get body: " + body);
-      res.render("test.ejs", {
-        data: JSON.stringify(JSON.parse(body), null, 4)
+      var result = JSON.parse(body).elements
+      var buildings = []
+      for (element in result) {
+        var nodes = result[element].geometry
+        var building = ""
+        for (node in nodes) {
+          var lat = nodes[node].lat
+          var lon = nodes[node].lon
+          building =  building + lat + " " + lon + ":"
+        }
+        buildings.push(building) 
+      }
+  
+      res.render("image.ejs", {
+        //data: JSON.stringify(JSON.parse(body), null, 4)
+        imagePath: req.body.imagePath,
+        properties: req.body.properties,
+        buildingCoords: buildings,
+        building: true
       });
     });
 }); 
+
 
 /* Upload an image */
 router.post('/upload', function(req, res) {
 	console.log("Button pressed")
   console.log(req.file.originalname)
 
-var serverPath = '/images/' + req.file.originalname;
-//working saving 
+  var serverPath = '/images/' + req.file.originalname;
+  //working saving 
 
   fs.rename(req.file.path, 'C:/bachelor/public' + serverPath, function(error) {
     if (error) {
@@ -278,25 +293,15 @@ var serverPath = '/images/' + req.file.originalname;
       var result = parser.parse();
       console.log(result)
   
-/*
-      var exif2 = require('exif2');
-
-      exif2('C:/bachelor/public' + serverPath, function(err, obj){
-        console.log(obj);
-      })
-
-          
-          var dec = dms2dec(result.tags.GPSLatitude, result.tags.GPSLatitudeRef, 
-              result.tags.GPSLongitude, result.tags.GPSLongitudeRef);
-          */
-          var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
-          //res.send(exifData)
-          res.render('image.ejs', { 
-            imagePath: serverPath,
-            //gps: GPSLatitude, GPSLongitude           
-            properties: JSON.stringify(dec)
-           // data: JSON.stringify(dec)
-            });
+      var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+      //res.send(exifData)
+      res.render('image.ejs', { 
+        imagePath: serverPath,
+        //gps: GPSLatitude, GPSLongitude           
+        properties: JSON.stringify(dec),
+        building: false
+        // data: JSON.stringify(dec)
+      });
 
 /* WORKING
 //save image in db
@@ -311,8 +316,8 @@ var image = new MyImage({
   });
 */
 
-
-            } });
+      } 
+    });
                      
   });
 
