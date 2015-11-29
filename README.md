@@ -1,3 +1,3 @@
 # Bachelor
 
-Geotagged images
+Geotagged images.
