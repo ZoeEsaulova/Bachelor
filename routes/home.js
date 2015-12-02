@@ -235,7 +235,7 @@ router.get('/', function(req, res) {
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
   console.log("COORDSSTRING: " + req.body.properties + " " + typeof(req.body.properties))
-  var radius = "-"
+  var radius = "100"
   // 51.964112, 7.612124, 51.964059, 7.614774, 51.962793, 7.613277
   //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
   if (req.body.polyCoords!="x") {
@@ -309,7 +309,7 @@ router.post('/upload', function(req, res) {
         //gps: GPSLatitude, GPSLongitude           
         properties: JSON.stringify(dec),
         building: false,
-        radius: "-"
+        radius: "100"
         // data: JSON.stringify(dec)
       });
 

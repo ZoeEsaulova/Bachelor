@@ -51,6 +51,33 @@
         margin:0px;
         padding:0px;
       }
+      .form-control {
+        white-space: nowrap;
+      }
+      .input {
+        width: 70px;
+        height: 35px; 
+        white-space: nowrap;
+        border-radius: 5px;
+        position: relative;
+        top: 3px;
+
+      }
+      button {
+        margin: 5px;
+        position: relative;
+        top: 50%;
+      }
+      #get {
+        margin-right: 1px;
+
+      }
+      #getObjects {
+
+      }
+      ul {
+        
+      }
     </style>
     
   </head>
@@ -69,26 +96,33 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active">
-              <input value="x" id="mapRotation" name="mapRotation" style="width:30" hidden>
+              
               <input value="y" id="objectCoords" name="objectCoords" style="width:30" hidden>
               <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:30" hidden>
               <input value="y" id="imageSize" name="imageSize" style="width:30" hidden>
-              <button onclick="submitObject(<%= properties %>)" style="white-space: nowrap;">Submit object</button>
+              <button onclick="submitObject(<%= properties %>)" class="btn btn-danger">Submit</button>
 
             </li>
-            <li><button onclick="showPolygon(<%= properties %>)">Show polygon</button></li>
+            <li><button onclick="toggleMarker(<%= properties %>)" class="btn btn-info">Show/Hide marker</button></li>
+            <li><button onclick="showPolygon(<%= properties %>)" class="btn btn-info">Show polygon</button></li>
+            <li><button id="bOnImage"onclick="showObjectsOnImage(<%= properties %>)" class="btn btn-info" disabled>Buildings on image</button></li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
               <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
               <input value=<%= properties %> id="properties" name="properties" style="width:15" hidden>
               <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15" hidden>
-              <input value="<%= radius %>" id="radius" name="radius" style="width:40">
-              <button type="submit" style="white-space: nowrap;">Get Objects</button>
+              <input value="x" id="mapRotation" name="mapRotation" style="width:30" hidden>
+              <button type="submit" style="white-space: nowrap;" class="btn btn-info" id="get">Buildings within radius: </button>
+     
+              <input value="<%= radius %>" id="radius" name="radius" class="input">
+    
               </form>
               </li>
-              <li>
-              <button onclick="markObject()" style="white-space: nowrap;">Mark object</button>
-              </li>
+              <% if (building) { %>
+                <li><button onclick="toggleBuildings()" class="btn btn-info">Show/Hide buildings</button></li>
+              <% }  %>
+
+              
           </ul>
         </div>
       </div>
@@ -102,7 +136,6 @@
           <div style="padding-right: 10px; padding-left: 10px; white-space: nowrap;">
           <h3 >Heading: </h3>
           <div class="well">Some text</div>
-          <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" class="btn btn-info">Show polygon</button>
           </div>
         </div>
         <div class="col-lg-6">
@@ -118,7 +151,14 @@
       </div>
     </div>
 
-    <script>
+    <script>   
+      
+      //Global variables
+      var buildingsSeen = false
+      var marker = false
+      var vectorLayer
+      var vectorLayer4
+      var vectorLayer5
       // TBD: get coordinates of click
       function clickMap() {
         var mapCoords = "TBD"
@@ -156,7 +196,7 @@
       var rotateControl = new ol.control.Rotate();
       var zoomControl = new ol.control.Zoom();
       var layerSwitcher = new ol.control.LayerSwitcher();
-
+      
       var myView = new ol.View({
         center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
         zoom: 15
@@ -182,7 +222,7 @@
         interactions: [interaction, mouseZoom,pan ]
       });
 
-
+      
       /* convert radians to degrees 
                 * @param rad: angle in radians
                 * @return angle in degrees
@@ -244,6 +284,7 @@
           source: vectorSource3
         });
         map.addLayer(vectorLayer3) 
+        $('#bOnImage').removeAttr('disabled');
       }
           
       /* send request to the server to get polygon coordinates */
@@ -280,48 +321,78 @@
       }
 
       //add marker
-      function showMarker(properties) {    
-        if (properties) {
-          var lat = properties[0]
-          var lon = properties[1]
-          console.log("Lar of marker: " + lat)
-          var iconFeatures=[];
-          var iconFeature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
-            name: 'Muenster'
-          });
-          iconFeatures.push(iconFeature);
-          var vectorSource = new ol.source.Vector({
-            features: iconFeatures 
-          });
-          var iconStyle = new ol.style.Style({
-            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-              anchor: [ 0.5, 200],
-              scale: 0.2,
-              anchorXUnits: 'fraction',
-              anchorYUnits: 'pixels',
-              src: "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
-            }))
-          });
-          var vectorLayer = new ol.layer.Vector({
-            source: vectorSource,
-            style: iconStyle
-          });
-          var newView = new ol.View({
-                center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
-                zoom: 15
-          })
-          map.addLayer(vectorLayer)
-          map.setView(newView)
+      function showMarker(properties) {   
+          console.log("Show Marker " + marker)
+          marker = true 
+          if (properties) {
+            var lat = properties[0]
+            var lon = properties[1]
+            console.log("Lar of marker: " + lat)
+            var iconFeatures=[];
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+              name: 'Muenster'
+            });
+            iconFeatures.push(iconFeature);
+            var vectorSource = new ol.source.Vector({
+              features: iconFeatures 
+            });
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 200],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+              }))
+            });
+            vectorLayer = new ol.layer.Vector({
+              source: vectorSource,
+              style: iconStyle
+            });
+            var newView = new ol.View({
+                  center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+                  zoom: 15
+            })
+            map.addLayer(vectorLayer)
+            map.setView(newView)
+          }
+        
+        
+      }
+
+      function toggleBuildings() {
+        if (buildingsSeen==true) {
+          /*map.removeLayer(vectorLayer4)
+          map.render()*/
+          vectorLayer4.setVisible(false)
+          buildingsSeen=false
+        } else {
+          vectorLayer4.setVisible(true)
+          buildingsSeen=true
         }
       }
 
+      function toggleMarker(properties) {
+        if (vectorLayer==undefined) {
+          showMarker(properties)
+        } else if (marker==true) {
+          /*map.removeLayer(vectorLayer4)
+          map.render()*/
+          vectorLayer.setVisible(false)
+          marker=false
+        } else {
+          vectorLayer.setVisible(true)
+          marker=true
+        }
+      }
       /* display building which can be seen on image 
       * @param building: coordinates of all buildings' nodes
       * @param properties: coordinates of the map center
       */
       function showBuildings(buildings, properties) {
         
+        buildingsSeen = true
         var features = []
         var buildingsArray = buildings.split(",")
         
@@ -358,7 +429,7 @@
             color: 'rgba(255, 153, 0, 0.5)'
           })
         })
-        var vectorLayer4 = new ol.layer.Vector({
+        vectorLayer4 = new ol.layer.Vector({
                 source: vectorSource4,
                 style: myStyle
         });
@@ -368,17 +439,39 @@
             zoom: 15
           })
         map.addLayer(vectorLayer4)
-        map.setView(newView)    
+        map.setView(newView)  
+        markObjects()    
+        
+      }
+
+      function markObjects() {
         var mySelectInteraction = new ol.interaction.Select()
         mySelectInteraction.getFeatures().on('add', function(e) {
+          if (e.target.getArray().length==1) {
+            markObject(); 
+          } else {
+            $('#myImg').imgAreaSelect({remove:true});
+          }
           var feature = e.element // Do something with the feature
           var coordinates = feature.getGeometry().getCoordinates()
-          console.log("Feature: " + coordinates)
-          markObject(); 
+          console.log("Feature: " + e.target.getArray().length)         
+        });
+        mySelectInteraction.getFeatures().on('remove', function(e) {
+          if (e.target.getArray().length==1) {
+            markObject(); 
+          } 
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
+          console.log("Feature: " + e.target.getArray().length)         
         });
         map.addInteraction(mySelectInteraction) 
       }
 
+      function showObjectsOnImage(properties) {
+
+        $("#getObjects").submit()
+      }
+      
     </script>
   </body>
 </html>
