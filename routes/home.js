@@ -234,11 +234,19 @@ router.get('/', function(req, res) {
 
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
-  console.log("COORDSSTRING: " + req.body.polyCoords)
+  console.log("COORDSSTRING: " + req.body.properties + " " + typeof(req.body.properties))
+  var radius = "-"
   // 51.964112, 7.612124, 51.964059, 7.614774, 51.962793, 7.613277
   //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
-  var polygon = req.body.polyCoords
-  var data = 'way(poly:"' + polygon + '")["building"];'
+  if (req.body.polyCoords!="x") {
+    var polygon = req.body.polyCoords
+    var data = 'way(poly:"' + polygon + '")["building"];'
+  } else {
+    radius = req.body.radius
+    var latlon = req.body.properties.slice(1, req.body.properties.length-1)
+    console.log("LATLOn: " + latlon)
+    var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
+  }
   var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
   request(
       { method: 'GET'
@@ -264,7 +272,8 @@ router.post('/overpass', function(req, res) {
         imagePath: req.body.imagePath,
         properties: req.body.properties,
         buildingCoords: buildings,
-        building: true
+        building: true,
+        radius: radius
       });
     });
 }); 
@@ -299,7 +308,8 @@ router.post('/upload', function(req, res) {
         imagePath: serverPath,
         //gps: GPSLatitude, GPSLongitude           
         properties: JSON.stringify(dec),
-        building: false
+        building: false,
+        radius: "-"
         // data: JSON.stringify(dec)
       });
 

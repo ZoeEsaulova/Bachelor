@@ -69,19 +69,20 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active">
-              <input value="x" id="mapRotation" name="mapRotation" style="width:30">
-              <input value="y" id="objectCoords" name="objectCoords" style="width:30">
-              <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:30">
-              <input value="y" id="imageSize" name="imageSize" style="width:30">
+              <input value="x" id="mapRotation" name="mapRotation" style="width:30" hidden>
+              <input value="y" id="objectCoords" name="objectCoords" style="width:30" hidden>
+              <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:30" hidden>
+              <input value="y" id="imageSize" name="imageSize" style="width:30" hidden>
               <button onclick="submitObject(<%= properties %>)" style="white-space: nowrap;">Submit object</button>
 
             </li>
             <li><button onclick="showPolygon(<%= properties %>)">Show polygon</button></li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
-              <input value="x" id="polyCoords" name="polyCoords" style="width:15">
-              <input value=<%= properties %> id="properties" name="properties" style="width:15">
-              <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15">
+              <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
+              <input value=<%= properties %> id="properties" name="properties" style="width:15" hidden>
+              <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15" hidden>
+              <input value="<%= radius %>" id="radius" name="radius" style="width:40">
               <button type="submit" style="white-space: nowrap;">Get Objects</button>
               </form>
               </li>
