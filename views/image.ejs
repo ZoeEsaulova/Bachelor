@@ -137,6 +137,7 @@
       // mark an object on image using bounding box
       function markObject() {
           $('#myImg').imgAreaSelect({
+              x1: 120, y1: 90, x2: 280, y2: 210,
               handles: true,
               onSelectEnd: preview
           });
@@ -367,7 +368,15 @@
             zoom: 15
           })
         map.addLayer(vectorLayer4)
-        map.setView(newView)     
+        map.setView(newView)    
+        var mySelectInteraction = new ol.interaction.Select()
+        mySelectInteraction.getFeatures().on('add', function(e) {
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
+          console.log("Feature: " + coordinates)
+          markObject(); 
+        });
+        map.addInteraction(mySelectInteraction) 
       }
 
     </script>
