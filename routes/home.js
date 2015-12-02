@@ -59,7 +59,7 @@ function defineVector(fov, targetLat, targetLon, imageCoords) {
   console.log("length target " + target.length())
   */
   //extend the vector
-  result3 = result3.times(1.5)
+  result3 = result3.times(1.2)
   //create Vec2D objects and rotate them
   var v0 = Vec2D.ObjectVector(result3.x, result3.y).rotate(-fov/2)
   var v1 = Vec2D.ObjectVector(result3.x, result3.y).rotate(fov)
@@ -186,7 +186,7 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
 /* display polygon on map */
 router.get('/showPolygon', function(req, res) {
   console.log("I'm in triangle")
-  var result = findPolygonFromRotation(1.176352, req.query.mapRotation, req.query.lat, req.query.lon)
+  var result = findPolygonFromRotation(0.698132, req.query.mapRotation, req.query.lat, req.query.lon)
    
   res.send({ 
     coords: result.out, 
