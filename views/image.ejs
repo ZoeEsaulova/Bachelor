@@ -159,6 +159,10 @@
       var vectorLayer
       var vectorLayer4
       var vectorLayer5
+      var vectorSource2
+      var vectorLayer2
+      var vectorSource3
+      var vectorLayer3
       // TBD: get coordinates of click
       function clickMap() {
         var mapCoords = "TBD"
@@ -246,7 +250,11 @@
         * @param targetLon: Longitude coordinate of the focus point
       */
       function findTriangle(coordsString, lat, lon, targetLat, targetLon)  {
-
+        if (vectorLayer2) {
+          map.removeLayer(vectorLayer2)
+          map.removeLayer(vectorLayer3)
+          map.render()
+        }
         var imageCoords = [ Number(lon), Number(lat) ]
         var target = [ Number(targetLon), Number(targetLat) ]
 
@@ -266,10 +274,10 @@
         var coords = coordsString + " " + lat + " " + lon
         document.getElementById('polyCoords').value = coords
 
-        var vectorSource2 = new ol.source.Vector({
+        vectorSource2 = new ol.source.Vector({
                 features: [ feature ]
         });
-        var vectorLayer2 = new ol.layer.Vector({
+        vectorLayer2 = new ol.layer.Vector({
                 source: vectorSource2,
         });
         map.addLayer(vectorLayer2)
@@ -277,10 +285,10 @@
         var featureL = new ol.Feature({
                     geometry: new ol.geom.LineString([point6, point1])
         });
-        var vectorSource3 = new ol.source.Vector({
+        vectorSource3 = new ol.source.Vector({
                 features: [featureL ]
         });
-        var vectorLayer3 = new ol.layer.Vector({
+        vectorLayer3 = new ol.layer.Vector({
           source: vectorSource3
         });
         map.addLayer(vectorLayer3) 
