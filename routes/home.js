@@ -17,6 +17,7 @@ var Dms = require('geodesy').Dms;
 var Vector3d = require('geodesy').Vector3d;
 var Vec2D = require('vector2d');
 var exif = require('exif-reader');
+var turf = require('turf');
 //var easyimg = require('easyimage');
 
 
@@ -30,7 +31,7 @@ router.post('/next', function(req, res) {
     125965583
   ]
   // read exif
-  var buf = fs.readFileSync('C:/bachelor/public/images/' + next + ".jpg");      
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + next + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
@@ -207,7 +208,7 @@ router.get('/survey', function(req, res) {
   }
   
   // read exif
-  var buf = fs.readFileSync('C:/bachelor/public/images/' + image + ".jpg");      
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + image + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
@@ -244,17 +245,134 @@ router.post('/overpass', function(req, res) {
   } else {
     radius = req.body.radius
     var latlon = req.body.properties.slice(1, req.body.properties.length-1)
-    console.log("LATLOn: " + latlon)
     var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
   }
+  //var data = 'way(poly:"51.962034 7.626290 51.961175 7.627492")["building"];'
   var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
+  /*var latlon = req.body.properties.slice(1, req.body.properties.length-1)
+  var splitTest = latlon.split(",")
+  var originTest = splitTest[0] + " " + splitTest[1] */
   request(
       { method: 'GET'
       , uri: url
       , gzip: true
       }
     , function (error, response, body) {
+      //get lat and lon from URL
+      var lat = 51.96224
+      var lon = 7.626596388888889
       var result = JSON.parse(body).elements
+      var buildings = []
+      var bodyString = body
+      /*var test = ""
+      var testId = ""*/
+      for (element in result) {
+
+        var add = true
+        var nodes = result[element].geometry
+        var building = ""
+        //testId = result[element].id
+        
+        var bounds = result[element].bounds
+        var lat = 51.96224
+        var lon = 7.626596388888889
+
+        var poly1 = turf.linestring([
+          [lat, lon], 
+          [Number(bounds.minlat), Number(bounds.minlon)]
+          ])
+        var poly2 = turf.linestring([ 
+          [lat, lon], 
+          [Number(bounds.maxlat), Number(bounds.maxlon)]
+          ])
+        var poly3 = turf.linestring([
+          [lat, lon], 
+          [Number(bounds.minlat), Number(bounds.maxlon)]
+          ])
+        var poly4 = turf.linestring([ 
+          [lat, lon], 
+          [Number(bounds.maxlat), Number(bounds.minlon)]
+          ])
+        if (result[element].id == "253293149") {
+          console.log("Line 1: " + Number(bounds.minlat)+" "+ Number(bounds.minlon))
+          console.log("Line 2: " + Number(bounds.maxlat)+" "+ Number(bounds.maxlon))
+          console.log("Line 3: " + Number(bounds.minlat)+" "+ Number(bounds.maxlon))
+          console.log("Line 4: " + Number(bounds.maxlat)+" "+ Number(bounds.minlon))
+          console.log("Origin: " + lat + " " + lon)
+        }
+        for (x in result) {
+
+          if (result[x].id != result[element].id) {
+            var bbox = [
+              Number(result[x].bounds.minlat), 
+              Number(result[x].bounds.minlon), 
+              Number(result[x].bounds.maxlat), 
+              Number(result[x].bounds.maxlon)
+            ];
+            var poly = turf.bboxPolygon(bbox);
+            /*var poly = turf.polygon([[
+              [Number(result[x].bounds.minlat), Number(result[x].bounds.minlon)],
+              [Number(result[x].bounds.minlat), Number(result[x].bounds.maxlon) ],
+              [Number(result[x].bounds.maxlat), Number(result[x].bounds.minlon) ],
+              [Number(result[x].bounds.maxlat), Number(result[x].bounds.maxlon)],
+              [Number(result[x].bounds.minlat), Number(result[x].bounds.minlon)]
+            ]])*/
+            try {
+              var intersection1 = turf.intersect(poly1, poly);
+            } catch(err) {
+              var intersection1 = undefined
+            }
+            try {
+              var intersection2 = turf.intersect(poly2, poly);
+              
+            } catch(err) {
+              var intersection2 = undefined
+            }
+            try {
+              var intersection3 = turf.intersect(poly3, poly);
+            } catch(err) {
+              var intersection3 = undefined
+            }
+            try {
+              var intersection4 = turf.intersect(poly4, poly);
+            } catch(err) {
+              var intersection4 = undefined
+            }
+            if ((intersection1!=undefined) && (intersection2!=undefined) && (intersection3!=undefined) && (intersection4!=undefined)) {
+              add = false
+              break
+            } 
+          }
+        }
+        if (add) {
+           if (result[element].id == "253293149") {
+          console.log(" intersection "+intersection1+" "+intersection2+" "+intersection3+" "+intersection4)
+        }
+          
+          for (node in nodes) {
+                var lat = nodes[node].lat
+                var lon = nodes[node].lon
+                building =  building + lat + " " + lon + ":"
+                //test = lat + " " + lon
+              }
+              buildings.push(building) 
+        }
+        
+      } 
+      console.log("Buildings: " + buildings.length)
+      //var point1 = turf.point(0,0);
+      /*var testPolygon = originTest + " " + test
+      var testData = 'way(poly:"' + testPolygon + '")["building"];'
+      var testUrl = 'http://overpass-api.de/api/interpreter?data=[out:json];' + testData + 'out geom;';
+      */
+      /*
+       request(
+      { method: 'GET'
+      , uri: testUrl
+      , gzip: true
+      }
+    , function (error, response, body) {
+       var result = JSON.parse(body).elements
       var buildings = []
       for (element in result) {
         var nodes = result[element].geometry
@@ -265,42 +383,38 @@ router.post('/overpass', function(req, res) {
           building =  building + lat + " " + lon + ":"
         }
         buildings.push(building) 
-      }
-  
+      } */
       res.render("image.ejs", {
         //data: JSON.stringify(JSON.parse(body), null, 4)
         imagePath: req.body.imagePath,
         properties: req.body.properties,
         buildingCoords: buildings,
         building: true,
-        radius: radius
+        radius: radius,
+        bodyString: bodyString
       });
+   // })    
     });
 }); 
 
 
 /* Upload an image */
 router.post('/upload', function(req, res) {
-	console.log("Button pressed")
-  console.log(req.file.originalname)
-
   var serverPath = '/images/' + req.file.originalname;
   //working saving 
 
-  fs.rename(req.file.path, 'C:/bachelor/public' + serverPath, function(error) {
+  fs.rename(req.file.path, 'C:/users/Zoe/Bachelor/public' + serverPath, function(error) {
     if (error) {
       res.send({
         error: 'Ah crap! Something bad happened'
       });
       return;
     } else {
-      console.log("File saved")
-
       // read exif
-      var buf = fs.readFileSync('C:/bachelor/public' + serverPath);      
+      var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + serverPath);      
       var parser = require('exif-parser').create(buf);
       var result = parser.parse();
-      console.log(result)
+
   
       var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
       //res.send(exifData)
@@ -317,7 +431,7 @@ router.post('/upload', function(req, res) {
 //save image in db
 var image = new MyImage({ 
     name: req.file.originalname,
-    path: 'C:/bachelor/public' + serverPath,
+    path: 'C:/users/Zoe/Bachelor/public' + serverPath,
     coords: dec })
 
   image.save(function (err) {

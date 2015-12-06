@@ -1,5 +1,4 @@
 .layer-switcher {
-    margin-top: 10px;
     position: absolute;
     top: 3.5em;
     right: 0.5em;
@@ -16,12 +15,11 @@
 }
 
 .layer-switcher.shown .panel {
-    margin-top: 10px;
+
     display: block;
 }
 
 .layer-switcher button {
-    margin-top: 10px;
     float: right;
     width: 38px;
     height: 38px;
