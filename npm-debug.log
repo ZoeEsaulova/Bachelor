@@ -2,928 +2,230 @@
 1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\node.exe',
 1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
 1 verbose cli   'install',
-1 verbose cli   'wgs84-intersect-util' ]
+1 verbose cli   'turf-within' ]
 2 info using npm@2.14.7
 3 info using node@v4.2.1
 4 verbose install initial load of C:\Users\Zoe\Bachelor\package.json
-5 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\async\package.json
-6 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\body-parser\package.json
-7 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\bootstrap\package.json
-8 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\cookie-parser\package.json
-9 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\debug\package.json
-10 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\dirtydocs\package.json
-11 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\dms2dec\package.json
-12 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\easyimage\package.json
-13 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\ejs\package.json
-14 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif\package.json
-15 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif-parser\package.json
-16 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif-reader\package.json
-17 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif2\package.json
-18 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\expect.js\package.json
-19 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\express\package.json
-20 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\formidable\package.json
-21 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\fs-extra\package.json
-22 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\geodesy\package.json
-23 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\gm\package.json
-24 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\imagemagick\package.json
-25 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\jade\package.json
-26 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\jsdoc\package.json
-27 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\lodash\package.json
-28 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\mocha\package.json
-29 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\mongoose\package.json
-30 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\morgan\package.json
-31 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\multer\package.json
-32 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\nodejs\package.json
-33 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\orbjs\package.json
-34 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\request\package.json
-35 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\serve-favicon\package.json
-36 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf\package.json
-37 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\vector2d\package.json
-38 info package.json async@1.4.2 No README data
-39 info package.json exif2@0.0.1 No repository field.
-40 info package.json exif2@0.0.1 No license field.
-41 info package.json imagemagick@0.1.3 No license field.
-42 info package.json nodejs@0.0.0 No description
-43 info package.json nodejs@0.0.0 No repository field.
-44 info package.json debug@2.0.0 No license field.
-45 info package.json exif@0.4.0 No license field.
-46 info package.json exif-parser@0.1.9 No license field.
-47 info package.json expect.js@0.3.1 No license field.
-48 info package.json formidable@1.0.17 No license field.
-49 info package.json vector2d@2.1.0 No license field.
-50 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\package.json
-51 silly cache add args [ 'wgs84-intersect-util', null ]
-52 verbose cache add spec wgs84-intersect-util
-53 silly cache add parsed spec Result {
-53 silly cache add   raw: 'wgs84-intersect-util',
-53 silly cache add   scope: null,
-53 silly cache add   name: 'wgs84-intersect-util',
-53 silly cache add   rawSpec: '',
-53 silly cache add   spec: '*',
-53 silly cache add   type: 'range' }
-54 silly addNamed wgs84-intersect-util@*
-55 verbose addNamed "*" is a valid semver range for wgs84-intersect-util
-56 silly addNameRange { name: 'wgs84-intersect-util', range: '*', hasData: false }
-57 silly mapToRegistry name wgs84-intersect-util
-58 silly mapToRegistry using default registry
-59 silly mapToRegistry registry https://registry.npmjs.org/
-60 silly mapToRegistry uri https://registry.npmjs.org/wgs84-intersect-util
-61 verbose addNameRange registry:https://registry.npmjs.org/wgs84-intersect-util not in flight; fetching
-62 verbose request uri https://registry.npmjs.org/wgs84-intersect-util
-63 verbose request no auth needed
-64 info attempt registry request try #1 at 12:52:00
-65 verbose request id c9238c1447e5860c
-66 verbose etag "41KPYVA2F8FESTRKGUOX8VOLR"
-67 http request GET https://registry.npmjs.org/wgs84-intersect-util
-68 http 304 https://registry.npmjs.org/wgs84-intersect-util
-69 verbose headers { date: 'Sun, 06 Dec 2015 11:51:47 GMT',
-69 verbose headers   via: '1.1 varnish',
-69 verbose headers   'cache-control': 'max-age=60',
-69 verbose headers   etag: '"41KPYVA2F8FESTRKGUOX8VOLR"',
-69 verbose headers   age: '37',
-69 verbose headers   connection: 'keep-alive',
-69 verbose headers   'x-served-by': 'cache-fra1239-FRA',
-69 verbose headers   'x-cache': 'HIT',
-69 verbose headers   'x-cache-hits': '1',
-69 verbose headers   'x-timer': 'S1449402707.967837,VS0,VE0',
-69 verbose headers   vary: 'Accept' }
-70 silly get cb [ 304,
-70 silly get   { date: 'Sun, 06 Dec 2015 11:51:47 GMT',
-70 silly get     via: '1.1 varnish',
-70 silly get     'cache-control': 'max-age=60',
-70 silly get     etag: '"41KPYVA2F8FESTRKGUOX8VOLR"',
-70 silly get     age: '37',
-70 silly get     connection: 'keep-alive',
-70 silly get     'x-served-by': 'cache-fra1239-FRA',
-70 silly get     'x-cache': 'HIT',
-70 silly get     'x-cache-hits': '1',
-70 silly get     'x-timer': 'S1449402707.967837,VS0,VE0',
-70 silly get     vary: 'Accept' } ]
-71 verbose etag https://registry.npmjs.org/wgs84-intersect-util from cache
-72 verbose get saving wgs84-intersect-util to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\wgs84-intersect-util\.cache.json
-73 silly addNameRange number 2 { name: 'wgs84-intersect-util', range: '*', hasData: true }
-74 silly addNameRange versions [ 'wgs84-intersect-util',
-74 silly addNameRange   [ '0.0.1',
-74 silly addNameRange     '0.1.0',
-74 silly addNameRange     '0.1.1',
-74 silly addNameRange     '0.2.0',
-74 silly addNameRange     '0.3.0',
-74 silly addNameRange     '1.0.0',
-74 silly addNameRange     '1.0.1',
-74 silly addNameRange     '1.0.2',
-74 silly addNameRange     '1.0.3',
-74 silly addNameRange     '1.0.4' ] ]
-75 silly addNamed wgs84-intersect-util@1.0.4
-76 verbose addNamed "1.0.4" is a plain semver version for wgs84-intersect-util
-77 silly cache afterAdd wgs84-intersect-util@1.0.4
-78 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\wgs84-intersect-util\1.0.4\package\package.json not in flight; writing
-79 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\wgs84-intersect-util\1.0.4\package\package.json written
-80 silly install resolved [ { name: 'wgs84-intersect-util',
-80 silly install resolved     version: '1.0.4',
-80 silly install resolved     description: 'Geographic intersect utilities using WGS84 datum',
-80 silly install resolved     main: 'index.js',
-80 silly install resolved     repository:
-80 silly install resolved      { type: 'git',
-80 silly install resolved        url: 'git+https://github.com/csbrandt/WGS84IntersectUtil.git' },
-80 silly install resolved     scripts:
-80 silly install resolved      { test: 'make test',
-80 silly install resolved        coverage: 'istanbul cover _mocha test --recursive -- -u      exports -R spec',
-80 silly install resolved        build: 'browserify index.js > dist/bundle.js' },
-80 silly install resolved     author: { name: 'csbrandt' },
-80 silly install resolved     license: 'MPL-2.0',
-80 silly install resolved     keywords: [ 'wgs84', 'intersect', 'geodesy', 'GeoJSON' ],
-80 silly install resolved     bugs: { url: 'https://github.com/csbrandt/WGS84IntersectUtil/issues' },
-80 silly install resolved     homepage: 'https://github.com/csbrandt/WGS84IntersectUtil',
-80 silly install resolved     dependencies:
-80 silly install resolved      { 'geojson-utils': 'git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-80 silly install resolved        'lodash.clonedeep': '^3.0.1',
-80 silly install resolved        'turf-bbox-polygon': '^1.0.1',
-80 silly install resolved        'turf-explode': '^1.0.1',
-80 silly install resolved        'turf-extent': '^1.0.4',
-80 silly install resolved        'turf-featurecollection': '^1.0.1',
-80 silly install resolved        'turf-inside': '^1.1.4',
-80 silly install resolved        'turf-intersect': '^1.4.2',
-80 silly install resolved        'turf-linestring': '^1.0.2',
-80 silly install resolved        'turf-point-on-surface': '^1.1.1',
-80 silly install resolved        'turf-within': '^1.0.1' },
-80 silly install resolved     devDependencies:
-80 silly install resolved      { browserify: '^10.2.4',
-80 silly install resolved        'expect.js': '^0.3.1',
-80 silly install resolved        grunt: '^0.4.5',
-80 silly install resolved        'grunt-contrib-coffee': '^0.13.0',
-80 silly install resolved        'grunt-contrib-jshint': '^0.11.2',
-80 silly install resolved        'grunt-jsbeautifier': '^0.2.10',
-80 silly install resolved        istanbul: '^0.3.15',
-80 silly install resolved        'load-grunt-tasks': '^3.2.0',
-80 silly install resolved        lodash: '^3.9.3',
-80 silly install resolved        mocha: '^2.2.5' },
-80 silly install resolved     gitHead: '1f3aeea0e7d9d4f1f7a5d1640f3b11ea68d44673',
-80 silly install resolved     _id: 'wgs84-intersect-util@1.0.4',
-80 silly install resolved     _shasum: 'd06235e7f7f2434c549f4a811f2db7e553628727',
-80 silly install resolved     _from: 'wgs84-intersect-util@*',
-80 silly install resolved     _npmVersion: '2.11.2',
-80 silly install resolved     _nodeVersion: '0.12.5',
-80 silly install resolved     _npmUser: { name: 'csbrandt', email: 'cs.brandt@gmail.com' },
-80 silly install resolved     maintainers: [ [Object] ],
-80 silly install resolved     dist:
-80 silly install resolved      { shasum: 'd06235e7f7f2434c549f4a811f2db7e553628727',
-80 silly install resolved        tarball: 'http://registry.npmjs.org/wgs84-intersect-util/-/wgs84-intersect-util-1.0.4.tgz' },
-80 silly install resolved     directories: {},
-80 silly install resolved     _resolved: 'https://registry.npmjs.org/wgs84-intersect-util/-/wgs84-intersect-util-1.0.4.tgz',
-80 silly install resolved     readme: 'ERROR: No README data found!' } ]
-81 info install wgs84-intersect-util@1.0.4 into C:\Users\Zoe\Bachelor
-82 info installOne wgs84-intersect-util@1.0.4
-83 verbose installOne of wgs84-intersect-util to C:\Users\Zoe\Bachelor not in flight; installing
-84 verbose lock using C:\Users\Zoe\AppData\Roaming\npm-cache\_locks\wgs84-intersect-util-9edbc4dae3db0dfc.lock for C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-85 silly install write writing wgs84-intersect-util 1.0.4 to C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-86 verbose unbuild node_modules\wgs84-intersect-util
-87 silly gentlyRm C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util is being purged from base C:\Users\Zoe\Bachelor
-88 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-89 verbose tar unpack C:\Users\Zoe\AppData\Roaming\npm-cache\wgs84-intersect-util\1.0.4\package.tgz
-90 verbose tar unpacking to C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-91 silly gentlyRm C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util is being purged
-92 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-93 silly gunzTarPerm modes [ '777', '666' ]
-94 silly gunzTarPerm extractEntry package.json
-95 silly gunzTarPerm modified mode [ 'package.json', 420, 438 ]
-96 silly gunzTarPerm extractEntry .npmignore
-97 silly gunzTarPerm extractEntry README.md
-98 silly gunzTarPerm extractEntry LICENSE
-99 silly gunzTarPerm extractEntry Gruntfile.js
-100 silly gunzTarPerm extractEntry index.js
-101 silly gunzTarPerm modified mode [ 'index.js', 436, 438 ]
-102 silly gunzTarPerm extractEntry coverage/coverage.json
-103 silly gunzTarPerm modified mode [ 'coverage/coverage.json', 436, 438 ]
-104 silly gunzTarPerm extractEntry coverage/lcov-report/prettify.js
-105 silly gunzTarPerm modified mode [ 'coverage/lcov-report/prettify.js', 436, 438 ]
-106 silly gunzTarPerm extractEntry coverage/lcov-report/sorter.js
-107 silly gunzTarPerm modified mode [ 'coverage/lcov-report/sorter.js', 436, 438 ]
-108 silly gunzTarPerm extractEntry coverage/lcov-report/WGS84IntersectUtil/index.html
-109 silly gunzTarPerm modified mode [ 'coverage/lcov-report/WGS84IntersectUtil/index.html',
-109 silly gunzTarPerm   436,
-109 silly gunzTarPerm   438 ]
-110 silly gunzTarPerm extractEntry coverage/lcov-report/WGS84IntersectUtil/index.js.html
-111 silly gunzTarPerm modified mode [ 'coverage/lcov-report/WGS84IntersectUtil/index.js.html',
-111 silly gunzTarPerm   436,
-111 silly gunzTarPerm   438 ]
-112 silly gunzTarPerm extractEntry coverage/lcov-report/base.css
-113 silly gunzTarPerm modified mode [ 'coverage/lcov-report/base.css', 436, 438 ]
-114 silly gunzTarPerm extractEntry coverage/lcov-report/index.html
-115 silly gunzTarPerm modified mode [ 'coverage/lcov-report/index.html', 436, 438 ]
-116 silly gunzTarPerm extractEntry coverage/lcov-report/prettify.css
-117 silly gunzTarPerm modified mode [ 'coverage/lcov-report/prettify.css', 436, 438 ]
-118 silly gunzTarPerm extractEntry coverage/lcov-report/sort-arrow-sprite.png
-119 silly gunzTarPerm modified mode [ 'coverage/lcov-report/sort-arrow-sprite.png', 436, 438 ]
-120 silly gunzTarPerm extractEntry coverage/lcov.info
-121 silly gunzTarPerm modified mode [ 'coverage/lcov.info', 436, 438 ]
-122 silly gunzTarPerm extractEntry dist/bundle.js
-123 silly gunzTarPerm modified mode [ 'dist/bundle.js', 436, 438 ]
-124 silly gunzTarPerm extractEntry Makefile
-125 silly gunzTarPerm extractEntry test/tests.js
-126 silly gunzTarPerm modified mode [ 'test/tests.js', 436, 438 ]
-127 silly gunzTarPerm extractEntry test/mtDiablo.json
-128 silly gunzTarPerm extractEntry test/tests.coffee
-129 verbose write writing to C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util\package.json
-130 info preinstall wgs84-intersect-util@1.0.4
-131 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util\package.json
-132 silly prepareForInstallMany adding geojson-utils@git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order from wgs84-intersect-util dependencies
-133 silly prepareForInstallMany adding lodash.clonedeep@^3.0.1 from wgs84-intersect-util dependencies
-134 silly prepareForInstallMany adding turf-bbox-polygon@^1.0.1 from wgs84-intersect-util dependencies
-135 silly prepareForInstallMany adding turf-explode@^1.0.1 from wgs84-intersect-util dependencies
-136 silly prepareForInstallMany adding turf-extent@^1.0.4 from wgs84-intersect-util dependencies
-137 silly prepareForInstallMany adding turf-featurecollection@^1.0.1 from wgs84-intersect-util dependencies
-138 silly prepareForInstallMany adding turf-inside@^1.1.4 from wgs84-intersect-util dependencies
-139 silly prepareForInstallMany adding turf-intersect@^1.4.2 from wgs84-intersect-util dependencies
-140 silly prepareForInstallMany adding turf-linestring@^1.0.2 from wgs84-intersect-util dependencies
-141 silly prepareForInstallMany adding turf-point-on-surface@^1.1.1 from wgs84-intersect-util dependencies
-142 silly prepareForInstallMany adding turf-within@^1.0.1 from wgs84-intersect-util dependencies
-143 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util\package.json
-144 silly cache add args [ 'geojson-utils@git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-144 silly cache add   null ]
-145 verbose cache add spec geojson-utils@git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order
-146 silly cache add args [ 'lodash.clonedeep@^3.0.1', null ]
-147 verbose cache add spec lodash.clonedeep@^3.0.1
-148 silly cache add parsed spec Result {
-148 silly cache add   raw: 'lodash.clonedeep@^3.0.1',
-148 silly cache add   scope: null,
-148 silly cache add   name: 'lodash.clonedeep',
-148 silly cache add   rawSpec: '^3.0.1',
-148 silly cache add   spec: '>=3.0.1 <4.0.0',
-148 silly cache add   type: 'range' }
-149 silly addNamed lodash.clonedeep@>=3.0.1 <4.0.0
-150 verbose addNamed ">=3.0.1 <4.0.0" is a valid semver range for lodash.clonedeep
-151 silly addNameRange { name: 'lodash.clonedeep',
-151 silly addNameRange   range: '>=3.0.1 <4.0.0',
-151 silly addNameRange   hasData: false }
-152 silly mapToRegistry name lodash.clonedeep
-153 silly mapToRegistry using default registry
-154 silly mapToRegistry registry https://registry.npmjs.org/
-155 silly mapToRegistry uri https://registry.npmjs.org/lodash.clonedeep
-156 verbose addNameRange registry:https://registry.npmjs.org/lodash.clonedeep not in flight; fetching
-157 silly cache add args [ 'turf-bbox-polygon@^1.0.1', null ]
-158 verbose cache add spec turf-bbox-polygon@^1.0.1
-159 silly cache add parsed spec Result {
-159 silly cache add   raw: 'turf-bbox-polygon@^1.0.1',
-159 silly cache add   scope: null,
-159 silly cache add   name: 'turf-bbox-polygon',
-159 silly cache add   rawSpec: '^1.0.1',
-159 silly cache add   spec: '>=1.0.1 <2.0.0',
-159 silly cache add   type: 'range' }
-160 silly addNamed turf-bbox-polygon@>=1.0.1 <2.0.0
-161 verbose addNamed ">=1.0.1 <2.0.0" is a valid semver range for turf-bbox-polygon
-162 silly addNameRange { name: 'turf-bbox-polygon',
-162 silly addNameRange   range: '>=1.0.1 <2.0.0',
-162 silly addNameRange   hasData: false }
-163 silly mapToRegistry name turf-bbox-polygon
-164 silly mapToRegistry using default registry
-165 silly mapToRegistry registry https://registry.npmjs.org/
-166 silly mapToRegistry uri https://registry.npmjs.org/turf-bbox-polygon
-167 verbose addNameRange registry:https://registry.npmjs.org/turf-bbox-polygon not in flight; fetching
-168 silly cache add args [ 'turf-explode@^1.0.1', null ]
-169 verbose cache add spec turf-explode@^1.0.1
-170 silly cache add parsed spec Result {
-170 silly cache add   raw: 'turf-explode@^1.0.1',
-170 silly cache add   scope: null,
-170 silly cache add   name: 'turf-explode',
-170 silly cache add   rawSpec: '^1.0.1',
-170 silly cache add   spec: '>=1.0.1 <2.0.0',
-170 silly cache add   type: 'range' }
-171 silly addNamed turf-explode@>=1.0.1 <2.0.0
-172 verbose addNamed ">=1.0.1 <2.0.0" is a valid semver range for turf-explode
-173 silly addNameRange { name: 'turf-explode', range: '>=1.0.1 <2.0.0', hasData: false }
-174 silly mapToRegistry name turf-explode
-175 silly mapToRegistry using default registry
-176 silly mapToRegistry registry https://registry.npmjs.org/
-177 silly mapToRegistry uri https://registry.npmjs.org/turf-explode
-178 verbose addNameRange registry:https://registry.npmjs.org/turf-explode not in flight; fetching
-179 silly cache add args [ 'turf-extent@^1.0.4', null ]
-180 verbose cache add spec turf-extent@^1.0.4
-181 silly cache add parsed spec Result {
-181 silly cache add   raw: 'turf-extent@^1.0.4',
-181 silly cache add   scope: null,
-181 silly cache add   name: 'turf-extent',
-181 silly cache add   rawSpec: '^1.0.4',
-181 silly cache add   spec: '>=1.0.4 <2.0.0',
-181 silly cache add   type: 'range' }
-182 silly addNamed turf-extent@>=1.0.4 <2.0.0
-183 verbose addNamed ">=1.0.4 <2.0.0" is a valid semver range for turf-extent
-184 silly addNameRange { name: 'turf-extent', range: '>=1.0.4 <2.0.0', hasData: false }
-185 silly mapToRegistry name turf-extent
-186 silly mapToRegistry using default registry
-187 silly mapToRegistry registry https://registry.npmjs.org/
-188 silly mapToRegistry uri https://registry.npmjs.org/turf-extent
-189 verbose addNameRange registry:https://registry.npmjs.org/turf-extent not in flight; fetching
-190 silly cache add args [ 'turf-featurecollection@^1.0.1', null ]
-191 verbose cache add spec turf-featurecollection@^1.0.1
-192 silly cache add parsed spec Result {
-192 silly cache add   raw: 'turf-featurecollection@^1.0.1',
-192 silly cache add   scope: null,
-192 silly cache add   name: 'turf-featurecollection',
-192 silly cache add   rawSpec: '^1.0.1',
-192 silly cache add   spec: '>=1.0.1 <2.0.0',
-192 silly cache add   type: 'range' }
-193 silly addNamed turf-featurecollection@>=1.0.1 <2.0.0
-194 verbose addNamed ">=1.0.1 <2.0.0" is a valid semver range for turf-featurecollection
-195 silly addNameRange { name: 'turf-featurecollection',
-195 silly addNameRange   range: '>=1.0.1 <2.0.0',
-195 silly addNameRange   hasData: false }
-196 silly mapToRegistry name turf-featurecollection
-197 silly mapToRegistry using default registry
-198 silly mapToRegistry registry https://registry.npmjs.org/
-199 silly mapToRegistry uri https://registry.npmjs.org/turf-featurecollection
-200 verbose addNameRange registry:https://registry.npmjs.org/turf-featurecollection not in flight; fetching
-201 silly cache add args [ 'turf-inside@^1.1.4', null ]
-202 verbose cache add spec turf-inside@^1.1.4
-203 silly cache add parsed spec Result {
-203 silly cache add   raw: 'turf-inside@^1.1.4',
-203 silly cache add   scope: null,
-203 silly cache add   name: 'turf-inside',
-203 silly cache add   rawSpec: '^1.1.4',
-203 silly cache add   spec: '>=1.1.4 <2.0.0',
-203 silly cache add   type: 'range' }
-204 silly addNamed turf-inside@>=1.1.4 <2.0.0
-205 verbose addNamed ">=1.1.4 <2.0.0" is a valid semver range for turf-inside
-206 silly addNameRange { name: 'turf-inside', range: '>=1.1.4 <2.0.0', hasData: false }
-207 silly mapToRegistry name turf-inside
-208 silly mapToRegistry using default registry
-209 silly mapToRegistry registry https://registry.npmjs.org/
-210 silly mapToRegistry uri https://registry.npmjs.org/turf-inside
-211 verbose addNameRange registry:https://registry.npmjs.org/turf-inside not in flight; fetching
-212 silly cache add args [ 'turf-intersect@^1.4.2', null ]
-213 verbose cache add spec turf-intersect@^1.4.2
-214 silly cache add parsed spec Result {
-214 silly cache add   raw: 'turf-intersect@^1.4.2',
-214 silly cache add   scope: null,
-214 silly cache add   name: 'turf-intersect',
-214 silly cache add   rawSpec: '^1.4.2',
-214 silly cache add   spec: '>=1.4.2 <2.0.0',
-214 silly cache add   type: 'range' }
-215 silly addNamed turf-intersect@>=1.4.2 <2.0.0
-216 verbose addNamed ">=1.4.2 <2.0.0" is a valid semver range for turf-intersect
-217 silly addNameRange { name: 'turf-intersect',
-217 silly addNameRange   range: '>=1.4.2 <2.0.0',
-217 silly addNameRange   hasData: false }
-218 silly mapToRegistry name turf-intersect
-219 silly mapToRegistry using default registry
-220 silly mapToRegistry registry https://registry.npmjs.org/
-221 silly mapToRegistry uri https://registry.npmjs.org/turf-intersect
-222 verbose addNameRange registry:https://registry.npmjs.org/turf-intersect not in flight; fetching
-223 silly cache add args [ 'turf-linestring@^1.0.2', null ]
-224 verbose cache add spec turf-linestring@^1.0.2
-225 silly cache add parsed spec Result {
-225 silly cache add   raw: 'turf-linestring@^1.0.2',
-225 silly cache add   scope: null,
-225 silly cache add   name: 'turf-linestring',
-225 silly cache add   rawSpec: '^1.0.2',
-225 silly cache add   spec: '>=1.0.2 <2.0.0',
-225 silly cache add   type: 'range' }
-226 silly addNamed turf-linestring@>=1.0.2 <2.0.0
-227 verbose addNamed ">=1.0.2 <2.0.0" is a valid semver range for turf-linestring
-228 silly addNameRange { name: 'turf-linestring',
-228 silly addNameRange   range: '>=1.0.2 <2.0.0',
-228 silly addNameRange   hasData: false }
-229 silly mapToRegistry name turf-linestring
-230 silly mapToRegistry using default registry
-231 silly mapToRegistry registry https://registry.npmjs.org/
-232 silly mapToRegistry uri https://registry.npmjs.org/turf-linestring
-233 verbose addNameRange registry:https://registry.npmjs.org/turf-linestring not in flight; fetching
-234 silly cache add args [ 'turf-point-on-surface@^1.1.1', null ]
-235 verbose cache add spec turf-point-on-surface@^1.1.1
-236 silly cache add parsed spec Result {
-236 silly cache add   raw: 'turf-point-on-surface@^1.1.1',
-236 silly cache add   scope: null,
-236 silly cache add   name: 'turf-point-on-surface',
-236 silly cache add   rawSpec: '^1.1.1',
-236 silly cache add   spec: '>=1.1.1 <2.0.0',
-236 silly cache add   type: 'range' }
-237 silly addNamed turf-point-on-surface@>=1.1.1 <2.0.0
-238 verbose addNamed ">=1.1.1 <2.0.0" is a valid semver range for turf-point-on-surface
-239 silly addNameRange { name: 'turf-point-on-surface',
-239 silly addNameRange   range: '>=1.1.1 <2.0.0',
-239 silly addNameRange   hasData: false }
-240 silly mapToRegistry name turf-point-on-surface
-241 silly mapToRegistry using default registry
-242 silly mapToRegistry registry https://registry.npmjs.org/
-243 silly mapToRegistry uri https://registry.npmjs.org/turf-point-on-surface
-244 verbose addNameRange registry:https://registry.npmjs.org/turf-point-on-surface not in flight; fetching
-245 silly cache add args [ 'turf-within@^1.0.1', null ]
-246 verbose cache add spec turf-within@^1.0.1
-247 silly cache add parsed spec Result {
-247 silly cache add   raw: 'turf-within@^1.0.1',
-247 silly cache add   scope: null,
-247 silly cache add   name: 'turf-within',
-247 silly cache add   rawSpec: '^1.0.1',
-247 silly cache add   spec: '>=1.0.1 <2.0.0',
-247 silly cache add   type: 'range' }
-248 silly addNamed turf-within@>=1.0.1 <2.0.0
-249 verbose addNamed ">=1.0.1 <2.0.0" is a valid semver range for turf-within
-250 silly addNameRange { name: 'turf-within', range: '>=1.0.1 <2.0.0', hasData: false }
-251 silly mapToRegistry name turf-within
-252 silly mapToRegistry using default registry
-253 silly mapToRegistry registry https://registry.npmjs.org/
-254 silly mapToRegistry uri https://registry.npmjs.org/turf-within
-255 verbose addNameRange registry:https://registry.npmjs.org/turf-within not in flight; fetching
-256 silly cache add parsed spec Result {
-256 silly cache add   raw: 'geojson-utils@git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add   scope: null,
-256 silly cache add   name: 'geojson-utils',
-256 silly cache add   rawSpec: 'git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add   spec: 'git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add   type: 'hosted',
-256 silly cache add   hosted:
-256 silly cache add    { type: 'github',
-256 silly cache add      ssh: 'git@github.com:csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add      sshUrl: 'git+ssh://git@github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add      httpsUrl: 'git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add      gitUrl: 'git://github.com/csbrandt/geojson-js-utils.git#coordinate-order',
-256 silly cache add      shortcut: 'github:csbrandt/geojson-js-utils#coordinate-order',
-256 silly cache add      directUrl: 'https://raw.githubusercontent.com/csbrandt/geojson-js-utils/coordinate-order/package.json' } }
-257 verbose addRemoteGit caching git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order
-258 verbose addRemoteGit git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order is a repository hosted by github
-259 silly tryClone cloning git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order via git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order
-260 verbose tryClone https-github-com-csbrandt-geojson-js-utils-git-ae0696c7 not in flight; caching
-261 verbose request uri https://registry.npmjs.org/lodash.clonedeep
-262 verbose request no auth needed
-263 info attempt registry request try #1 at 12:52:00
-264 verbose etag "85B704I1QBVF0R8A3YI76UWY2"
-265 http request GET https://registry.npmjs.org/lodash.clonedeep
-266 verbose request uri https://registry.npmjs.org/turf-bbox-polygon
-267 verbose request no auth needed
-268 info attempt registry request try #1 at 12:52:00
-269 verbose etag "A4GYK8YL45ALN9O1B3OL5Y98B"
-270 http request GET https://registry.npmjs.org/turf-bbox-polygon
-271 verbose request uri https://registry.npmjs.org/turf-explode
-272 verbose request no auth needed
-273 info attempt registry request try #1 at 12:52:00
-274 verbose etag "EPX9A5HDH0XLHYOKS268R9EJP"
-275 http request GET https://registry.npmjs.org/turf-explode
-276 verbose request uri https://registry.npmjs.org/turf-extent
-277 verbose request no auth needed
-278 info attempt registry request try #1 at 12:52:00
-279 verbose etag "43GU6W26UZ5BO39BW2C7OQ6K1"
-280 http request GET https://registry.npmjs.org/turf-extent
-281 verbose request uri https://registry.npmjs.org/turf-inside
-282 verbose request no auth needed
-283 info attempt registry request try #1 at 12:52:00
-284 verbose etag "AOM7I4A3SE82284LKISF6D8UP"
-285 http request GET https://registry.npmjs.org/turf-inside
-286 verbose request uri https://registry.npmjs.org/turf-featurecollection
-287 verbose request no auth needed
-288 info attempt registry request try #1 at 12:52:00
-289 verbose etag "BS39JFWL1483HYWMG4I8T1UMI"
-290 http request GET https://registry.npmjs.org/turf-featurecollection
-291 verbose request uri https://registry.npmjs.org/turf-intersect
-292 verbose request no auth needed
-293 info attempt registry request try #1 at 12:52:00
-294 verbose etag "2CL7F2QDVIF5B31WO5OF737O9"
-295 http request GET https://registry.npmjs.org/turf-intersect
-296 verbose request uri https://registry.npmjs.org/turf-point-on-surface
-297 verbose request no auth needed
-298 info attempt registry request try #1 at 12:52:00
-299 verbose etag "CHE7W25Z6XU7WY73ZVFC864YT"
-300 http request GET https://registry.npmjs.org/turf-point-on-surface
-301 verbose request uri https://registry.npmjs.org/turf-linestring
-302 verbose request no auth needed
-303 info attempt registry request try #1 at 12:52:00
-304 verbose etag "EXS3YCN6MK1HNVS19ADPX0XJ9"
-305 http request GET https://registry.npmjs.org/turf-linestring
-306 verbose request uri https://registry.npmjs.org/turf-within
-307 verbose request no auth needed
-308 info attempt registry request try #1 at 12:52:00
-309 verbose etag "CD16POXL26OAIZVCSN7JX87V2"
-310 http request GET https://registry.npmjs.org/turf-within
-311 warn addRemoteGit Error: not found: git
-311 warn addRemoteGit     at F (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:73:28)
-311 warn addRemoteGit     at E (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:76:29)
-311 warn addRemoteGit     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:84:16
-311 warn addRemoteGit     at FSReqWrap.oncomplete (fs.js:82:15)
-311 warn addRemoteGit  git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order resetting remote C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7 because of error: { [Error: not found: git] code: 'ENOGIT' }
-312 info resetRemote resetting C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7 for git+https://github.com/csbrandt/geojson-js-utils.git#coordinate-order
-313 silly gentlyRm C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7 is being purged
-314 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7
-315 silly vacuum-fs purging C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7
-316 silly vacuum-fs quitting because other entries in C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes
-317 error git clone --template=C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\_templates --mirror https://github.com/csbrandt/geojson-js-utils.git C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7: undefined
-317 error git clone --template=C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\_templates --mirror https://github.com/csbrandt/geojson-js-utils.git C:\Users\Zoe\AppData\Roaming\npm-cache\_git-remotes\https-github-com-csbrandt-geojson-js-utils-git-ae0696c7: undefined
-318 http 304 https://registry.npmjs.org/lodash.clonedeep
-319 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-319 verbose headers   via: '1.1 varnish',
-319 verbose headers   'cache-control': 'max-age=60',
-319 verbose headers   etag: '"85B704I1QBVF0R8A3YI76UWY2"',
-319 verbose headers   age: '23',
-319 verbose headers   connection: 'keep-alive',
-319 verbose headers   'x-served-by': 'cache-fra1244-FRA',
-319 verbose headers   'x-cache': 'HIT',
-319 verbose headers   'x-cache-hits': '1',
-319 verbose headers   'x-timer': 'S1449402708.430236,VS0,VE0',
-319 verbose headers   vary: 'Accept' }
-320 silly get cb [ 304,
-320 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-320 silly get     via: '1.1 varnish',
-320 silly get     'cache-control': 'max-age=60',
-320 silly get     etag: '"85B704I1QBVF0R8A3YI76UWY2"',
-320 silly get     age: '23',
-320 silly get     connection: 'keep-alive',
-320 silly get     'x-served-by': 'cache-fra1244-FRA',
-320 silly get     'x-cache': 'HIT',
-320 silly get     'x-cache-hits': '1',
-320 silly get     'x-timer': 'S1449402708.430236,VS0,VE0',
-320 silly get     vary: 'Accept' } ]
-321 verbose etag https://registry.npmjs.org/lodash.clonedeep from cache
-322 verbose get saving lodash.clonedeep to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\lodash.clonedeep\.cache.json
-323 http 304 https://registry.npmjs.org/turf-bbox-polygon
-324 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-324 verbose headers   via: '1.1 varnish',
-324 verbose headers   'cache-control': 'max-age=60',
-324 verbose headers   etag: '"A4GYK8YL45ALN9O1B3OL5Y98B"',
-324 verbose headers   age: '34',
-324 verbose headers   connection: 'keep-alive',
-324 verbose headers   'x-served-by': 'cache-fra1239-FRA',
-324 verbose headers   'x-cache': 'HIT',
-324 verbose headers   'x-cache-hits': '1',
-324 verbose headers   'x-timer': 'S1449402708.430949,VS0,VE0',
-324 verbose headers   vary: 'Accept' }
-325 silly get cb [ 304,
-325 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-325 silly get     via: '1.1 varnish',
-325 silly get     'cache-control': 'max-age=60',
-325 silly get     etag: '"A4GYK8YL45ALN9O1B3OL5Y98B"',
-325 silly get     age: '34',
-325 silly get     connection: 'keep-alive',
-325 silly get     'x-served-by': 'cache-fra1239-FRA',
-325 silly get     'x-cache': 'HIT',
-325 silly get     'x-cache-hits': '1',
-325 silly get     'x-timer': 'S1449402708.430949,VS0,VE0',
-325 silly get     vary: 'Accept' } ]
-326 verbose etag https://registry.npmjs.org/turf-bbox-polygon from cache
-327 verbose get saving turf-bbox-polygon to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-bbox-polygon\.cache.json
-328 http 304 https://registry.npmjs.org/turf-intersect
-329 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-329 verbose headers   via: '1.1 varnish',
-329 verbose headers   'cache-control': 'max-age=60',
-329 verbose headers   etag: '"2CL7F2QDVIF5B31WO5OF737O9"',
-329 verbose headers   age: '35',
-329 verbose headers   connection: 'keep-alive',
-329 verbose headers   'x-served-by': 'cache-fra1235-FRA',
-329 verbose headers   'x-cache': 'HIT',
-329 verbose headers   'x-cache-hits': '1',
-329 verbose headers   'x-timer': 'S1449402708.434616,VS0,VE0',
-329 verbose headers   vary: 'Accept' }
-330 silly get cb [ 304,
-330 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-330 silly get     via: '1.1 varnish',
-330 silly get     'cache-control': 'max-age=60',
-330 silly get     etag: '"2CL7F2QDVIF5B31WO5OF737O9"',
-330 silly get     age: '35',
-330 silly get     connection: 'keep-alive',
-330 silly get     'x-served-by': 'cache-fra1235-FRA',
-330 silly get     'x-cache': 'HIT',
-330 silly get     'x-cache-hits': '1',
-330 silly get     'x-timer': 'S1449402708.434616,VS0,VE0',
-330 silly get     vary: 'Accept' } ]
-331 verbose etag https://registry.npmjs.org/turf-intersect from cache
-332 verbose get saving turf-intersect to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-intersect\.cache.json
-333 http 304 https://registry.npmjs.org/turf-explode
-334 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-334 verbose headers   via: '1.1 varnish',
-334 verbose headers   'cache-control': 'max-age=60',
-334 verbose headers   etag: '"EPX9A5HDH0XLHYOKS268R9EJP"',
-334 verbose headers   age: '34',
-334 verbose headers   connection: 'keep-alive',
-334 verbose headers   'x-served-by': 'cache-fra1225-FRA',
-334 verbose headers   'x-cache': 'HIT',
-334 verbose headers   'x-cache-hits': '1',
-334 verbose headers   'x-timer': 'S1449402708.435685,VS0,VE0',
-334 verbose headers   vary: 'Accept' }
-335 silly get cb [ 304,
-335 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-335 silly get     via: '1.1 varnish',
-335 silly get     'cache-control': 'max-age=60',
-335 silly get     etag: '"EPX9A5HDH0XLHYOKS268R9EJP"',
-335 silly get     age: '34',
-335 silly get     connection: 'keep-alive',
-335 silly get     'x-served-by': 'cache-fra1225-FRA',
-335 silly get     'x-cache': 'HIT',
-335 silly get     'x-cache-hits': '1',
-335 silly get     'x-timer': 'S1449402708.435685,VS0,VE0',
-335 silly get     vary: 'Accept' } ]
-336 verbose etag https://registry.npmjs.org/turf-explode from cache
-337 verbose get saving turf-explode to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-explode\.cache.json
-338 http 304 https://registry.npmjs.org/turf-featurecollection
-339 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-339 verbose headers   via: '1.1 varnish',
-339 verbose headers   'cache-control': 'max-age=60',
-339 verbose headers   etag: '"BS39JFWL1483HYWMG4I8T1UMI"',
-339 verbose headers   age: '34',
-339 verbose headers   connection: 'keep-alive',
-339 verbose headers   'x-served-by': 'cache-fra1221-FRA',
-339 verbose headers   'x-cache': 'HIT',
-339 verbose headers   'x-cache-hits': '1',
-339 verbose headers   'x-timer': 'S1449402708.438567,VS0,VE0',
-339 verbose headers   vary: 'Accept' }
-340 silly get cb [ 304,
-340 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-340 silly get     via: '1.1 varnish',
-340 silly get     'cache-control': 'max-age=60',
-340 silly get     etag: '"BS39JFWL1483HYWMG4I8T1UMI"',
-340 silly get     age: '34',
-340 silly get     connection: 'keep-alive',
-340 silly get     'x-served-by': 'cache-fra1221-FRA',
-340 silly get     'x-cache': 'HIT',
-340 silly get     'x-cache-hits': '1',
-340 silly get     'x-timer': 'S1449402708.438567,VS0,VE0',
-340 silly get     vary: 'Accept' } ]
-341 verbose etag https://registry.npmjs.org/turf-featurecollection from cache
-342 verbose get saving turf-featurecollection to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-featurecollection\.cache.json
-343 http 304 https://registry.npmjs.org/turf-inside
-344 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-344 verbose headers   via: '1.1 varnish',
-344 verbose headers   'cache-control': 'max-age=60',
-344 verbose headers   etag: '"AOM7I4A3SE82284LKISF6D8UP"',
-344 verbose headers   age: '34',
-344 verbose headers   connection: 'keep-alive',
-344 verbose headers   'x-served-by': 'cache-fra1230-FRA',
-344 verbose headers   'x-cache': 'HIT',
-344 verbose headers   'x-cache-hits': '1',
-344 verbose headers   'x-timer': 'S1449402708.438574,VS0,VE0',
-344 verbose headers   vary: 'Accept' }
-345 silly get cb [ 304,
-345 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-345 silly get     via: '1.1 varnish',
-345 silly get     'cache-control': 'max-age=60',
-345 silly get     etag: '"AOM7I4A3SE82284LKISF6D8UP"',
-345 silly get     age: '34',
-345 silly get     connection: 'keep-alive',
-345 silly get     'x-served-by': 'cache-fra1230-FRA',
-345 silly get     'x-cache': 'HIT',
-345 silly get     'x-cache-hits': '1',
-345 silly get     'x-timer': 'S1449402708.438574,VS0,VE0',
-345 silly get     vary: 'Accept' } ]
-346 verbose etag https://registry.npmjs.org/turf-inside from cache
-347 verbose get saving turf-inside to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-inside\.cache.json
-348 http 304 https://registry.npmjs.org/turf-within
-349 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-349 verbose headers   via: '1.1 varnish',
-349 verbose headers   'cache-control': 'max-age=60',
-349 verbose headers   etag: '"CD16POXL26OAIZVCSN7JX87V2"',
-349 verbose headers   age: '34',
-349 verbose headers   connection: 'keep-alive',
-349 verbose headers   'x-served-by': 'cache-fra1222-FRA',
-349 verbose headers   'x-cache': 'HIT',
-349 verbose headers   'x-cache-hits': '1',
-349 verbose headers   'x-timer': 'S1449402708.441620,VS0,VE0',
-349 verbose headers   vary: 'Accept' }
-350 silly get cb [ 304,
-350 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-350 silly get     via: '1.1 varnish',
-350 silly get     'cache-control': 'max-age=60',
-350 silly get     etag: '"CD16POXL26OAIZVCSN7JX87V2"',
-350 silly get     age: '34',
-350 silly get     connection: 'keep-alive',
-350 silly get     'x-served-by': 'cache-fra1222-FRA',
-350 silly get     'x-cache': 'HIT',
-350 silly get     'x-cache-hits': '1',
-350 silly get     'x-timer': 'S1449402708.441620,VS0,VE0',
-350 silly get     vary: 'Accept' } ]
-351 verbose etag https://registry.npmjs.org/turf-within from cache
-352 verbose get saving turf-within to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-within\.cache.json
-353 http 304 https://registry.npmjs.org/turf-point-on-surface
-354 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-354 verbose headers   via: '1.1 varnish',
-354 verbose headers   'cache-control': 'max-age=60',
-354 verbose headers   etag: '"CHE7W25Z6XU7WY73ZVFC864YT"',
-354 verbose headers   age: '34',
-354 verbose headers   connection: 'keep-alive',
-354 verbose headers   'x-served-by': 'cache-fra1227-FRA',
-354 verbose headers   'x-cache': 'HIT',
-354 verbose headers   'x-cache-hits': '1',
-354 verbose headers   'x-timer': 'S1449402708.442302,VS0,VE0',
-354 verbose headers   vary: 'Accept' }
-355 silly get cb [ 304,
-355 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-355 silly get     via: '1.1 varnish',
-355 silly get     'cache-control': 'max-age=60',
-355 silly get     etag: '"CHE7W25Z6XU7WY73ZVFC864YT"',
-355 silly get     age: '34',
-355 silly get     connection: 'keep-alive',
-355 silly get     'x-served-by': 'cache-fra1227-FRA',
-355 silly get     'x-cache': 'HIT',
-355 silly get     'x-cache-hits': '1',
-355 silly get     'x-timer': 'S1449402708.442302,VS0,VE0',
-355 silly get     vary: 'Accept' } ]
-356 verbose etag https://registry.npmjs.org/turf-point-on-surface from cache
-357 verbose get saving turf-point-on-surface to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-point-on-surface\.cache.json
-358 http 304 https://registry.npmjs.org/turf-extent
-359 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-359 verbose headers   via: '1.1 varnish',
-359 verbose headers   'cache-control': 'max-age=60',
-359 verbose headers   etag: '"43GU6W26UZ5BO39BW2C7OQ6K1"',
-359 verbose headers   age: '35',
-359 verbose headers   connection: 'keep-alive',
-359 verbose headers   'x-served-by': 'cache-fra1223-FRA',
-359 verbose headers   'x-cache': 'HIT',
-359 verbose headers   'x-cache-hits': '2',
-359 verbose headers   'x-timer': 'S1449402708.442905,VS0,VE0',
-359 verbose headers   vary: 'Accept' }
-360 silly get cb [ 304,
-360 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-360 silly get     via: '1.1 varnish',
-360 silly get     'cache-control': 'max-age=60',
-360 silly get     etag: '"43GU6W26UZ5BO39BW2C7OQ6K1"',
-360 silly get     age: '35',
-360 silly get     connection: 'keep-alive',
-360 silly get     'x-served-by': 'cache-fra1223-FRA',
-360 silly get     'x-cache': 'HIT',
-360 silly get     'x-cache-hits': '2',
-360 silly get     'x-timer': 'S1449402708.442905,VS0,VE0',
-360 silly get     vary: 'Accept' } ]
-361 verbose etag https://registry.npmjs.org/turf-extent from cache
-362 verbose get saving turf-extent to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-extent\.cache.json
-363 http 304 https://registry.npmjs.org/turf-linestring
-364 verbose headers { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-364 verbose headers   via: '1.1 varnish',
-364 verbose headers   'cache-control': 'max-age=60',
-364 verbose headers   etag: '"EXS3YCN6MK1HNVS19ADPX0XJ9"',
-364 verbose headers   age: '34',
-364 verbose headers   connection: 'keep-alive',
-364 verbose headers   'x-served-by': 'cache-fra1238-FRA',
-364 verbose headers   'x-cache': 'HIT',
-364 verbose headers   'x-cache-hits': '1',
-364 verbose headers   'x-timer': 'S1449402708.446524,VS0,VE0',
-364 verbose headers   vary: 'Accept' }
-365 silly get cb [ 304,
-365 silly get   { date: 'Sun, 06 Dec 2015 11:51:48 GMT',
-365 silly get     via: '1.1 varnish',
-365 silly get     'cache-control': 'max-age=60',
-365 silly get     etag: '"EXS3YCN6MK1HNVS19ADPX0XJ9"',
-365 silly get     age: '34',
-365 silly get     connection: 'keep-alive',
-365 silly get     'x-served-by': 'cache-fra1238-FRA',
-365 silly get     'x-cache': 'HIT',
-365 silly get     'x-cache-hits': '1',
-365 silly get     'x-timer': 'S1449402708.446524,VS0,VE0',
-365 silly get     vary: 'Accept' } ]
-366 verbose etag https://registry.npmjs.org/turf-linestring from cache
-367 verbose get saving turf-linestring to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-linestring\.cache.json
-368 silly addNameRange number 2 { name: 'lodash.clonedeep',
-368 silly addNameRange   range: '>=3.0.1 <4.0.0',
-368 silly addNameRange   hasData: true }
-369 silly addNameRange versions [ 'lodash.clonedeep',
-369 silly addNameRange   [ '2.0.0',
-369 silly addNameRange     '2.1.0',
-369 silly addNameRange     '2.2.0',
-369 silly addNameRange     '2.2.1',
-369 silly addNameRange     '2.3.0',
-369 silly addNameRange     '2.4.0',
-369 silly addNameRange     '2.4.1',
-369 silly addNameRange     '3.0.0',
-369 silly addNameRange     '3.0.1',
-369 silly addNameRange     '3.0.2' ] ]
-370 silly addNamed lodash.clonedeep@3.0.2
-371 verbose addNamed "3.0.2" is a plain semver version for lodash.clonedeep
-372 silly addNameRange number 2 { name: 'turf-intersect',
-372 silly addNameRange   range: '>=1.4.2 <2.0.0',
-372 silly addNameRange   hasData: true }
-373 silly addNameRange versions [ 'turf-intersect',
-373 silly addNameRange   [ '0.0.0',
-373 silly addNameRange     '1.0.0',
-373 silly addNameRange     '1.0.1',
-373 silly addNameRange     '1.0.2',
-373 silly addNameRange     '1.1.0',
-373 silly addNameRange     '1.2.0',
-373 silly addNameRange     '1.3.0',
-373 silly addNameRange     '1.3.1',
-373 silly addNameRange     '1.3.2',
-373 silly addNameRange     '1.4.0',
-373 silly addNameRange     '1.4.1',
-373 silly addNameRange     '1.4.2' ] ]
-374 silly addNamed turf-intersect@1.4.2
-375 verbose addNamed "1.4.2" is a plain semver version for turf-intersect
-376 silly addNameRange number 2 { name: 'turf-bbox-polygon',
-376 silly addNameRange   range: '>=1.0.1 <2.0.0',
-376 silly addNameRange   hasData: true }
-377 silly addNameRange versions [ 'turf-bbox-polygon',
-377 silly addNameRange   [ '0.1.0',
-377 silly addNameRange     '0.1.1',
-377 silly addNameRange     '0.1.2',
-377 silly addNameRange     '0.1.3',
-377 silly addNameRange     '0.1.4',
-377 silly addNameRange     '0.1.5',
-377 silly addNameRange     '1.0.0',
-377 silly addNameRange     '1.0.1' ] ]
-378 silly addNamed turf-bbox-polygon@1.0.1
-379 verbose addNamed "1.0.1" is a plain semver version for turf-bbox-polygon
-380 silly addNameRange number 2 { name: 'turf-within', range: '>=1.0.1 <2.0.0', hasData: true }
-381 silly addNameRange versions [ 'turf-within',
-381 silly addNameRange   [ '0.1.0', '0.1.1', '0.1.2', '1.0.0', '1.0.1' ] ]
-382 silly addNamed turf-within@1.0.1
-383 verbose addNamed "1.0.1" is a plain semver version for turf-within
-384 silly addNameRange number 2 { name: 'turf-explode', range: '>=1.0.1 <2.0.0', hasData: true }
-385 silly addNameRange versions [ 'turf-explode',
-385 silly addNameRange   [ '0.1.0', '0.1.1', '0.1.2', '0.1.3', '1.0.0', '1.0.1' ] ]
-386 silly addNamed turf-explode@1.0.1
-387 verbose addNamed "1.0.1" is a plain semver version for turf-explode
-388 silly addNameRange number 2 { name: 'turf-inside', range: '>=1.1.4 <2.0.0', hasData: true }
-389 silly addNameRange versions [ 'turf-inside',
-389 silly addNameRange   [ '0.1.0',
-389 silly addNameRange     '0.1.1',
-389 silly addNameRange     '0.1.2',
-389 silly addNameRange     '0.1.3',
-389 silly addNameRange     '0.1.4',
-389 silly addNameRange     '1.0.0',
-389 silly addNameRange     '1.1.0',
-389 silly addNameRange     '1.1.1',
-389 silly addNameRange     '1.1.2',
-389 silly addNameRange     '1.1.3',
-389 silly addNameRange     '1.1.4' ] ]
-390 silly addNamed turf-inside@1.1.4
-391 verbose addNamed "1.1.4" is a plain semver version for turf-inside
-392 silly addNameRange number 2 { name: 'turf-point-on-surface',
-392 silly addNameRange   range: '>=1.1.1 <2.0.0',
-392 silly addNameRange   hasData: true }
-393 silly addNameRange versions [ 'turf-point-on-surface',
-393 silly addNameRange   [ '1.0.0', '1.0.1', '1.0.2', '1.0.3', '1.1.0', '1.1.1' ] ]
-394 silly addNamed turf-point-on-surface@1.1.1
-395 verbose addNamed "1.1.1" is a plain semver version for turf-point-on-surface
-396 silly addNameRange number 2 { name: 'turf-extent', range: '>=1.0.4 <2.0.0', hasData: true }
-397 silly addNameRange versions [ 'turf-extent',
-397 silly addNameRange   [ '0.1.1',
-397 silly addNameRange     '0.1.2',
-397 silly addNameRange     '0.1.3',
-397 silly addNameRange     '0.1.4',
-397 silly addNameRange     '1.0.0',
-397 silly addNameRange     '1.0.2',
-397 silly addNameRange     '1.0.3',
-397 silly addNameRange     '1.0.4' ] ]
-398 silly addNamed turf-extent@1.0.4
-399 verbose addNamed "1.0.4" is a plain semver version for turf-extent
-400 silly cache afterAdd lodash.clonedeep@3.0.2
-401 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\lodash.clonedeep\3.0.2\package\package.json not in flight; writing
-402 silly addNameRange number 2 { name: 'turf-linestring',
-402 silly addNameRange   range: '>=1.0.2 <2.0.0',
-402 silly addNameRange   hasData: true }
-403 silly addNameRange versions [ 'turf-linestring',
-403 silly addNameRange   [ '0.1.0', '0.1.1', '1.0.0', '1.0.1', '1.0.2' ] ]
-404 silly addNamed turf-linestring@1.0.2
-405 verbose addNamed "1.0.2" is a plain semver version for turf-linestring
-406 silly cache afterAdd turf-intersect@1.4.2
-407 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-intersect\1.4.2\package\package.json not in flight; writing
-408 silly cache afterAdd turf-within@1.0.1
-409 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-within\1.0.1\package\package.json not in flight; writing
-410 silly cache afterAdd turf-bbox-polygon@1.0.1
-411 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-bbox-polygon\1.0.1\package\package.json not in flight; writing
-412 silly cache afterAdd turf-explode@1.0.1
-413 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-explode\1.0.1\package\package.json not in flight; writing
-414 silly cache afterAdd turf-inside@1.1.4
-415 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-inside\1.1.4\package\package.json not in flight; writing
-416 silly cache afterAdd turf-point-on-surface@1.1.1
-417 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-point-on-surface\1.1.1\package\package.json not in flight; writing
-418 silly cache afterAdd turf-extent@1.0.4
-419 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-extent\1.0.4\package\package.json not in flight; writing
-420 silly addNameRange number 2 { name: 'turf-featurecollection',
-420 silly addNameRange   range: '>=1.0.1 <2.0.0',
-420 silly addNameRange   hasData: true }
-421 silly addNameRange versions [ 'turf-featurecollection', [ '0.1.0', '1.0.0', '1.0.1' ] ]
-422 silly addNamed turf-featurecollection@1.0.1
-423 verbose addNamed "1.0.1" is a plain semver version for turf-featurecollection
-424 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\lodash.clonedeep\3.0.2\package\package.json written
-425 silly cache afterAdd turf-linestring@1.0.2
-426 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-linestring\1.0.2\package\package.json not in flight; writing
-427 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-within\1.0.1\package\package.json written
-428 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-explode\1.0.1\package\package.json written
-429 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-bbox-polygon\1.0.1\package\package.json written
-430 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-inside\1.1.4\package\package.json written
-431 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-intersect\1.4.2\package\package.json written
-432 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-point-on-surface\1.1.1\package\package.json written
-433 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-extent\1.0.4\package\package.json written
-434 silly cache afterAdd turf-featurecollection@1.0.1
-435 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-featurecollection\1.0.1\package\package.json not in flight; writing
-436 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-linestring\1.0.2\package\package.json written
-437 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-featurecollection\1.0.1\package\package.json written
-438 verbose about to build C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-439 verbose unlock done using C:\Users\Zoe\AppData\Roaming\npm-cache\_locks\wgs84-intersect-util-9edbc4dae3db0dfc.lock for C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-440 verbose stack Error: not found: git
-440 verbose stack     at F (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:73:28)
-440 verbose stack     at E (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:76:29)
-440 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\which\which.js:84:16
-440 verbose stack     at FSReqWrap.oncomplete (fs.js:82:15)
-441 verbose cwd C:\Users\Zoe\Bachelor
-442 error Windows_NT 6.3.9600
-443 error argv "C:\\Program Files (x86)\\nodejs\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "wgs84-intersect-util"
-444 error node v4.2.1
-445 error npm  v2.14.7
-446 error code ENOGIT
-447 error not found: git
-448 error Failed using git.
-448 error This is most likely not a problem with npm itself.
-448 error Please check if you have git installed and in your PATH.
-449 verbose exit [ 1, true ]
-450 verbose unbuild node_modules\wgs84-intersect-util
-451 info preuninstall wgs84-intersect-util@1.0.4
-452 info uninstall wgs84-intersect-util@1.0.4
-453 verbose unbuild rmStuff wgs84-intersect-util@1.0.4 from C:\Users\Zoe\Bachelor\node_modules
-454 info postuninstall wgs84-intersect-util@1.0.4
-455 silly gentlyRm C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util is being purged from base C:\Users\Zoe\Bachelor
-456 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-457 silly vacuum-fs purging C:\Users\Zoe\Bachelor\node_modules\wgs84-intersect-util
-458 silly vacuum-fs quitting because other entries in C:\Users\Zoe\Bachelor\node_modules
+5 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\WGS84IntersectUtil\package.json
+6 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\async\package.json
+7 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\body-parser\package.json
+8 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\bootstrap\package.json
+9 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\cookie-parser\package.json
+10 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\debug\package.json
+11 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\dirtydocs\package.json
+12 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\dms2dec\package.json
+13 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\easyimage\package.json
+14 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\ejs\package.json
+15 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif\package.json
+16 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif-parser\package.json
+17 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif-reader\package.json
+18 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\exif2\package.json
+19 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\expect.js\package.json
+20 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\express\package.json
+21 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\formidable\package.json
+22 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\fs-extra\package.json
+23 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\geodesy\package.json
+24 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\geojson-utils\package.json
+25 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\gm\package.json
+26 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\imagemagick\package.json
+27 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\jade\package.json
+28 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\jsdoc\package.json
+29 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\lodash\package.json
+30 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\lodash.clonedeep\package.json
+31 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\mocha\package.json
+32 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\mongoose\package.json
+33 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\morgan\package.json
+34 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\multer\package.json
+35 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\nodejs\package.json
+36 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\orbjs\package.json
+37 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\request\package.json
+38 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\serve-favicon\package.json
+39 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf\package.json
+40 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-bbox-polygon\package.json
+41 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-explode\package.json
+42 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-extent\package.json
+43 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-featurecollection\package.json
+44 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-inside\package.json
+45 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-intersect\package.json
+46 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-linestring\package.json
+47 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\turf-point-on-surface\package.json
+48 verbose installManyTop reading scoped package data from C:\Users\Zoe\Bachelor\node_modules\vector2d\package.json
+49 info package.json async@1.4.2 No README data
+50 info package.json exif2@0.0.1 No repository field.
+51 info package.json exif2@0.0.1 No license field.
+52 info package.json imagemagick@0.1.3 No license field.
+53 info package.json nodejs@0.0.0 No description
+54 info package.json nodejs@0.0.0 No repository field.
+55 info package.json debug@2.0.0 No license field.
+56 info package.json exif@0.4.0 No license field.
+57 info package.json exif-parser@0.1.9 No license field.
+58 info package.json expect.js@0.3.1 No license field.
+59 info package.json formidable@1.0.17 No license field.
+60 info package.json vector2d@2.1.0 No license field.
+61 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\package.json
+62 silly cache add args [ 'turf-within', null ]
+63 verbose cache add spec turf-within
+64 silly cache add parsed spec Result {
+64 silly cache add   raw: 'turf-within',
+64 silly cache add   scope: null,
+64 silly cache add   name: 'turf-within',
+64 silly cache add   rawSpec: '',
+64 silly cache add   spec: '*',
+64 silly cache add   type: 'range' }
+65 silly addNamed turf-within@*
+66 verbose addNamed "*" is a valid semver range for turf-within
+67 silly addNameRange { name: 'turf-within', range: '*', hasData: false }
+68 silly mapToRegistry name turf-within
+69 silly mapToRegistry using default registry
+70 silly mapToRegistry registry https://registry.npmjs.org/
+71 silly mapToRegistry uri https://registry.npmjs.org/turf-within
+72 verbose addNameRange registry:https://registry.npmjs.org/turf-within not in flight; fetching
+73 verbose request uri https://registry.npmjs.org/turf-within
+74 verbose request no auth needed
+75 info attempt registry request try #1 at 16:10:05
+76 verbose request id 6e6f5f184f47d3ea
+77 verbose etag "CD16POXL26OAIZVCSN7JX87V2"
+78 http request GET https://registry.npmjs.org/turf-within
+79 http 304 https://registry.npmjs.org/turf-within
+80 verbose headers { date: 'Sun, 06 Dec 2015 15:09:51 GMT',
+80 verbose headers   via: '1.1 varnish',
+80 verbose headers   'cache-control': 'max-age=60',
+80 verbose headers   etag: '"CD16POXL26OAIZVCSN7JX87V2"',
+80 verbose headers   age: '0',
+80 verbose headers   connection: 'keep-alive',
+80 verbose headers   'x-served-by': 'cache-ams4133-AMS',
+80 verbose headers   'x-cache': 'MISS',
+80 verbose headers   'x-cache-hits': '0',
+80 verbose headers   'x-timer': 'S1449414591.998416,VS0,VE402',
+80 verbose headers   vary: 'Accept' }
+81 silly get cb [ 304,
+81 silly get   { date: 'Sun, 06 Dec 2015 15:09:51 GMT',
+81 silly get     via: '1.1 varnish',
+81 silly get     'cache-control': 'max-age=60',
+81 silly get     etag: '"CD16POXL26OAIZVCSN7JX87V2"',
+81 silly get     age: '0',
+81 silly get     connection: 'keep-alive',
+81 silly get     'x-served-by': 'cache-ams4133-AMS',
+81 silly get     'x-cache': 'MISS',
+81 silly get     'x-cache-hits': '0',
+81 silly get     'x-timer': 'S1449414591.998416,VS0,VE402',
+81 silly get     vary: 'Accept' } ]
+82 verbose etag https://registry.npmjs.org/turf-within from cache
+83 verbose get saving turf-within to C:\Users\Zoe\AppData\Roaming\npm-cache\registry.npmjs.org\turf-within\.cache.json
+84 silly addNameRange number 2 { name: 'turf-within', range: '*', hasData: true }
+85 silly addNameRange versions [ 'turf-within',
+85 silly addNameRange   [ '0.1.0', '0.1.1', '0.1.2', '1.0.0', '1.0.1' ] ]
+86 silly addNamed turf-within@1.0.1
+87 verbose addNamed "1.0.1" is a plain semver version for turf-within
+88 silly cache afterAdd turf-within@1.0.1
+89 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-within\1.0.1\package\package.json not in flight; writing
+90 verbose afterAdd C:\Users\Zoe\AppData\Roaming\npm-cache\turf-within\1.0.1\package\package.json written
+91 silly install resolved [ { name: 'turf-within',
+91 silly install resolved     version: '1.0.1',
+91 silly install resolved     description: 'turf within module',
+91 silly install resolved     main: 'index.js',
+91 silly install resolved     scripts:
+91 silly install resolved      { test: 'tape test.js',
+91 silly install resolved        doc: 'dox -r < index.js | doxme --readme > README.md' },
+91 silly install resolved     repository:
+91 silly install resolved      { type: 'git',
+91 silly install resolved        url: 'git+https://github.com/Turfjs/turf-within.git' },
+91 silly install resolved     keywords: [ 'geojson', 'within', 'point', 'polygon', 'featurecollection' ],
+91 silly install resolved     author: { name: 'morganherlocker' },
+91 silly install resolved     license: 'MIT',
+91 silly install resolved     bugs: { url: 'https://github.com/Turfjs/turf-within/issues' },
+91 silly install resolved     homepage: 'https://github.com/Turfjs/turf-within',
+91 silly install resolved     devDependencies:
+91 silly install resolved      { benchmark: '^1.0.0',
+91 silly install resolved        tape: '^3.5.0',
+91 silly install resolved        'turf-point': '^2.0.0',
+91 silly install resolved        'turf-polygon': '^1.0.2',
+91 silly install resolved        dox: '^0.6.1',
+91 silly install resolved        doxme: '^1.4.3' },
+91 silly install resolved     dependencies: { 'turf-featurecollection': '^1.0.0', 'turf-inside': '^1.1.3' },
+91 silly install resolved     gitHead: '93bc80c9143662734abce3002eb1c430471ca852',
+91 silly install resolved     _id: 'turf-within@1.0.1',
+91 silly install resolved     _shasum: '1f2d3c812cc453cd94df4c7992e91a7c77cdded6',
+91 silly install resolved     _from: 'turf-within@*',
+91 silly install resolved     _npmVersion: '1.4.23',
+91 silly install resolved     _npmUser: { name: 'morganherlocker', email: 'morgan.herlocker@gmail.com' },
+91 silly install resolved     maintainers:
+91 silly install resolved      [ [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object],
+91 silly install resolved        [Object] ],
+91 silly install resolved     dist:
+91 silly install resolved      { shasum: '1f2d3c812cc453cd94df4c7992e91a7c77cdded6',
+91 silly install resolved        tarball: 'http://registry.npmjs.org/turf-within/-/turf-within-1.0.1.tgz' },
+91 silly install resolved     directories: {},
+91 silly install resolved     _resolved: 'https://registry.npmjs.org/turf-within/-/turf-within-1.0.1.tgz',
+91 silly install resolved     readme: 'ERROR: No README data found!' } ]
+92 info install turf-within@1.0.1 into C:\Users\Zoe\Bachelor
+93 info installOne turf-within@1.0.1
+94 verbose installOne of turf-within to C:\Users\Zoe\Bachelor not in flight; installing
+95 verbose lock using C:\Users\Zoe\AppData\Roaming\npm-cache\_locks\turf-within-19c17dcd90c14f60.lock for C:\Users\Zoe\Bachelor\node_modules\turf-within
+96 silly install write writing turf-within 1.0.1 to C:\Users\Zoe\Bachelor\node_modules\turf-within
+97 verbose unbuild node_modules\turf-within
+98 silly gentlyRm C:\Users\Zoe\Bachelor\node_modules\turf-within is being purged from base C:\Users\Zoe\Bachelor
+99 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\Bachelor\node_modules\turf-within
+100 verbose tar unpack C:\Users\Zoe\AppData\Roaming\npm-cache\turf-within\1.0.1\package.tgz
+101 verbose tar unpacking to C:\Users\Zoe\Bachelor\node_modules\turf-within
+102 silly gentlyRm C:\Users\Zoe\Bachelor\node_modules\turf-within is being purged
+103 verbose gentlyRm don't care about contents; nuking C:\Users\Zoe\Bachelor\node_modules\turf-within
+104 silly gunzTarPerm modes [ '777', '666' ]
+105 silly gunzTarPerm extractEntry package.json
+106 silly gunzTarPerm modified mode [ 'package.json', 420, 438 ]
+107 silly gunzTarPerm extractEntry .npmignore
+108 silly gunzTarPerm modified mode [ '.npmignore', 420, 438 ]
+109 silly gunzTarPerm extractEntry README.md
+110 silly gunzTarPerm modified mode [ 'README.md', 420, 438 ]
+111 silly gunzTarPerm extractEntry LICENSE
+112 silly gunzTarPerm modified mode [ 'LICENSE', 420, 438 ]
+113 silly gunzTarPerm extractEntry bench.js
+114 silly gunzTarPerm modified mode [ 'bench.js', 420, 438 ]
+115 silly gunzTarPerm extractEntry index.js
+116 silly gunzTarPerm modified mode [ 'index.js', 420, 438 ]
+117 silly gunzTarPerm extractEntry test.js
+118 silly gunzTarPerm modified mode [ 'test.js', 420, 438 ]
+119 silly gunzTarPerm extractEntry .travis.yml
+120 silly gunzTarPerm modified mode [ '.travis.yml', 420, 438 ]
+121 verbose write writing to C:\Users\Zoe\Bachelor\node_modules\turf-within\package.json
+122 info preinstall turf-within@1.0.1
+123 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\node_modules\turf-within\package.json
+124 verbose readDependencies loading dependencies from C:\Users\Zoe\Bachelor\node_modules\turf-within\package.json
+125 silly install resolved []
+126 verbose about to build C:\Users\Zoe\Bachelor\node_modules\turf-within
+127 info build C:\Users\Zoe\Bachelor\node_modules\turf-within
+128 info linkStuff turf-within@1.0.1
+129 silly linkStuff turf-within@1.0.1 has C:\Users\Zoe\Bachelor\node_modules as its parent node_modules
+130 verbose linkBins turf-within@1.0.1
+131 verbose linkMans turf-within@1.0.1
+132 verbose rebuildBundles turf-within@1.0.1
+133 info install turf-within@1.0.1
+134 info postinstall turf-within@1.0.1
+135 verbose unlock done using C:\Users\Zoe\AppData\Roaming\npm-cache\_locks\turf-within-19c17dcd90c14f60.lock for C:\Users\Zoe\Bachelor\node_modules\turf-within
+136 verbose validateInstall loading C:\Users\Zoe\Bachelor\package.json for validation
+137 verbose stack Error: The package jsdoc@3.4.0 does not satisfy its siblings' peerDependencies requirements!
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\lib\install.js:125:32
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\lib\install.js:268:7
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\read-installed\read-installed.js:142:5
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\read-installed\read-installed.js:263:14
+137 verbose stack     at cb (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\slide\lib\async-map.js:47:24)
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\read-installed\read-installed.js:263:14
+137 verbose stack     at cb (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\slide\lib\async-map.js:47:24)
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\read-installed\read-installed.js:263:14
+137 verbose stack     at cb (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\slide\lib\async-map.js:47:24)
+137 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\read-installed\read-installed.js:263:14
+138 verbose cwd C:\Users\Zoe\Bachelor
+139 error Windows_NT 6.3.9600
+140 error argv "C:\\Program Files (x86)\\nodejs\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "turf-within"
+141 error node v4.2.1
+142 error npm  v2.14.7
+143 error code EPEERINVALID
+144 error peerinvalid The package jsdoc@3.4.0 does not satisfy its siblings' peerDependencies requirements!
+144 error peerinvalid Peer dirtydocs@0.0.1 wants jsdoc@3.3.x
+145 verbose exit [ 1, true ]

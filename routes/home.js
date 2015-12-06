@@ -18,6 +18,8 @@ var Vector3d = require('geodesy').Vector3d;
 var Vec2D = require('vector2d');
 var exif = require('exif-reader');
 var turf = require('turf');
+var wgs = require('WGS84IntersectUtil');
+var gju = require('geojson-utils');
 //var easyimg = require('easyimage');
 
 
@@ -233,10 +235,83 @@ router.get('/', function(req, res) {
 
 });
 
+function intersectLineBBox(line, bbox) {
+   var result = false
+   var segments = [];
+     // top
+   segments[0] = [[bbox[0], bbox[3]], [bbox[2], bbox[3]]];
+   // bottom
+   segments[1] = [[bbox[0], bbox[1]], [bbox[2], bbox[1]]];
+   // left
+   segments[2] = [[bbox[0], bbox[1]], [bbox[0], bbox[3]]];
+   // right
+   segments[3] = [[bbox[2], bbox[3]], [bbox[2], bbox[1]]];
+
+   ax1,ay1,ax2,ay2,bx1,by1,bx2,by2
+
+   var ax1 = line[0][0]
+   var ay1 = line[0][1]
+   var ax2 = line[1][0]
+   var ay2 = line[1][1]
+
+   for (i in segments) {
+    var bx1 = segments[i][0][0]
+    var by1 = segments[i][0][1]
+    var bx2 = segments[i][1][0]
+    var by2 = segments[i][1][1]
+    var v1=(bx2-bx1)*(ay1-by1)-(by2-by1)*(ax1-bx1);
+    var v2=(bx2-bx1)*(ay2-by1)-(by2-by1)*(ax2-bx1);
+    var v3=(ax2-ax1)*(by1-ay1)-(ay2-ay1)*(bx1-ax1);
+    var v4=(ax2-ax1)*(by2-ay1)-(ay2-ay1)*(bx2-ax1);
+    var intersection = (v1*v2<0) && (v3*v4<0);
+    if (intersection) {
+      result = true
+      break
+    }
+   }
+   return result
+}
+function intersectLineBBox(line, bbox) {
+   var result = "not intersected"
+   var segments = [];
+     // top
+   segments[0] = [[bbox[0], bbox[3]], [bbox[2], bbox[3]]];
+   // bottom
+   segments[1] = [[bbox[0], bbox[1]], [bbox[2], bbox[1]]];
+   // left
+   segments[2] = [[bbox[0], bbox[1]], [bbox[0], bbox[3]]];
+   // right
+   segments[3] = [[bbox[2], bbox[3]], [bbox[2], bbox[1]]];
+
+   ax1,ay1,ax2,ay2,bx1,by1,bx2,by2
+
+   var ax1 = line[0][0]
+   var ay1 = line[0][1]
+   var ax2 = line[1][0]
+   var ay2 = line[1][1]
+
+   for (i in segments) {
+    var bx1 = segments[i][0][0]
+    var by1 = segments[i][0][1]
+    var bx2 = segments[i][1][0]
+    var by2 = segments[i][1][1]
+    var v1=(bx2-bx1)*(ay1-by1)-(by2-by1)*(ax1-bx1);
+    var v2=(bx2-bx1)*(ay2-by1)-(by2-by1)*(ax2-bx1);
+    var v3=(ax2-ax1)*(by1-ay1)-(ay2-ay1)*(bx1-ax1);
+    var v4=(ax2-ax1)*(by2-ay1)-(ay2-ay1)*(bx2-ax1);
+    var intersection = (v1*v2<0) && (v3*v4<0);
+    if (intersection) {
+      result = "intersected"
+      break
+    }
+   }
+   return result
+}
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
-  console.log("COORDSSTRING: " + req.body.properties + " " + typeof(req.body.properties))
   var radius = "100"
+  var latlon = ""
+  var polygon = ""
   // 51.964112, 7.612124, 51.964059, 7.614774, 51.962793, 7.613277
   //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
   if (req.body.polyCoords!="x") {
@@ -256,17 +331,34 @@ router.post('/overpass', function(req, res) {
       { method: 'GET'
       , uri: url
       , gzip: true
+      , lalon: latlon
+      , polygon: polygon
       }
     , function (error, response, body) {
       //get lat and lon from URL
-      var lat = 51.96224
-      var lon = 7.626596388888889
       var result = JSON.parse(body).elements
       var buildings = []
       var bodyString = body
       /*var test = ""
       var testId = ""*/
       for (element in result) {
+        
+        if (latlon!="") {
+          var split = latlon.split(",")
+          var lat = Number(split[0])
+          var lon = Number(split[1])
+        } else {
+          var split = polygon.split(" ")
+          var lat = Number(split[4])
+          var lon = Number(split[5])
+        }
+        var point = turf.point([lon, lat]);
+
+        var poly1status = true
+        var poly2status = true
+        var poly3status = true
+        var poly4status = true
+        var poly5status = true
 
         var add = true
         var nodes = result[element].geometry
@@ -274,92 +366,163 @@ router.post('/overpass', function(req, res) {
         //testId = result[element].id
         
         var bounds = result[element].bounds
-        var lat = 51.96224
-        var lon = 7.626596388888889
 
-        var poly1 = turf.linestring([
-          [lat, lon], 
-          [Number(bounds.minlat), Number(bounds.minlon)]
-          ])
-        var poly2 = turf.linestring([ 
-          [lat, lon], 
-          [Number(bounds.maxlat), Number(bounds.maxlon)]
-          ])
-        var poly3 = turf.linestring([
-          [lat, lon], 
-          [Number(bounds.minlat), Number(bounds.maxlon)]
-          ])
-        var poly4 = turf.linestring([ 
-          [lat, lon], 
-          [Number(bounds.maxlat), Number(bounds.minlon)]
-          ])
-        if (result[element].id == "253293149") {
-          console.log("Line 1: " + Number(bounds.minlat)+" "+ Number(bounds.minlon))
-          console.log("Line 2: " + Number(bounds.maxlat)+" "+ Number(bounds.maxlon))
-          console.log("Line 3: " + Number(bounds.minlat)+" "+ Number(bounds.maxlon))
-          console.log("Line 4: " + Number(bounds.maxlat)+" "+ Number(bounds.minlon))
-          console.log("Origin: " + lat + " " + lon)
-        }
+        var poly1 = [[lon, lat], [Number(bounds.minlon), Number(bounds.minlat)]]           
+        var poly2 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.maxlat)]]                
+        var poly3 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.minlat)]]         
+        var poly4 = [[lon, lat], [Number(bounds.minlon), Number(bounds.maxlat)]]
+        var poly5 = [[lon, lat], [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]]
         for (x in result) {
 
           if (result[x].id != result[element].id) {
+
             var bbox = [
-              Number(result[x].bounds.minlat), 
               Number(result[x].bounds.minlon), 
-              Number(result[x].bounds.maxlat), 
-              Number(result[x].bounds.maxlon)
+              Number(result[x].bounds.minlat), 
+              Number(result[x].bounds.maxlon), 
+              Number(result[x].bounds.maxlat)
             ];
             var poly = turf.bboxPolygon(bbox);
-            /*var poly = turf.polygon([[
-              [Number(result[x].bounds.minlat), Number(result[x].bounds.minlon)],
-              [Number(result[x].bounds.minlat), Number(result[x].bounds.maxlon) ],
-              [Number(result[x].bounds.maxlat), Number(result[x].bounds.minlon) ],
-              [Number(result[x].bounds.maxlat), Number(result[x].bounds.maxlon)],
-              [Number(result[x].bounds.minlat), Number(result[x].bounds.minlon)]
-            ]])*/
-            try {
-              var intersection1 = turf.intersect(poly1, poly);
-            } catch(err) {
-              var intersection1 = undefined
+
+            if (!(turf.inside(point,poly))) {
+
+            if (poly1status) {
+              if (intersectLineBBox(poly1,bbox)=="intersected") {
+
+                poly1status = false
+              }
             }
-            try {
-              var intersection2 = turf.intersect(poly2, poly);
-              
-            } catch(err) {
-              var intersection2 = undefined
+            if (poly2status) {
+              if (intersectLineBBox(poly2,bbox)=="intersected") {
+   
+                poly2status = false
+              }
             }
-            try {
-              var intersection3 = turf.intersect(poly3, poly);
-            } catch(err) {
-              var intersection3 = undefined
+            if (poly3status) {
+              if (intersectLineBBox(poly3,bbox)=="intersected") {
+
+                poly3status = false
+              }
             }
-            try {
-              var intersection4 = turf.intersect(poly4, poly);
-            } catch(err) {
-              var intersection4 = undefined
+            if (poly4status) {
+              if (intersectLineBBox(poly4,bbox)=="intersected") {
+
+                poly4status = false
+              }
+
             }
-            if ((intersection1!=undefined) && (intersection2!=undefined) && (intersection3!=undefined) && (intersection4!=undefined)) {
+
+            if (poly5status) {
+              if (intersectLineBBox(poly5,bbox)=="intersected") {
+
+                poly5status = false
+              }
+            }
+
+            if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
               add = false
               break
             } 
+            } else {
+                var poly1x = turf.linestring([
+                  [lon, lat], 
+                  [Number(bounds.minlon), Number(bounds.minlat)]
+                  ])
+                var poly2x = turf.linestring([ 
+                  [lon, lat], 
+                  [Number(bounds.maxlon), Number(bounds.maxlat)]
+                  ])
+                var poly3x = turf.linestring([
+                  [lon, lat], 
+                  [Number(bounds.minlat), Number(bounds.maxlon)]
+                  ])
+                var poly4x = turf.linestring([ 
+                  [lon, lat], 
+                  [Number(bounds.minlon), Number(bounds.maxlat)]
+                  ])
+                var poly5x = turf.linestring([ 
+                  [lon, lat], 
+                  [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]
+                  ])
+                var nodesX = result[x].geometry
+                var coordsX = []
+                for (node in nodesX) {
+                  var lat = Number(nodesX[node].lat)
+                  var lon = Number(nodesX[node].lon)
+                  coordsX.push([lon,lat])               
+                }
+                var poly = turf.polygon([coordsX])
+                if (poly1status) {
+                  try {
+                  var intersection1 = turf.intersect(poly1x, poly);
+
+                  if (intersection1!=undefined) {
+                    poly1status = false
+                  }
+                  } catch(err) {
+                    console.log(err)
+                    }
+                }
+                if (poly2status) {
+                  try {
+                  var intersection2 = turf.intersect(poly2x, poly);
+                  if (intersection2!=undefined) {
+                    poly2status = false
+                  }
+                  } catch(err) {
+                    console.log(err)
+                    }
+                }
+                if (poly3status) {
+                  try {
+                  var intersection3 = turf.intersect(poly3x, poly);
+                  if (intersection3!=undefined) {
+                    poly3status = false
+                  }
+                  } catch(err) {
+                    console.log(err)
+                    }
+                }
+                if (poly4status) {
+                  try {
+                  var intersection4 = turf.intersect(poly4x, poly);
+                  if (intersection4!=undefined) {
+                    poly4status = false
+                  }
+                  } catch(err) {
+                    console.log(err)
+                    }
+                }
+                if (poly5status) {
+                  try {
+                  var intersection5 = turf.intersect(poly5x, poly);
+                  if (intersection5!=undefined) {
+                    poly5status = false
+                  }
+                  } catch(err) {
+                    console.log(err)
+                    }
+                }
+                if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
+                add = false
+                break
+                } 
+            }
+
           }
         }
         if (add) {
-           if (result[element].id == "253293149") {
-          console.log(" intersection "+intersection1+" "+intersection2+" "+intersection3+" "+intersection4)
-        }
-          
+          console.log("I'm element " + result[element].id)
           for (node in nodes) {
                 var lat = nodes[node].lat
                 var lon = nodes[node].lon
                 building =  building + lat + " " + lon + ":"
-                //test = lat + " " + lon
               }
               buildings.push(building) 
         }
         
       } 
-      console.log("Buildings: " + buildings.length)
+
       //var point1 = turf.point(0,0);
       /*var testPolygon = originTest + " " + test
       var testData = 'way(poly:"' + testPolygon + '")["building"];'

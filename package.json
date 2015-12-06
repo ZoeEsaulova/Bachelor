@@ -28,6 +28,7 @@
     "nodejs": "0.0.0",
     "request": "^2.65.0",
     "serve-favicon": "^2.1.7",
-    "vector2d": "^2.1.0"
+    "vector2d": "^2.1.0",
+    "wgs84-intersect-util": "^1.0.4"
   }
 }
