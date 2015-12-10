@@ -99,9 +99,9 @@
           <ul class="nav navbar-nav">
             <li class="active">
               
-              <input value="y" id="objectCoords" name="objectCoords" style="width:30" hidden>
+              <input value="253 120 413 250" id="objectCoords" name="objectCoords" style="width:30" hidden>
               <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:30" hidden>
-              <input value="y" id="imageSize" name="imageSize" style="width:30" hidden>
+              <input value="666" id="imageSize" name="imageSize" style="width:30" hidden>
               <button onclick="submitObject(<%= properties %>)" class="btn btn-danger">Submit</button>
 
             </li>
@@ -183,7 +183,7 @@
       // mark an object on image using bounding box
       function markObject() {
           $('#myImg').imgAreaSelect({
-              x1: 120, y1: 90, x2: 280, y2: 210,
+              x1: 253, y1: 120, x2: 413, y2: 250, 
               handles: true,
               onSelectEnd: preview
           });
@@ -318,14 +318,38 @@
       }
 
 
+      function defineCenter(bb) {
+        console.log("Extent: " + bb[0] + " " + bb[1] + " " + bb[2] + " " + bb[3])
+        var p1 = ol.proj.transform([ Number(bb[1]), Number(bb[0])], 'EPSG:3857', 'EPSG:4326')
+        var p2 = ol.proj.transform([ Number(bb[3]), Number(bb[2])], 'EPSG:3857', 'EPSG:4326')    
+
+        var x = (Number(bb[0])+Number(bb[2]))/2
+        var y = (Number(bb[1])+Number(bb[3]))/2 
+        var temp = ol.proj.transform([x, y], 'EPSG:3857', 'EPSG:4326')
+        var test1 = ol.proj.transform([ 7.566651, 51.965695 ], 'EPSG:4326', 'EPSG:3857')
+        var test2 = ol.proj.transform([ 842315.7363304143,6793925.045580625 ], 'EPSG:3857', 'EPSG:4326')  
+        /*
+        var x = (Number(bb[0])+Number(bb[2]))/2
+        var y = (Number(bb[1])+Number(bb[3]))/2*/
+        var center = temp[0] + " " + temp[1]
+        console.log("FETURE GEOMETRY " + center)
+        return center
+      }
       function submitObject(properties) {
-        $.get("/triangle", { 
-          mapRotation : undefined,
+        var select = map.getInteractions().getArray()[3] 
+        var features = select.getFeatures();
+        var feature = features.item(0);
+        
+        document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
+
+        $.get("/showPolygon", { 
+          mapRotation : map.getView().getRotation(),
           lat: properties[0],
           lon: properties[1],
           objectCoords: document.getElementById("objectCoords").value,
           imageSize: document.getElementById("imageSize").value,
-          objectCoordsMap: document.getElementById("objectCoordsMap").value
+          objectCoordsMap: document.getElementById("objectCoordsMap").value,
+
         }, function(response){
           findTriangle(response.coords, response.lat, response.lon, response.targetLat, response.targetLon)          
         });

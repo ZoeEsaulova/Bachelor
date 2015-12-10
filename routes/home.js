@@ -65,7 +65,7 @@ function defineVector(fov, targetLat, targetLon, imageCoords) {
   result3 = result3.times(1.2)
   //create Vec2D objects and rotate them
   var v0 = Vec2D.ObjectVector(result3.x, result3.y).rotate(-fov/2)
-  var v1 = Vec2D.ObjectVector(result3.x, result3.y).rotate(fov)
+  var v1 = Vec2D.ObjectVector(result3.x, result3.y).rotate(fov/2)
   var left3 = new Vector3d(v0.getX(), v0.getY(), result3.z)
   var right3 = new Vector3d(v1.getX(), v1.getY(), result3.z)
 
@@ -157,21 +157,26 @@ function findPolygonFromRotation(fov, mapRotation, lat, lon) {
 /* NOT IMPLEMENTED YET */
 /* define polygon nodes from matched object */
 function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
+  var split5 = objectCoordsMap.split(" ")
+  var lat5 = Number(split5[1])
+  var lon5 = Number(split5[0])
+  console.log("DDDDDDDDDD: " + lat5 + " " + lon5)
   var imageCoordsGeo = new LatLon(Number(lat), Number(lon), LatLon.datum.WGS84)
     // if object marked
 
   var radInPixel = fov/Number(imageSize)
   var splitOb = objectCoords.split(" ")
-  var selectionCenter = Number(splitOb[2])-Number(splitOb[0])
+  var selectionCenter = ((Number(splitOb[2])-Number(splitOb[0]))/2)+Number(splitOb[0])
   // if object to the left of the center - positiv offset
-  var offset = (Number(req.query.imageSize)/2)-selectionCenter
+  var offset = (Number(imageSize)/2)-selectionCenter
   console.log("Width: " + imageSize + " Diff: " + offset + "coords " + splitOb)
   var radOffset = offset*radInPixel
 
   // get req.query.objectCoordsMap
 
-  var targetGeo0 = new LatLon(53.544778, 9.951478, LatLon.datum.WGS84)
+  var targetGeo0 = new LatLon(lat5, lon5, LatLon.datum.WGS84)
   var target0 = targetGeo0.toCartesian()
+  console.log("SSSSSSSSSSSS: " + target0)
   var imageCoords = imageCoordsGeo.toCartesian()
   //var target0 = new Vector3d(targetLat0, targetLon0, imageCoords.z)
 
@@ -188,9 +193,14 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
 
 /* display polygon on map */
 router.get('/showPolygon', function(req, res) {
-  console.log("I'm in triangle")
-  var result = findPolygonFromRotation(0.698132, req.query.mapRotation, req.query.lat, req.query.lon)
-   
+  if (req.query.objectCoords!= undefined) {
+    console.log("Get OBJECT")
+    var result = findPolygonFromObject(
+      0.698132, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
+    )
+   } else {
+    var result = findPolygonFromRotation(0.698132, req.query.mapRotation, req.query.lat, req.query.lon)
+   }
   res.send({ 
     coords: result.out, 
     lat: req.query.lat, 
