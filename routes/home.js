@@ -119,29 +119,25 @@ function findPolygonFromRotation(fov, mapRotation, lat, lon) {
           if (rad<0) {
             degrees = 360 - degrees
           }
-  var rotation = degrees
+  var rotation = rad
   var alpha = 0
   var lon = 0
   var lat = 0
   var distance = 100
-  if (rotation<=90) {
+  if (rotation<=1.5707963268) {
     alpha = rotation
-    alpha = orb.common.deg2rad(alpha)
     lon = -Math.sin(alpha)*distance
     lat = -Math.cos(alpha)*distance
-  } else if (rotation>90 && rotation<=180) {
-    alpha = 180-rotation
-    alpha = orb.common.deg2rad(alpha)
+  } else if (rotation>1.5707963268 && rotation<=3.1415926536) {
+    alpha = 3.1415926536-rotation
     lon = -Math.sin(alpha)*distance
     lat = Math.cos(alpha)*distance
-  } else if (rotation>180 && rotation<=270) {
-    alpha = rotation-180
-    alpha = orb.common.deg2rad(alpha)
+  } else if (rotation>3.1415926536 && rotation<=4.7123889804) {
+    alpha = rotation-3.1415926536
     lon = Math.sin(alpha)*distance
     lat = Math.cos(alpha)*distance
   } else {
-    alpha = 360-rotation
-    alpha = orb.common.deg2rad(alpha)
+    alpha = 6.2831853072-rotation
     lon = Math.sin(alpha)*distance
     lat = -Math.cos(alpha)*distance
   }
@@ -165,22 +161,22 @@ function findRotationFromTarget(targetLat, targetLon, imageCoords) {
   var lon = targetLon-iy
   var distance = Math.sqrt(Math.pow(lat,2)+Math.pow(lon,2))
   console.log("Distance: " + distance)
-  if ((targetLat>ix) && (targetLon<iy)) {
+  if ((targetLat>=ix) && (targetLon<=iy)) {
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(-lon/distance)
     var rad = 3.1415926536-((rad1+rad2)/2)
     return rad
-  } else if ((targetLat<ix) && (targetLon<iy)) {
+  } else if ((targetLat<=ix) && (targetLon<=iy)) {
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(-lon/distance)
     var rad = ((rad1+rad2)/2)
     return rad
-  } else if ((targetLat>ix) && (targetLon>iy)) {
+  } else if ((targetLat>=ix) && (targetLon>=iy)) {
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(lon/distance)
     var rad = 3.1415926536+((rad1+rad2)/2) 
     return rad
-  }  else if ((targetLat<ix) && (targetLon>iy)) {
+  }  else if ((targetLat<=ix) && (targetLon>=iy)) {
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(lon/distance)
     var rad = 6.2831853072-((rad1+rad2)/2)
@@ -217,7 +213,7 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   //set new origin
   var result0 = target0.minus(imageCoords)
   console.log("Rad offset: " + radOffset)
-  var preResult = Vec2D.ObjectVector(result0.x, result0.y).rotate(-2*radOffset)
+  var preResult = Vec2D.ObjectVector(result0.x, result0.y).rotate(-1.5*radOffset)
   var targetLat = preResult.x + Number(imageCoords.x)
   var targetLon = preResult.y + Number(imageCoords.y)
 
@@ -388,178 +384,11 @@ router.post('/overpass', function(req, res) {
       var bodyString = body
       /*var test = ""
       var testId = ""*/
-      for (element in result) {
-        
-        if (latlon!="") {
-          var split = latlon.split(",")
-          var lat = Number(split[0])
-          var lon = Number(split[1])
-        } else {
-          var split = polygon.split(" ")
-          var lat = Number(split[4])
-          var lon = Number(split[5])
-        }
-        var point = turf.point([lon, lat]);
-
-        var poly1status = true
-        var poly2status = true
-        var poly3status = true
-        var poly4status = true
-        var poly5status = true
-
-        var add = true
-        var nodes = result[element].geometry
-        var building = ""
-        //testId = result[element].id
-        
-        var bounds = result[element].bounds
-
-        var poly1 = [[lon, lat], [Number(bounds.minlon), Number(bounds.minlat)]]           
-        var poly2 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.maxlat)]]                
-        var poly3 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.minlat)]]         
-        var poly4 = [[lon, lat], [Number(bounds.minlon), Number(bounds.maxlat)]]
-        var poly5 = [[lon, lat], [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]]
-        for (x in result) {
-
-          if (result[x].id != result[element].id) {
-
-            var bbox = [
-              Number(result[x].bounds.minlon), 
-              Number(result[x].bounds.minlat), 
-              Number(result[x].bounds.maxlon), 
-              Number(result[x].bounds.maxlat)
-            ];
-            var poly = turf.bboxPolygon(bbox);
-
-            if (!(turf.inside(point,poly))) {
-
-            if (poly1status) {
-              if (intersectLineBBox(poly1,bbox)=="intersected") {
-
-                poly1status = false
-              }
-            }
-            if (poly2status) {
-              if (intersectLineBBox(poly2,bbox)=="intersected") {
-   
-                poly2status = false
-              }
-            }
-            if (poly3status) {
-              if (intersectLineBBox(poly3,bbox)=="intersected") {
-
-                poly3status = false
-              }
-            }
-            if (poly4status) {
-              if (intersectLineBBox(poly4,bbox)=="intersected") {
-
-                poly4status = false
-              }
-
-            }
-
-            if (poly5status) {
-              if (intersectLineBBox(poly5,bbox)=="intersected") {
-
-                poly5status = false
-              }
-            }
-
-            if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
-              add = false
-              break
-            } 
-            } else {
-                var poly1x = turf.linestring([
-                  [lon, lat], 
-                  [Number(bounds.minlon), Number(bounds.minlat)]
-                  ])
-                var poly2x = turf.linestring([ 
-                  [lon, lat], 
-                  [Number(bounds.maxlon), Number(bounds.maxlat)]
-                  ])
-                var poly3x = turf.linestring([
-                  [lon, lat], 
-                  [Number(bounds.minlat), Number(bounds.maxlon)]
-                  ])
-                var poly4x = turf.linestring([ 
-                  [lon, lat], 
-                  [Number(bounds.minlon), Number(bounds.maxlat)]
-                  ])
-                var poly5x = turf.linestring([ 
-                  [lon, lat], 
-                  [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]
-                  ])
-                var nodesX = result[x].geometry
-                var coordsX = []
-                for (node in nodesX) {
-                  var lat = Number(nodesX[node].lat)
-                  var lon = Number(nodesX[node].lon)
-                  coordsX.push([lon,lat])               
-                }
-                var poly = turf.polygon([coordsX])
-                if (poly1status) {
-                  try {
-                  var intersection1 = turf.intersect(poly1x, poly);
-
-                  if (intersection1!=undefined) {
-                    poly1status = false
-                  }
-                  } catch(err) {
-                    console.log(err)
-                    }
-                }
-                if (poly2status) {
-                  try {
-                  var intersection2 = turf.intersect(poly2x, poly);
-                  if (intersection2!=undefined) {
-                    poly2status = false
-                  }
-                  } catch(err) {
-                    console.log(err)
-                    }
-                }
-                if (poly3status) {
-                  try {
-                  var intersection3 = turf.intersect(poly3x, poly);
-                  if (intersection3!=undefined) {
-                    poly3status = false
-                  }
-                  } catch(err) {
-                    console.log(err)
-                    }
-                }
-                if (poly4status) {
-                  try {
-                  var intersection4 = turf.intersect(poly4x, poly);
-                  if (intersection4!=undefined) {
-                    poly4status = false
-                  }
-                  } catch(err) {
-                    console.log(err)
-                    }
-                }
-                if (poly5status) {
-                  try {
-                  var intersection5 = turf.intersect(poly5x, poly);
-                  if (intersection5!=undefined) {
-                    poly5status = false
-                  }
-                  } catch(err) {
-                    console.log(err)
-                    }
-                }
-                if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
-                add = false
-                break
-                } 
-            }
-
-          }
-        }
-        if (add) {
-          console.log("I'm element " + result[element].id)
+      if (polygon=="") {
+        console.log("HIER")
+        for (element in result) {
+          var nodes = result[element].geometry
+          var building = ""
           for (node in nodes) {
                 var lat = nodes[node].lat
                 var lon = nodes[node].lon
@@ -567,8 +396,189 @@ router.post('/overpass', function(req, res) {
               }
               buildings.push(building) 
         }
-        
-      } 
+      } else {
+          for (element in result) {
+            
+            if (latlon!="") {
+              var split = latlon.split(",")
+              var lat = Number(split[0])
+              var lon = Number(split[1])
+            } else {
+              var split = polygon.split(" ")
+              var lat = Number(split[4])
+              var lon = Number(split[5])
+            }
+            var point = turf.point([lon, lat]);
+
+            var poly1status = true
+            var poly2status = true
+            var poly3status = true
+            var poly4status = true
+            var poly5status = true
+
+            var add = true
+            var nodes = result[element].geometry
+            var building = ""
+            //testId = result[element].id
+            
+            var bounds = result[element].bounds
+
+            var poly1 = [[lon, lat], [Number(bounds.minlon), Number(bounds.minlat)]]           
+            var poly2 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.maxlat)]]                
+            var poly3 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.minlat)]]         
+            var poly4 = [[lon, lat], [Number(bounds.minlon), Number(bounds.maxlat)]]
+            var poly5 = [[lon, lat], [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]]
+            for (x in result) {
+
+              if (result[x].id != result[element].id) {
+
+                var bbox = [
+                  Number(result[x].bounds.minlon), 
+                  Number(result[x].bounds.minlat), 
+                  Number(result[x].bounds.maxlon), 
+                  Number(result[x].bounds.maxlat)
+                ];
+                var poly = turf.bboxPolygon(bbox);
+
+                if (!(turf.inside(point,poly))) {
+
+                if (poly1status) {
+                  if (intersectLineBBox(poly1,bbox)=="intersected") {
+
+                    poly1status = false
+                  }
+                }
+                if (poly2status) {
+                  if (intersectLineBBox(poly2,bbox)=="intersected") {
+       
+                    poly2status = false
+                  }
+                }
+                if (poly3status) {
+                  if (intersectLineBBox(poly3,bbox)=="intersected") {
+
+                    poly3status = false
+                  }
+                }
+                if (poly4status) {
+                  if (intersectLineBBox(poly4,bbox)=="intersected") {
+
+                    poly4status = false
+                  }
+
+                }
+
+                if (poly5status) {
+                  if (intersectLineBBox(poly5,bbox)=="intersected") {
+
+                    poly5status = false
+                  }
+                }
+
+                if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
+                  add = false
+                  break
+                } 
+                } else {
+                    var poly1x = turf.linestring([
+                      [lon, lat], 
+                      [Number(bounds.minlon), Number(bounds.minlat)]
+                      ])
+                    var poly2x = turf.linestring([ 
+                      [lon, lat], 
+                      [Number(bounds.maxlon), Number(bounds.maxlat)]
+                      ])
+                    var poly3x = turf.linestring([
+                      [lon, lat], 
+                      [Number(bounds.minlat), Number(bounds.maxlon)]
+                      ])
+                    var poly4x = turf.linestring([ 
+                      [lon, lat], 
+                      [Number(bounds.minlon), Number(bounds.maxlat)]
+                      ])
+                    var poly5x = turf.linestring([ 
+                      [lon, lat], 
+                      [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]
+                      ])
+                    var nodesX = result[x].geometry
+                    var coordsX = []
+                    for (node in nodesX) {
+                      var lat = Number(nodesX[node].lat)
+                      var lon = Number(nodesX[node].lon)
+                      coordsX.push([lon,lat])               
+                    }
+                    var poly = turf.polygon([coordsX])
+                    if (poly1status) {
+                      try {
+                      var intersection1 = turf.intersect(poly1x, poly);
+
+                      if (intersection1!=undefined) {
+                        poly1status = false
+                      }
+                      } catch(err) {
+                        console.log(err)
+                        }
+                    }
+                    if (poly2status) {
+                      try {
+                      var intersection2 = turf.intersect(poly2x, poly);
+                      if (intersection2!=undefined) {
+                        poly2status = false
+                      }
+                      } catch(err) {
+                        console.log(err)
+                        }
+                    }
+                    if (poly3status) {
+                      try {
+                      var intersection3 = turf.intersect(poly3x, poly);
+                      if (intersection3!=undefined) {
+                        poly3status = false
+                      }
+                      } catch(err) {
+                        console.log(err)
+                        }
+                    }
+                    if (poly4status) {
+                      try {
+                      var intersection4 = turf.intersect(poly4x, poly);
+                      if (intersection4!=undefined) {
+                        poly4status = false
+                      }
+                      } catch(err) {
+                        console.log(err)
+                        }
+                    }
+                    if (poly5status) {
+                      try {
+                      var intersection5 = turf.intersect(poly5x, poly);
+                      if (intersection5!=undefined) {
+                        poly5status = false
+                      }
+                      } catch(err) {
+                        console.log(err)
+                        }
+                    }
+                    if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
+                    add = false
+                    break
+                    } 
+                }
+
+              }
+            }
+            if (add) {
+              console.log("I'm element " + result[element].id)
+              for (node in nodes) {
+                    var lat = nodes[node].lat
+                    var lon = nodes[node].lon
+                    building =  building + lat + " " + lon + ":"
+                  }
+                  buildings.push(building) 
+            }  
+          }         
+      }
+
 
       //var point1 = turf.point(0,0);
       /*var testPolygon = originTest + " " + test
