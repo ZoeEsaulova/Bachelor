@@ -154,7 +154,41 @@ function findPolygonFromRotation(fov, mapRotation, lat, lon) {
 
 }
 
-/* NOT IMPLEMENTED YET */
+function findRotationFromTarget(targetLat, targetLon, imageCoords) {
+  var targetLon = Number(targetLon)
+  var targetLat = Number(targetLat)
+  var ix = Number(imageCoords.x)
+  var iy = Number(imageCoords.y)
+  console.log("Target: " + targetLat + " " + targetLon) 
+  console.log("Origin: " + ix + " " + iy) 
+  var lat = targetLat-ix
+  var lon = targetLon-iy
+  var distance = Math.sqrt(Math.pow(lat,2)+Math.pow(lon,2))
+  console.log("Distance: " + distance)
+  if ((targetLat>ix) && (targetLon<iy)) {
+    var rad1 = Math.acos(lat/distance)
+    var rad2 = Math.asin(-lon/distance)
+    var rad = 3.1415926536-((rad1+rad2)/2)
+    return rad
+  } else if ((targetLat<ix) && (targetLon<iy)) {
+    var rad1 = Math.acos(-lat/distance)
+    var rad2 = Math.asin(-lon/distance)
+    var rad = ((rad1+rad2)/2)
+    return rad
+  } else if ((targetLat>ix) && (targetLon>iy)) {
+    var rad1 = Math.acos(lat/distance)
+    var rad2 = Math.asin(lon/distance)
+    var rad = 3.1415926536+((rad1+rad2)/2) 
+    return rad
+  }  else if ((targetLat<ix) && (targetLon>iy)) {
+    var rad1 = Math.acos(-lat/distance)
+    var rad2 = Math.asin(lon/distance)
+    var rad = 6.2831853072-((rad1+rad2)/2)
+    return rad
+  }
+
+}
+
 /* define polygon nodes from matched object */
 function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
   var split5 = objectCoordsMap.split(" ")
@@ -184,8 +218,11 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   var result0 = target0.minus(imageCoords)
   console.log("Rad offset: " + radOffset)
   var preResult = Vec2D.ObjectVector(result0.x, result0.y).rotate(-2*radOffset)
-  var targetLat = preResult.x+Number(imageCoords.x)
-  var targetLon = preResult.y+Number(imageCoords.y)
+  var targetLat = preResult.x + Number(imageCoords.x)
+  var targetLon = preResult.y + Number(imageCoords.y)
+
+  var rotation = findRotationFromTarget(targetLat, targetLon, imageCoords)
+  console.log("FOUND Rotation: " + rotation)
 
   return defineVector(fov, targetLat, targetLon, imageCoords)
 
