@@ -426,10 +426,11 @@
       function showBuildings(buildings, properties) {
         buildingsSeen = true
         var features = []
-        var buildingsArray = buildings.split(",")
+
+        var buildingsArray = JSON.parse(buildings)
         
         for (id in buildingsArray) {
-          var buildingCoords = buildingsArray[id]
+          var buildingCoords = buildingsArray[id].geometry
           var split = buildingCoords.split(":")
           var points = []
           for (node in split) {
@@ -440,7 +441,8 @@
           points.pop()
 
           var feature = new ol.Feature({
-            geometry: new ol.geom.Polygon([points]),
+            name: buildingsArray[id].id,
+            geometry: new ol.geom.Polygon([points])
           });
           features.push(feature)
         }

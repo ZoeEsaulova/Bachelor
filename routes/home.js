@@ -394,7 +394,8 @@ router.post('/overpass', function(req, res) {
                 var lon = nodes[node].lon
                 building =  building + lat + " " + lon + ":"
               }
-              buildings.push(building) 
+
+              buildings.push({ id: result[element].id, geometry: building }) 
         }
       } else {
           for (element in result) {
@@ -574,7 +575,7 @@ router.post('/overpass', function(req, res) {
                     var lon = nodes[node].lon
                     building =  building + lat + " " + lon + ":"
                   }
-                  buildings.push(building) 
+                  buildings.push({ id: result[element].id, geometry: building }) 
             }  
           }         
       }
@@ -608,7 +609,7 @@ router.post('/overpass', function(req, res) {
         //data: JSON.stringify(JSON.parse(body), null, 4)
         imagePath: req.body.imagePath,
         properties: req.body.properties,
-        buildingCoords: buildings,
+        buildingCoords: JSON.stringify(buildings),
         building: true,
         radius: radius,
         bodyString: bodyString
