@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <!--bootstrap-->
-    <link href="bootstrap-3.3.5/docs/examples/starter-template/starter-template.css" rel="stylesheet">
-    <script type="text/javascript" src="bootstrap-3.3.5/docs/assets/js/ie-emulation-modes-warning.js"></script>
-    <link href="bootstrap-3.3.5/dist/css/bootstrap.min.css" rel="stylesheet">  
+ 
     <!-- jQuery -->
     <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.min.js"></script>
     <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.slidepanel.setup.js"></script>
 
-    <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.min.js"></script>
+    <!--script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.min.js"></script-->
     <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.imgareaselect.pack.js"></script>
     <link rel="stylesheet" type="text/css" href="javascripts/jquery.imgareaselect-0.9.10/css/imgareaselect-default.css" />
+    <!--bootstrap-->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!--script type="text/javascript" src="bootstrap-3.3.5/docs/assets/js/ie-emulation-modes-warning.js"></script>
+    <script type="text/javascript" href="bootstrap-3.3.5/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" href="bootstrap-3.3.5/dist/js/bootstrap.js"></script-->
+    <link href="bootstrap-3.3.5/docs/examples/starter-template/starter-template.css" rel="stylesheet">
+    <link href="bootstrap-3.3.5/dist/css/bootstrap.min.css" rel="stylesheet">     
     
     <!-- Open Layers 3 -->
     <link rel="stylesheet" href="http://openlayers.org/en/v3.10.1/css/ol.css" type="text/css">
@@ -65,7 +69,7 @@
 
       }
       button {
-        margin: 5px;
+        margin: 2px;
         position: relative;
         top: 50%;
       }
@@ -85,11 +89,31 @@
   </head>
 
   <% if (building) { %>
-       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>')">
+       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '<%= rotation %>')">
   <% } else { %>
-       <body onload="showMarker(<%= properties %>)">
+       <body onload="showMarker(<%= properties %>, 'point', '0')">
   <% }%>
 
+          <!-- Modal -->
+      <div class="modal fade" id="modalCameraRotation" role="dialog">
+        <div class="modal-dialog">
+        
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">How to define a camera rotation?</h4>
+            </div>
+            <div class="modal-body">
+              <p>Use Shift + left mouse key to rotate the map so that the arrow shows to the direction the camera was pointed to as the foto was taken</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Got it</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
       <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -105,16 +129,19 @@
               <button onclick="submitObject(<%= properties %>)" class="btn btn-danger">Submit</button>
 
             </li>
-            <li><button onclick="toggleMarker(<%= properties %>)" class="btn btn-info">Show/Hide marker</button></li>
+            <li><button onclick="toggleMarker(<%= properties %>, 'arrow')" class="btn btn-info">Define camera rotation</button></li>
+            <li>
+            <button id="openModal1" data-toggle="modal" data-target="#modalCameraRotation" hidden>openModal1</button></li>
             <li><button onclick="showPolygon(<%= properties %>)" class="btn btn-info">Show polygon</button></li>
-            <li><button id="bOnImage"onclick="showObjectsOnImage(<%= properties %>)" class="btn btn-info" disabled>Buildings on image</button></li>
+            <li><button id="bOnImage"onclick="submitForm()" class="btn btn-info" disabled>Buildings on image</button></li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
               <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
               <input value=<%= properties %> id="properties" name="properties" style="width:15" hidden>
               <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15" hidden>
               <input value="x" id="mapRotation" name="mapRotation" style="width:30" hidden>
-              <button type="submit" style="white-space: nowrap;" class="btn btn-info" id="get">Buildings within radius: </button>
+              <input value="x" id="arrow" name="arrow" style="width:30" hidden>
+              <button onclick="submitForm()" style="white-space: nowrap;" class="btn btn-info" id="get">Mark buildings</button>
      
               <input value="<%= radius %>" id="radius" name="radius" class="input">
     
@@ -122,9 +149,7 @@
               </li>
               <% if (building) { %>
                 <li><button onclick="toggleBuildings()" class="btn btn-info">Show/Hide buildings</button></li>
-              <% }  %>
-
-              
+              <% }  %>            
           </ul>
         </div>
       </div>
@@ -158,6 +183,7 @@
       //Global variables
       var buildingsSeen = false
       var marker = false
+      var arrow = false
       var vectorLayer
       var vectorLayer4
       var vectorLayer5
@@ -165,10 +191,11 @@
       var vectorLayer2
       var vectorSource3
       var vectorLayer3
+      var modalCameraRotation = true
       // TBD: get coordinates of click
-      function clickMap() {
-        var mapCoords = "TBD"
-        document.getElementById("objectCoordsMap").value = mapCoords;
+      function submitForm() {
+        document.getElementById("mapRotation").value = map.getView().getRotation();
+        jQuery("#getObjects").submit()
       }
 
       // display uploaded image
@@ -182,7 +209,8 @@
       // mark an object on image using bounding box
       function markObject() {
           document.getElementById("objectCoords").value = "253 120 413 250"
-          $('#myImg').imgAreaSelect({
+          jQuery.noConflict();
+          jQuery('#myImg').imgAreaSelect({
               x1: 253, y1: 120, x2: 413, y2: 250, 
               handles: true,
               onSelectEnd: preview
@@ -197,7 +225,7 @@
           });
       // create an interaction to add to the map that isn't there by default
       var mouseZoom = new ol.interaction.MouseWheelZoom();
-      var interaction = new ol.interaction.DragRotate();
+      var interaction = new ol.interaction.DragRotate({ condition: ol.events.condition.shiftKeyOnly });
       var pan = new ol.interaction.DragPan();
 
       var rotateControl = new ol.control.Rotate();
@@ -206,7 +234,7 @@
       
       var myView = new ol.View({
         center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 15
+        zoom: 17
       })
       var map = new ol.Map({
         target: 'map',
@@ -295,13 +323,13 @@
           source: vectorSource3
         });
         map.addLayer(vectorLayer3) 
-        $('#bOnImage').removeAttr('disabled');
+        jQuery('#bOnImage').removeAttr('disabled');
       }
           
       /* send request to the server to get polygon coordinates */
       function showPolygon(properties) {
-        console.log("Rotation: " + radToDegree(map.getView().getRotation()))
-        $.get("/showPolygon", { 
+  
+        jQuery.get("/showPolygon", { 
           mapRotation : map.getView().getRotation(),
           lat: properties[0],
           lon: properties[1]
@@ -315,7 +343,7 @@
         document.getElementById("mapRotation").value = map.getView().getRotation()
         document.getElementById("lat").value = properties[0]
         document.getElementById("lon").value = properties[1]
-        $( "#nextForm" ).submit();
+        jQuery( "#nextForm" ).submit();
       }
 
 
@@ -332,23 +360,58 @@
         /*
         var x = (Number(bb[0])+Number(bb[2]))/2
         var y = (Number(bb[1])+Number(bb[3]))/2*/
-        var center = temp[0] + " " + temp[1]
+        var center = [ { x: temp[0], y: temp[1] } ]
+        center = JSON.stringify(center)
         return center
       }
+
+      function defineCenterMultiple(buildings) {
+        /*
+        var lat3 = 0
+        var lon3 = 0
+        for (i in buildings) {
+          lat3 = lat3 
+        }*/
+      }
+
       function submitObject(properties) {
         var select = map.getInteractions().getArray()[3] 
         var features = select.getFeatures();
         var feature = features.item(0);
-        
         document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
-
-        $.get("/showPolygon", { 
+        var selectedBuildings = [ { 
+              id:  feature.getProperties().name,
+              geometry: feature.getGeometry().getCoordinates() 
+            }]
+        if (features.getLength()>1) {
+          selectedBuildings = []
+          var l = features.getLength()
+          var xx = 0
+          var yy = 0
+          for (i=0; i<l; i++) {
+            selectedBuildings.push({ 
+              id:  features.item(i).getProperties().name,
+              geometry: features.item(i).getGeometry().getCoordinates() 
+            })
+            var c = defineCenter(features.item(i).getGeometry().getExtent())
+            c = JSON.parse(c)
+            xx = xx + c[0].x
+            yy = yy + c[0].y
+          } 
+          xx = xx/l
+          yy = yy/l
+          var center = JSON.stringify( [ { x: xx, y: yy } ] )
+          document.getElementById("objectCoordsMap").value = center
+        }
+        
+        jQuery.get("/showPolygon", { 
           mapRotation : map.getView().getRotation(),
           lat: properties[0],
           lon: properties[1],
           objectCoords: document.getElementById("objectCoords").value,
           imageSize: document.getElementById("imageSize").value,
           objectCoordsMap: document.getElementById("objectCoordsMap").value,
+          selectedBuildings: JSON.stringify(selectedBuildings)
 
         }, function(response){
           findTriangle(response.coords, response.lat, response.lon, response.targetLat, response.targetLon)          
@@ -356,8 +419,76 @@
       }
 
       //add marker
-      function showMarker(properties) {   
-          marker = true 
+      function showMarker(properties1, icon, rotation) {   
+          
+          if (typeof(properties1)=="string") {
+            var splitProp = properties1.split(",")
+            var lat = Number(splitProp[0].slice(2, splitProp[0].length))
+            var lon = Number(splitProp[1].slice(0, splitProp[0].length-1))
+            var properties = [lat,lon]
+          } else {
+            var properties = properties1
+          }
+          
+          if (icon=="arrow" && vectorLayer!=undefined) {
+            document.getElementById("arrow").value = "showArrow"
+            marker = true
+            arrow = true
+            var source = "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 200],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: source
+              }))
+            });
+            vectorLayer.setStyle(iconStyle)
+            map.render()
+          } else if (icon=="arrow") {
+            document.getElementById("arrow").value = "showArrow"
+            marker = true
+            arrow = true
+            var source = "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+            marker = true 
+          if (properties) {
+            var lat = properties[0]
+            var lon = properties[1]
+            var iconFeatures=[];
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+            });
+            iconFeatures.push(iconFeature);
+            var vectorSource = new ol.source.Vector({
+              features: iconFeatures 
+            });
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 200],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: source
+              }))
+            });
+            vectorLayer = new ol.layer.Vector({
+              source: vectorSource,
+              style: iconStyle
+            });
+            var newView = new ol.View({
+                  center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+                  zoom: 17,
+                  rotation: Number(rotation)
+            })
+            map.addLayer(vectorLayer)
+            map.setView(newView)
+          }
+          } 
+
+            else {
+            var source = "http://i1230.photobucket.com/albums/ee488/PerfectlyDarkTails/Map-Marker-Flag-2-Right-Red-icon_zps4cea0902.png"
+            marker = true 
           if (properties) {
             var lat = properties[0]
             var lon = properties[1]
@@ -376,7 +507,7 @@
                 scale: 0.2,
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'pixels',
-                src: "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+                src: source
               }))
             });
             vectorLayer = new ol.layer.Vector({
@@ -385,13 +516,13 @@
             });
             var newView = new ol.View({
                   center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
-                  zoom: 15
+                  zoom: 17,
+                  rotation: Number(rotation)
             })
             map.addLayer(vectorLayer)
             map.setView(newView)
           }
-        
-        
+          }   
       }
 
       function toggleBuildings() {
@@ -407,14 +538,23 @@
       }
 
       function toggleMarker(properties) {
+        
+        if (modalCameraRotation) {
+          jQuery.noConflict();
+          //jQuery("#openModal1").click()
+          jQuery("#modalCameraRotation").modal("show");
+        }
+        modalCameraRotation = false
         if (vectorLayer==undefined) {
-          showMarker(properties)
-        } else if (marker==true) {
+          showMarker(properties, "arrow")
+        } else if (marker==true && arrow==false) {
           /*map.removeLayer(vectorLayer4)
           map.render()*/
+          showMarker(properties, "arrow")
+        } else if (marker==true && arrow==true) {
           vectorLayer.setVisible(false)
           marker=false
-        } else {
+        } else if (marker==false) {
           vectorLayer.setVisible(true)
           marker=true
         }
@@ -423,7 +563,8 @@
       * @param building: coordinates of all buildings' nodes
       * @param properties: coordinates of the map center
       */
-      function showBuildings(buildings, properties) {
+      function showBuildings(buildings, properties, arrow, rotation) {
+        console.log(Number(rotation))
         buildingsSeen = true
         var features = []
 
@@ -468,14 +609,18 @@
                 style: myStyle
         });
   
-        var newView = new ol.View({
+        var newView2 = new ol.View({
             center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
-            zoom: 15
+            zoom: 17,
+            rotation: Number(rotation)
           })
+
         map.addLayer(vectorLayer4)
-        map.setView(newView)  
+        map.setView(newView2)  
         markObjects()    
-        
+        if (arrow=="show") {
+          showMarker(JSON.stringify(properties), "arrow", rotation)
+        }
       }
 
       function markObjects() {
@@ -484,26 +629,25 @@
           if (e.target.getArray().length==1) {
             markObject(); 
           } else {
-            $('#myImg').imgAreaSelect({remove:true});
+            jQuery.noConflict();
+            jQuery('#myImg').imgAreaSelect({remove:true});
           }
           var feature = e.element // Do something with the feature
           var coordinates = feature.getGeometry().getCoordinates()
-       
         });
+
         mySelectInteraction.getFeatures().on('remove', function(e) {
           if (e.target.getArray().length==1) {
             markObject(); 
-          } 
+          } if (e.target.getArray().length==0) {
+            jQuery.noConflict();
+            jQuery('#myImg').imgAreaSelect({remove:true}); 
+          }
           var feature = e.element // Do something with the feature
           var coordinates = feature.getGeometry().getCoordinates()
          // console.log("Feature: " + e.target.getArray().length)         
         });
         map.addInteraction(mySelectInteraction) 
-      }
-
-      function showObjectsOnImage(properties) {
-
-        $("#getObjects").submit()
       }
       
     </script>

@@ -187,10 +187,11 @@ function findRotationFromTarget(targetLat, targetLon, imageCoords) {
 
 /* define polygon nodes from matched object */
 function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
-  var split5 = objectCoordsMap.split(" ")
-  var lat5 = Number(split5[1])
-  var lon5 = Number(split5[0])
-  console.log("DDDDDDDDDD: " + lat5 + " " + lon5)
+  
+  var parsed = JSON.parse(objectCoordsMap)
+  var lat5 = parsed[0].y
+  var lon5 = parsed[0].x
+
   var imageCoordsGeo = new LatLon(Number(lat), Number(lon), LatLon.datum.WGS84)
     // if object marked
 
@@ -199,7 +200,6 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   var selectionCenter = ((Number(splitOb[2])-Number(splitOb[0]))/2)+Number(splitOb[0])
   // if object to the left of the center - positiv offset
   var offset = (Number(imageSize)/2)-selectionCenter
-  console.log("Width: " + imageSize + " Diff: " + offset + "coords " + splitOb)
   var radOffset = offset*radInPixel
 
   // get req.query.objectCoordsMap
@@ -228,6 +228,8 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
 router.get('/showPolygon', function(req, res) {
   if (req.query.objectCoords!= undefined) {
     console.log("Get OBJECT")
+    console.log("Center: " + req.query.objectCoordsMap)
+    console.log("Selected buildings: " + req.query.selectedBuildings)
     var result = findPolygonFromObject(
       0.698132, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
     )
@@ -275,6 +277,13 @@ router.get('/', function(req, res) {
 
         });
 
+
+});
+
+/* GET home page */
+router.get('/test', function(req, res) {
+
+      res.render('test2.ejs');
 
 });
 
@@ -352,6 +361,12 @@ function intersectLineBBox(line, bbox) {
 }
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
+  console.log("Rotation: " + req.body.mapRotation)
+  if (req.body.arrow=="showArrow") {
+    var arrow = "show"
+  } else {
+    var arrow = "do not show"
+  }
   var radius = "100"
   var latlon = ""
   var polygon = ""
@@ -612,7 +627,9 @@ router.post('/overpass', function(req, res) {
         buildingCoords: JSON.stringify(buildings),
         building: true,
         radius: radius,
-        bodyString: bodyString
+        bodyString: bodyString,
+        arrow: arrow,
+        rotation: req.body.mapRotation
       });
    // })    
     });
