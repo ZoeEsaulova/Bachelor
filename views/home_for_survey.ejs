@@ -32,10 +32,12 @@
     <style type="text/css">
       img {
         width: 100%;
-        margin-top: 50px;
+        margin-top: 50px
       }    
-      body, #map {
+      #map {
         margin: 0;
+        margin-top: 50px;
+        z-index: 0;
       } 
       .col-lg-6 {
         margin-left: 0;
@@ -43,17 +45,40 @@
         padding-left: 0;
         padding-right: 0;
       }
-      #next {
-        position: absolute;
-        right: 10px;
-      }
       #hidden1 {
         right: 40px;
       }
-      form, table {
-        display:inline;
-        margin:0px;
-        padding:0px;
+      .form-control {
+        white-space: nowrap;
+      }
+      .input {
+        width: 70px;
+        height: 35px; 
+        white-space: nowrap;
+        border-radius: 5px;
+        position: relative;
+        top: 3px;
+      }
+      button {
+        margin: 2px;
+        position: relative;
+        top: 50%;
+      }
+      #get {
+        margin-right: 1px;
+
+      }
+      #getObjects {
+
+      }
+      .well {
+          background: rgba(255,0,0,0.2);
+          margin: 0px;
+      }
+      #next {
+        position: relative;
+        left: 300px;
+        margin-top: 5px
       }
     </style>
   </head>
@@ -68,22 +93,19 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active">
-
-              <input value="y" id="objectCoords" name="objectCoords" style="width:15">
-              <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:15">
-              <input value="y" id="imageSize" name="imageSize" style="width:15">
-              
-              <button onclick="submitObject(<%= properties %>)" style="white-space: nowrap;">Submit object</button>
-
+              <input value="y" id="objectCoords" name="objectCoords" style="width:15" hidden>
+              <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:15" hidden>
+              <input value="y" id="imageSize" name="imageSize" style="width:15" hidden>             
+              <button onclick="submitObject(<%= properties %>)" hidden>Submit object</button>
             </li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
-              <input value="x" id="polyCoords" name="polyCoords" style="width:15">
-              <button type="submit" style="white-space: nowrap;">Get Objects</button>
+              <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
+              <button type="submit" style="white-space: nowrap;" hidden>Get Objects</button>
               </form>
               </li>
               <li>
-              <button onclick="markObject()" style="white-space: nowrap;">Mark object</button>
+              <button onclick="markObject()" style="white-space: nowrap;" hidden>Mark object</button>
               </li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -95,16 +117,21 @@
       <div class="row">
         <div class="col-lg-6">
           <img id="myImg" class="img-thumbnail" src=<%= imageSource %> alt="your image"/>
-          <div style="padding-right: 10px; padding-left: 10px; white-space: nowrap;">
-          <h3 >Instruction: </h3>
-          <div class="well">Rotate the map using Alt-Shift keys to point the arrow in the right direction...</div>
-          <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" class="btn btn-info">Show polygon</button>
+          <div style="padding-right: 10px; padding-left: 10px;">
+          <h3 style="color: red; margin-top: 5px;">Instruction: </h3>
+          <div class="well">The arror marker on the map marks the place where the photo was taken. Please rotate the map to point the arrow in the direction the camera was pointed to when the photo was taken. You can rotate the map usgin Shift + Left mouse key. You can switch between satellite and map view and zoom in/out. </div>
+          <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" hidden>Show polygon</button>
           <form method="post" action="/next" enctype="multipart/form-data" id="nextForm">
           <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
           <input value="x" id="mapRotation" name="mapRotation" hidden>
           <input value="x" id="lat" name="lat" hidden>
           <input value="x"id="lon" name="lon" hidden>
-          <button id="next" type="button" class="btn btn-info" onclick="submitImage(<%= properties %>)">Next image</button>
+          <label>Do you know this place?&nbsp;&nbsp;</label>
+          <label for="yes">Yes</label>
+          <input type="radio" name="known" value="Yes" id="yes" onchange="setKnown();">
+          <label for="no">No</label>
+          <input type="radio" name="known" value="No" id="no" onchange="setKnown();">
+          <button id="next" type="button" class="btn btn-danger" onclick="submitImage(<%= properties %>)" disabled="disabled">Next image</button>
           </form>
           </div>
         </div>
@@ -122,10 +149,8 @@
     </div>
 
     <script>
-      // TBD: get coordinates of click
-      function clickMap() {
-        var mapCoords = "TBD"
-        document.getElementById("objectCoordsMap").value = mapCoords;
+      function setKnown(){
+          document.getElementById("next").disabled = false;
       }
 
       /* display uploaded image */
@@ -154,7 +179,7 @@
 
       // create an interactions and controls
       var mouseZoom = new ol.interaction.MouseWheelZoom();
-      var interaction = new ol.interaction.DragRotate();
+      var interaction = new ol.interaction.DragRotate({ condition: ol.events.condition.shiftKeyOnly });
       var pan = new ol.interaction.DragPan();
       var rotateControl = new ol.control.Rotate();
       var zoomControl = new ol.control.Zoom();

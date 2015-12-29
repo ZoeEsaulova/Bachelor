@@ -22,24 +22,46 @@ var wgs = require('WGS84IntersectUtil');
 var gju = require('geojson-utils');
 //var easyimg = require('easyimage');
 
+function randomInArray(random, array) {
 
+  var result = false
+  for (index in array) {
+    if (random==array[index]) {
+      result = true
+      break
+    }  
+  }
+  return result
+}
 /* proceed to the next image */
 router.post('/next', function(req, res) {
-  console.log("RESUUUUUUUUULT: " + req.body.lat + " " + req.body.lon + " " + req.body.mapRotation + " " + req.body.nextImage)
-  var next = Number(req.body.nextImage) + 1
+  console.log("RESUUUUUUUUULT: " + req.body.nextImage)
+  var array = req.body.nextImage.split(" ")
+  var nextArray = []
+  var stop = false
+
+  for (index in array) {
+    nextArray.push(Number(array[index]))
+  }
+  var x = nextArray[0]
+  while (randomInArray(x, nextArray)) {
+    x = Math.floor((Math.random() * 3));
+  }
   var names = [
-    125965433,
-    125965576,
-    125965583
+    126807950,
+    126807938,
+    126807944
   ]
+  var next = req.body.nextImage + " " + x
+  console.log("NEXT: " + next)
   // read exif
-  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + next + ".jpg");      
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
 
    res.render('home_for_survey.ejs', { 
-    imageSource: "http://static.panoramio.com/photos/large/" + names[next] + ".jpg",
+    imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
     nextImage: next,
     properties: JSON.stringify(dec),
     coordsString: 'Home page'
@@ -123,7 +145,7 @@ function findPolygonFromRotation(fov, mapRotation, lat, lon) {
   var alpha = 0
   var lon = 0
   var lat = 0
-  var distance = 100
+  var distance = 300
   if (rotation<=1.5707963268) {
     alpha = rotation
     lon = -Math.sin(alpha)*distance
@@ -231,10 +253,21 @@ router.get('/showPolygon', function(req, res) {
     console.log("Center: " + req.query.objectCoordsMap)
     console.log("Selected buildings: " + req.query.selectedBuildings)
     var result = findPolygonFromObject(
-      0.698132, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
+      1.244672497
+
+
+
+
+, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
     )
    } else {
-    var result = findPolygonFromRotation(0.698132, req.query.mapRotation, req.query.lat, req.query.lon)
+    var result = findPolygonFromRotation(1.244672497
+
+
+
+
+
+, req.query.mapRotation, req.query.lat, req.query.lon)
    }
   res.send({ 
     coords: result.out, 
@@ -248,22 +281,29 @@ router.get('/showPolygon', function(req, res) {
 
 /* GET home page (Survey) */
 router.get('/survey', function(req, res) {
+  var names = [
+    126807950,
+    126807938,
+    126807944
+  ]
+  var x = Math.floor((Math.random() * 3));
+  /*
   if (!req.query.nextImage) {
     var image = 0
   } else {
     var image = req.query.nextImage
   }
-  
+  */
   // read exif
-  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + image + ".jpg");      
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
   res.render('home_for_survey.ejs', { 
     coordsString: 'Home page', 
-    imageSource:"http://static.panoramio.com/photos/large/125965433.jpg",
+    imageSource:"http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
     properties: JSON.stringify(dec),
-    nextImage: "0"
+    nextImage: x
   });
 });
 
@@ -276,14 +316,12 @@ router.get('/', function(req, res) {
         properties: "[51.964045, 7.609542]",
 
         });
-
-
 });
 
 /* GET home page */
 router.get('/test', function(req, res) {
 
-      res.render('test2.ejs');
+      res.render('raphael.ejs');
 
 });
 
