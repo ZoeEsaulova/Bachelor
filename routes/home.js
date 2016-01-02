@@ -41,22 +41,32 @@ router.post('/next', function(req, res) {
   var array = req.body.nextImage.split(" ")
   var showBuilding = false
   var arrow = "no"
-  if (array.length==3 && req.body.test=="test1") {
-    test = "test2"
+  var instruction = ""
+  var all = "false"
+  if (array.length==3 && req.body.test=="1") {
+    test = "2"
+    array = []
+  } else if (array.length==3 && req.body.test=="2") {
+    test = "3"
+    array = []
+  } else if (array.length==3 && req.body.test=="3") {
+    test = "4"
     array = []
   } else {
     test = req.body.test
     next = req.body.nextImage
   }
 
-  if (test=="test1") {
+  if (test=="1") {
     names = [
     126807950,
-    126807938,
+    126910684,
     126807944
     ]
-    arrow = "arrow"
-  } else if (test=="test2") {
+    arrow = "arrow";
+    instruction = 
+    "You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing when the photo was taken. Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon shows in the right direction.<br> You can switch between satellite and map view and zoom in and out if you like"
+  } else if (test=="2") {
      names = [
       125965583,
       126810608,
@@ -64,6 +74,29 @@ router.post('/next', function(req, res) {
     ]
     arrow = "point"
     showBuilding = true
+    instruction = 
+"The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building on the map to select it. It must be a building that you can see on the image.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and replace the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like"
+  } else if (test=="3") {
+     names = [
+      126910529,
+      126910521,
+      126910508
+    ]
+    arrow = "arrow"
+    showBuilding = true
+    instruction = 
+"This is the combination of the first two tasks. Please do the following:<br>1.Use <b>Shift+Left Mouse Key</b> to rotate the map and set the right camera direction<br>2. Click one building on the map to select it. It must be a building that you can see on the image. <br>3. After you have selected a building on the map, a bounding box appears on the image. Move and replace the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like"
+  } else if (test=="4") {
+     names = [
+      126910693,
+      126910706,
+      126807938
+    ]
+    arrow = "point"
+    showBuilding = true
+    instruction = 
+    "Use <b>Shift + Left Mouse Key</b> to select <b>all</b> buildings which are displayed on the image."
+    all = "true"
   }
   var nextArray = []
   for (index in array) {
@@ -119,7 +152,9 @@ router.post('/next', function(req, res) {
         buildingCoords: JSON.stringify(buildings),
         showBuilding: showBuilding,
         arrow: arrow,
-        test: test
+        test: test,
+        instruction: instruction,
+        all: all
       })
   })
 
@@ -309,21 +344,10 @@ router.get('/showPolygon', function(req, res) {
     console.log("Center: " + req.query.objectCoordsMap)
     console.log("Selected buildings: " + req.query.selectedBuildings)
     var result = findPolygonFromObject(
-      1.244672497
-
-
-
-
-, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
+      1.244672497, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
     )
    } else {
-    var result = findPolygonFromRotation(1.244672497
-
-
-
-
-
-, req.query.mapRotation, req.query.lat, req.query.lon)
+    var result = findPolygonFromRotation(1.244672497, req.query.mapRotation, req.query.lat, req.query.lon)
    }
   res.send({ 
     coords: result.out, 
@@ -339,7 +363,7 @@ router.get('/showPolygon', function(req, res) {
 router.get('/survey', function(req, res) {
   var names = [
     126807950,
-    126807938,
+    126910684,
     126807944
   ]
   var x = Math.floor((Math.random() * 3));
@@ -361,7 +385,10 @@ router.get('/survey', function(req, res) {
     properties: JSON.stringify(dec),
     nextImage: x,
     showBuilding: false,
-    test: "test1"
+    test: "1",
+    all: "false",
+    instruction: "You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing when the photo was taken. Use Shift + Left Mouse Key to rotate the map so that the icon shows in the right direction. You can switch between satellite and map view and zoom in and out if you like"
+
   });
 });
 
@@ -384,6 +411,7 @@ router.get('/test', function(req, res) {
 });
 
 function intersectLineBBox(line, bbox) {
+  console.log("Function 1")
    var result = false
    var segments = [];
      // top
@@ -420,6 +448,7 @@ function intersectLineBBox(line, bbox) {
    return result
 }
 function intersectLineBBox(line, bbox) {
+  console.log("Function 2")
    var result = "not intersected"
    var segments = [];
      // top
@@ -456,9 +485,6 @@ function intersectLineBBox(line, bbox) {
    return result
 }
 
-function overpass(url,latlon,polygon) {
-
-}
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
   console.log("Rotation: " + req.body.mapRotation)

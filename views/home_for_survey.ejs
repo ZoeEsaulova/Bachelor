@@ -74,17 +74,18 @@
       .well {
           background: rgba(255,0,0,0.2);
           margin: 0px;
+          padding: 10px;
       }
       #next {
         position: relative;
-        left: 10px;
+        left: 5px;
         margin-top: 5px
       }
     </style>
   </head>
 
   <% if (showBuilding) { %>
-       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '0')">
+       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '0', <%= all %>)">
   <% } else { %>
        <body onload="showMarker(<%= properties %>, 'arrow', '0')">
   <% }%>
@@ -122,8 +123,19 @@
         <div class="col-lg-6">
           <img id="myImg" class="img-thumbnail" src=<%= imageSource %> alt="your image"/>
           <div style="padding-right: 10px; padding-left: 10px;">
-          <h3 style="color: red; margin-top: 5px;">Instruction: </h3>
-          <div class="well">The arror marker on the map marks the place where the photo was taken. Please rotate the map to point the arrow in the direction the camera was pointed to when the photo was taken. You can rotate the map usgin Shift + Left mouse key. You can switch between satellite and map view and zoom in/out. </div>
+          <h3 style="color: red; margin: 5px;">Instruction&nbsp;<%= test %>: </h3>
+          <% if (test=="1") { %>
+           <div class="well">You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing when the photo was taken.<br>Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon points in the right direction.<br> You can switch between satellite and map view and zoom in and out if you like.
+          </div>
+            <% } else if (test=="2"){ %>
+                 <div class="well">The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building on the map to select it. It must be a building that you can see on the image.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and resize the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like.
+          </div>
+            <% } else if (test=="3") { %>
+                    <div class="well">This is the combination of the first two tasks. Please do the following:<br>1.Use <b>Shift+Left Mouse Key</b> to rotate the map and set the right camera direction<br>2. Click one building on the map to select it. It must be a building that you can see on the image. <br>3. After you have selected a building on the map, a bounding box appears on the image. Move and resize the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like</div>
+            <% } else if (test=="4") { %>
+                    <div class="well">Hold <b>Shift key</b> and select <b>all</b> buildings which are displayed on the image.
+            </div> <% }  %>
+          
           <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" hidden>Show polygon</button>
           <form method="post" action="/next" enctype="multipart/form-data" id="nextForm">
           <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
@@ -154,9 +166,8 @@
     </div>
 
     <script>
-      function showBuildings(buildings, properties, arrow, rotation) {
+      function showBuildings(buildings, properties, arrow, rotation, all) {
 
-        
         buildingsSeen = true
         var features = []
 
@@ -211,7 +222,7 @@
         map.addLayer(vectorLayer4)
         map.setView(newView2)
         map.render()  
-        markObjects()    
+        markObjects(all)    
         if (arrow!="no") {
           showMarker(JSON.stringify(properties), arrow, rotation)
         }
@@ -219,17 +230,20 @@
       function setKnown(){
           document.getElementById("next").disabled = false;
       }
-      function markObjects() {
+      function markObjects(all) {
+        var t = (all=="false")
+        var s = JSON.stringify(all=="false")
+        console.log("ALL: " + all + " " + typeof(all) + " " + t + " " + s)
         var mySelectInteraction = new ol.interaction.Select()
-        mySelectInteraction.getFeatures().on('add', function(e) {
+        if (!all) {
+
+          mySelectInteraction.getFeatures().on('add', function(e) {
           if (e.target.getArray().length==1) {
             markObject(); 
           } else {
             jQuery.noConflict();
             jQuery('#myImg').imgAreaSelect({remove:true});
           }
-          var feature = e.element // Do something with the feature
-          var coordinates = feature.getGeometry().getCoordinates()
         });
 
         mySelectInteraction.getFeatures().on('remove', function(e) {
@@ -238,11 +252,9 @@
           } if (e.target.getArray().length==0) {
             jQuery.noConflict();
             jQuery('#myImg').imgAreaSelect({remove:true}); 
-          }
-          var feature = e.element // Do something with the feature
-          var coordinates = feature.getGeometry().getCoordinates()
-         // console.log("Feature: " + e.target.getArray().length)         
+          }       
         });
+        }      
         map.addInteraction(mySelectInteraction) 
       }
 
@@ -275,6 +287,7 @@
 
       // create an interactions and controls
       var mouseZoom = new ol.interaction.MouseWheelZoom();
+      var pinch = new ol.interaction.PinchRotate()
       var interaction = new ol.interaction.DragRotate({ condition: ol.events.condition.shiftKeyOnly });
       var pan = new ol.interaction.DragPan();
       var rotateControl = new ol.control.Rotate();
@@ -303,7 +316,7 @@
           })
         ],
         view: myView,
-        interactions: [interaction, mouseZoom,pan ]
+        interactions: [interaction, mouseZoom,pan, pinch ]
       });
 
       /* convert radians to degrees 
@@ -416,7 +429,7 @@
             //document.getElementById("arrow").value = "showArrow"
             marker = true
             arrow = true
-            var source = "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+            var source = "https://i.imgur.com/gz61vEY.png"
             marker = true 
           if (properties) {
             var lat = properties[0]
@@ -431,7 +444,7 @@
             });
             var iconStyle = new ol.style.Style({
               image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                anchor: [ 0.5, 200],
+                anchor: [ 0.5, 400],
                 scale: 0.2,
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'pixels',
