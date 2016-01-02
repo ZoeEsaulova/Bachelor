@@ -35,38 +35,94 @@ function randomInArray(random, array) {
 }
 /* proceed to the next image */
 router.post('/next', function(req, res) {
-  console.log("RESUUUUUUUUULT: " + req.body.nextImage)
+  var test = ""
+  var next = ""
+  var names = []
   var array = req.body.nextImage.split(" ")
-  var nextArray = []
-  var stop = false
+  var showBuilding = false
+  var arrow = "no"
+  if (array.length==3 && req.body.test=="test1") {
+    test = "test2"
+    array = []
+  } else {
+    test = req.body.test
+    next = req.body.nextImage
+  }
 
-  for (index in array) {
-    nextArray.push(Number(array[index]))
-  }
-  var x = nextArray[0]
-  while (randomInArray(x, nextArray)) {
-    x = Math.floor((Math.random() * 3));
-  }
-  var names = [
+  if (test=="test1") {
+    names = [
     126807950,
     126807938,
     126807944
-  ]
-  var next = req.body.nextImage + " " + x
-  console.log("NEXT: " + next)
+    ]
+    arrow = "arrow"
+  } else if (test=="test2") {
+     names = [
+      125965583,
+      126810608,
+      126810619
+    ]
+    arrow = "point"
+    showBuilding = true
+  }
+  var nextArray = []
+  for (index in array) {
+    nextArray.push(Number(array[index]))
+  }
+  var x = Math.floor((Math.random() * 3))
+  while (randomInArray(x, nextArray)) {
+    x = Math.floor((Math.random() * 3))
+  }
+  if (next!="") { 
+    next = next + " " + x
+  } else {
+    next = x
+  }
   // read exif
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
 
-   res.render('home_for_survey.ejs', { 
-    imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
-    nextImage: next,
-    properties: JSON.stringify(dec),
-    coordsString: 'Home page'
+  // Find buildings in radius 200
+  var latlon = dec[0] + "," + dec[1]
+    var data = 'way(around:' + 200 + ',' + latlon +  ')["building"];'
+    var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
+      request(
+      { method: 'GET'
+      , uri: url
+      , gzip: true
+      , lalon: latlon
+      }
+    , function (error, response, body) {
+      //get lat and lon from URL
+      var result = JSON.parse(body).elements
+      var buildings = []
+      var bodyString = body
+        for (element in result) {
+          var nodes = result[element].geometry
+          var building = ""
+          for (node in nodes) {
+                var lat = nodes[node].lat
+                var lon = nodes[node].lon
+                building =  building + lat + " " + lon + ":"
+              }
 
+              buildings.push({ id: result[element].id, geometry: building }) 
+        }
+        console.log("building: " + building)
+      res.render('home_for_survey.ejs', { 
+        imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
+        nextImage: next,
+        properties: JSON.stringify(dec),
+        coordsString: 'Home page',
+        buildingCoords: JSON.stringify(buildings),
+        showBuilding: showBuilding,
+        arrow: arrow,
+        test: test
+      })
   })
+
 });
 
 // Hilfsfunktion
@@ -303,7 +359,9 @@ router.get('/survey', function(req, res) {
     coordsString: 'Home page', 
     imageSource:"http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
     properties: JSON.stringify(dec),
-    nextImage: x
+    nextImage: x,
+    showBuilding: false,
+    test: "test1"
   });
 });
 
@@ -397,6 +455,10 @@ function intersectLineBBox(line, bbox) {
    }
    return result
 }
+
+function overpass(url,latlon,polygon) {
+
+}
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
   console.log("Rotation: " + req.body.mapRotation)
@@ -416,6 +478,7 @@ router.post('/overpass', function(req, res) {
   } else {
     radius = req.body.radius
     var latlon = req.body.properties.slice(1, req.body.properties.length-1)
+    console.log("LatLon: " + latlon)
     var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
   }
   //var data = 'way(poly:"51.962034 7.626290 51.961175 7.627492")["building"];'

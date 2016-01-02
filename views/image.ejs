@@ -569,7 +569,7 @@
         var features = []
 
         var buildingsArray = JSON.parse(buildings)
-        
+        console.log("Show buildings: " + buildingsArray)
         for (id in buildingsArray) {
           var buildingCoords = buildingsArray[id].geometry
           var split = buildingCoords.split(":")

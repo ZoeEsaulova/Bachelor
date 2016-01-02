@@ -77,13 +77,17 @@
       }
       #next {
         position: relative;
-        left: 300px;
+        left: 10px;
         margin-top: 5px
       }
     </style>
   </head>
 
-  <body onload="showMarker(<%= properties %>)">
+  <% if (showBuilding) { %>
+       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '0')">
+  <% } else { %>
+       <body onload="showMarker(<%= properties %>, 'arrow', '0')">
+  <% }%>
   <!-- Navigation bar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -126,10 +130,11 @@
           <input value="x" id="mapRotation" name="mapRotation" hidden>
           <input value="x" id="lat" name="lat" hidden>
           <input value="x"id="lon" name="lon" hidden>
-          <label>Do you know this place?&nbsp;&nbsp;</label>
-          <label for="yes">Yes</label>
+          <input value="<%= test %>" id="test" name="test" hidden>
+          <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Do you know this place?&nbsp;&nbsp;</label>
+          <label for="yes">&nbsp;&nbsp;&nbsp;&nbsp;Yes</label>
           <input type="radio" name="known" value="Yes" id="yes" onchange="setKnown();">
-          <label for="no">No</label>
+          <label for="no">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No</label>
           <input type="radio" name="known" value="No" id="no" onchange="setKnown();">
           <button id="next" type="button" class="btn btn-danger" onclick="submitImage(<%= properties %>)" disabled="disabled">Next image</button>
           </form>
@@ -149,8 +154,96 @@
     </div>
 
     <script>
+      function showBuildings(buildings, properties, arrow, rotation) {
+
+        
+        buildingsSeen = true
+        var features = []
+
+        var buildingsArray = JSON.parse(buildings)
+        console.log("Show buildings: " + buildingsArray)
+        
+        for (id in buildingsArray) {
+          var buildingCoords = buildingsArray[id].geometry
+          var split = buildingCoords.split(":")
+          var points = []
+          for (node in split) {
+            var subsplit = split[node].split(" ")
+            var pointCoords = [ parseFloat(subsplit[1]), parseFloat(subsplit[0]) ]
+            points.push(ol.proj.transform(pointCoords, 'EPSG:4326', 'EPSG:3857'))
+          }
+          points.pop()
+
+          var feature = new ol.Feature({
+            name: buildingsArray[id].id,
+            geometry: new ol.geom.Polygon([points])
+          });
+          features.push(feature)
+        }
+
+        var splitProp = properties.split(",")
+        var lat = Number(splitProp[0].slice(1, splitProp[0].length+1))
+        var lon = Number(splitProp[1].slice(0, splitProp[0].length))
+
+        var vectorSource4 = new ol.source.Vector({
+                features: features
+        });
+        var myStyle = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: 'orange',
+            width: 3
+          }),
+          fill: new ol.style.Fill({
+            color: 'rgba(255, 153, 0, 0.5)'
+          })
+        })
+        vectorLayer4 = new ol.layer.Vector({
+                source: vectorSource4,
+                style: myStyle
+        });
+  
+        var newView2 = new ol.View({
+            center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 17,
+            rotation: Number(rotation)
+          })
+
+        map.addLayer(vectorLayer4)
+        map.setView(newView2)
+        map.render()  
+        markObjects()    
+        if (arrow!="no") {
+          showMarker(JSON.stringify(properties), arrow, rotation)
+        }
+      }
       function setKnown(){
           document.getElementById("next").disabled = false;
+      }
+      function markObjects() {
+        var mySelectInteraction = new ol.interaction.Select()
+        mySelectInteraction.getFeatures().on('add', function(e) {
+          if (e.target.getArray().length==1) {
+            markObject(); 
+          } else {
+            jQuery.noConflict();
+            jQuery('#myImg').imgAreaSelect({remove:true});
+          }
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
+        });
+
+        mySelectInteraction.getFeatures().on('remove', function(e) {
+          if (e.target.getArray().length==1) {
+            markObject(); 
+          } if (e.target.getArray().length==0) {
+            jQuery.noConflict();
+            jQuery('#myImg').imgAreaSelect({remove:true}); 
+          }
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
+         // console.log("Feature: " + e.target.getArray().length)         
+        });
+        map.addInteraction(mySelectInteraction) 
       }
 
       /* display uploaded image */
@@ -162,9 +255,12 @@
         document.getElementById("imageSize").value = width;  
       }
 
-      /* mark object on the image using bounding box */
+      // mark an object on image using bounding box
       function markObject() {
-          $('#myImg').imgAreaSelect({
+          document.getElementById("objectCoords").value = "253 120 413 250"
+          jQuery.noConflict();
+          jQuery('#myImg').imgAreaSelect({
+              x1: 253, y1: 120, x2: 413, y2: 250, 
               handles: true,
               onSelectEnd: preview
           });
@@ -305,39 +401,94 @@
       }
 
       //add marker
-      function showMarker(properties) {    
-        if (properties) {
-          var lat = properties[0]
-          var lon = properties[1]
-          var iconFeatures=[];
-          var iconFeature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
-            name: 'Muenster'
-          });
-          iconFeatures.push(iconFeature);
-          var vectorSource = new ol.source.Vector({
-            features: iconFeatures 
-          });
-          var iconStyle = new ol.style.Style({
-            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-              anchor: [ 0.5, 200],
-              scale: 0.2,
-              anchorXUnits: 'fraction',
-              anchorYUnits: 'pixels',
-              src: "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
-            }))
-          });
-          var vectorLayer = new ol.layer.Vector({
-            source: vectorSource,
-            style: iconStyle
-          });
-          var newView = new ol.View({
-                center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
-                zoom: 15
-              })
-          map.addLayer(vectorLayer)
-          map.setView(newView)
-        }
+      function showMarker(properties1, icon, rotation) {   
+          
+          if (typeof(properties1)=="string") {
+            var splitProp = properties1.split(",")
+            var lat = Number(splitProp[0].slice(2, splitProp[0].length))
+            var lon = Number(splitProp[1].slice(0, splitProp[0].length-1))
+            var properties = [lat,lon]
+          } else {
+            var properties = properties1
+          }
+          
+          if (icon=="arrow") {
+            //document.getElementById("arrow").value = "showArrow"
+            marker = true
+            arrow = true
+            var source = "https://cdn3.iconfinder.com/data/icons/musthave/256/Stock%20Index%20Up.png"
+            marker = true 
+          if (properties) {
+            var lat = properties[0]
+            var lon = properties[1]
+            var iconFeatures=[];
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+            });
+            iconFeatures.push(iconFeature);
+            var vectorSource = new ol.source.Vector({
+              features: iconFeatures 
+            });
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 200],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: source
+              }))
+            });
+            vectorLayer = new ol.layer.Vector({
+              source: vectorSource,
+              style: iconStyle
+            });
+            var newView = new ol.View({
+                  center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+                  zoom: 17,
+                  rotation: Number(rotation)
+            })
+            map.addLayer(vectorLayer)
+            map.setView(newView)
+          }
+          } 
+
+            else {
+            var source = "http://i1230.photobucket.com/albums/ee488/PerfectlyDarkTails/Map-Marker-Flag-2-Right-Red-icon_zps4cea0902.png"
+            marker = true 
+          if (properties) {
+            var lat = properties[0]
+            var lon = properties[1]
+            var iconFeatures=[];
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+              name: 'Muenster'
+            });
+            iconFeatures.push(iconFeature);
+            var vectorSource = new ol.source.Vector({
+              features: iconFeatures 
+            });
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 200],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: source
+              }))
+            });
+            vectorLayer = new ol.layer.Vector({
+              source: vectorSource,
+              style: iconStyle
+            });
+            var newView = new ol.View({
+                  center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
+                  zoom: 17,
+                  rotation: Number(rotation)
+            })
+            map.addLayer(vectorLayer)
+            map.setView(newView)
+          }
+          }   
       }
       
 
