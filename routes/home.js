@@ -41,7 +41,6 @@ router.post('/next', function(req, res) {
   var array = req.body.nextImage.split(" ")
   var showBuilding = false
   var arrow = "no"
-  var instruction = ""
   var all = "false"
   if (array.length==3 && req.body.test=="1") {
     test = "2"
@@ -59,43 +58,39 @@ router.post('/next', function(req, res) {
 
   if (test=="1") {
     names = [
-    126807950,
+    //126807950,
+    126966710,
     126910684,
     126807944
     ]
     arrow = "arrow";
-    instruction = 
-    "You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing when the photo was taken. Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon shows in the right direction.<br> You can switch between satellite and map view and zoom in and out if you like"
   } else if (test=="2") {
      names = [
-      125965583,
+      //125965583,
+      126966710,
       126810608,
       126810619
     ]
     arrow = "point"
     showBuilding = true
-    instruction = 
-"The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building on the map to select it. It must be a building that you can see on the image.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and replace the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like"
   } else if (test=="3") {
      names = [
-      126910529,
+      //126910529,
+      126966710,
       126910521,
       126910508
     ]
     arrow = "arrow"
     showBuilding = true
-    instruction = 
-"This is the combination of the first two tasks. Please do the following:<br>1.Use <b>Shift+Left Mouse Key</b> to rotate the map and set the right camera direction<br>2. Click one building on the map to select it. It must be a building that you can see on the image. <br>3. After you have selected a building on the map, a bounding box appears on the image. Move and replace the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out if you like"
   } else if (test=="4") {
      names = [
-      126910693,
+      //126910693,
+      126966710,
       126910706,
       126807938
     ]
     arrow = "point"
     showBuilding = true
-    instruction = 
-    "Use <b>Shift + Left Mouse Key</b> to select <b>all</b> buildings which are displayed on the image."
     all = "true"
   }
   var nextArray = []
@@ -116,7 +111,10 @@ router.post('/next', function(req, res) {
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
-
+  console.log("EXIF: _____________________________________ ")
+  
+  var focalLength = result.tags.FocalLength
+  console.log(focalLength)
   // Find buildings in radius 200
   var latlon = dec[0] + "," + dec[1]
     var data = 'way(around:' + 200 + ',' + latlon +  ')["building"];'
@@ -153,7 +151,6 @@ router.post('/next', function(req, res) {
         showBuilding: showBuilding,
         arrow: arrow,
         test: test,
-        instruction: instruction,
         all: all
       })
   })
@@ -337,6 +334,68 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
 
 }
 
+router.get('/nextPage', function(req, res) {
+  console.log("From next page " + req.query.number + " " + req.query.angle)
+  var objects = ['car', 'traffic light', 'stop sign', 'cat', 'tree', 'house', 'flower']
+  var obs = []
+  var number = Number(req.query.number) +1
+  if (number==2) {
+    obs.push('cat')
+    obs.push('tree')
+    obs.push('car')
+  } else if (number==3) {
+    obs.push('stop sign')
+    obs.push('cat')
+    obs.push('house')
+  } else if (number==4) {
+    obs.push('cat')
+    obs.push('flower')
+    obs.push('car')
+  } else if (number==5) {
+    obs.push('stop sign')
+    obs.push('tree')
+    obs.push('traffic light')
+  } else if (number==6) {
+    obs.push('stop sign')
+    obs.push('flower')
+    obs.push('car')
+  } else if (number==7) {
+    obs.push('traffic light')
+    obs.push('house')
+    obs.push('flower')
+  } else if (number==8) {
+    obs.push('house')
+    obs.push('flower')
+    obs.push('stop sign')
+  } else if (number==9) {
+    obs.push('car')
+    obs.push('stop sign')
+    obs.push('tree')
+  } else if (number==10) {
+    obs.push('traffic light')
+    obs.push('cat')
+    obs.push('car')
+  } else if (number==11) {
+    obs.push('tree')
+    obs.push('flower')
+    obs.push('house')
+  } else if (number==12) {
+    obs.push('cat')
+    obs.push('house')
+    obs.push('traffic light')
+  } else if (number==13) {
+    number = "finish"
+    obs.push('')
+    obs.push('')
+    obs.push('')
+  }
+  res.send({
+    number: number,
+    ob1: obs[0],
+    ob2: obs[1],
+    ob3: obs[2]
+  })
+})
 /* display polygon on map */
 router.get('/showPolygon', function(req, res) {
   if (req.query.objectCoords!= undefined) {
@@ -362,7 +421,8 @@ router.get('/showPolygon', function(req, res) {
 /* GET home page (Survey) */
 router.get('/survey', function(req, res) {
   var names = [
-    126807950,
+  126966710,
+    //126807950,
     126910684,
     126807944
   ]
@@ -386,9 +446,7 @@ router.get('/survey', function(req, res) {
     nextImage: x,
     showBuilding: false,
     test: "1",
-    all: "false",
-    instruction: "You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing when the photo was taken. Use Shift + Left Mouse Key to rotate the map so that the icon shows in the right direction. You can switch between satellite and map view and zoom in and out if you like"
-
+    all: "false"
   });
 });
 
@@ -407,6 +465,12 @@ router.get('/', function(req, res) {
 router.get('/test', function(req, res) {
 
       res.render('raphael.ejs');
+
+});
+
+router.get('/demo1', function(req, res) {
+
+      res.render('demo1.ejs');
 
 });
 
