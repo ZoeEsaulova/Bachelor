@@ -418,7 +418,8 @@
           objectCoords: document.getElementById("objectCoords").value,
           imageSize: document.getElementById("imageSize").value,
           objectCoordsMap: document.getElementById("objectCoordsMap").value,
-          selectedBuildings: JSON.stringify(selectedBuildings)
+          selectedBuildings: JSON.stringify(selectedBuildings),
+          imagePath: document.getElementById("imagePath").value
         }, function(response){
           console.log("response")
           drawPolygon(response.polygonCoords)         

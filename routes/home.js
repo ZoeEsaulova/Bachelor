@@ -458,19 +458,32 @@ router.get('/nextPage', function(req, res) {
 */
 router.get('/showPolygon', function(req, res) {
   console.log("Im Server--------------------------")
-  console.log("modalCameraRotation " + req.query.modalCameraRotation + " " + typeof(req.query.modalCameraRotation)) 
+  console.log("ImagePath: " + req.query.imagePath) 
   var originLat = Number(JSON.parse(req.query.origin)[0])
   var originLon = Number(JSON.parse(req.query.origin)[1])
+  //Calculate FOV
+  // read exif data of a current image
+
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.query.imagePath);      
+  var parser = require('exif-parser').create(buf);
+  var result = parser.parse();
+  //console.log("EXIF: _____________________________________ ")
+  // read focal length
+  var focalLength = result.tags.FocalLength
+  console.log(focalLength)
+  var sensorWidth = 6.17
+  var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
+  console.log(fov)
   if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
     console.log("OBJEKT OHNE ROTATION")
-    var result = findPolygonFromObject(1.244672497, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
+    var result = findPolygonFromObject(fov, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
    } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap=="y") {
      console.log("Rotation ohne objekt")
-    var result = findPolygonFromRotation(1.244672497, req.query.mapRotation, originLat, originLon)
+    var result = findPolygonFromRotation(fov, req.query.mapRotation, originLat, originLon)
    } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap!="y") {
     console.log("Rotation AND objekt")
     var result = findPolygonFromRotationAndObject(
-      1.244672497, req.query.mapRotation, 
+      fov, req.query.mapRotation, 
       originLat, originLon, req.query.imageSize, 
       req.query.objectCoords, req.query.objectCoordsMap)
    } 
