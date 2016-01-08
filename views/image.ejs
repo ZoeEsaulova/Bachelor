@@ -92,9 +92,9 @@
   </head>
 
   <% if (building) { %>
-       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '<%= rotation %>')">
+       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= icon %>', '<%= rotation %>')">
   <% } else { %>
-       <body onload="showMarker(<%= properties %>, 'point', '0')">
+       <body onload="showMarker(<%= properties %>, '<%= icon %>', '0')">
   <% }%>
 
           <!-- Modal -->
@@ -129,21 +129,21 @@
               <input value="253 120 413 250" id="objectCoords" name="objectCoords" style="width:30" hidden>
               <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:30" hidden>
               <input value="666" id="imageSize" name="imageSize" style="width:30" hidden>
-              <button onclick="submitObject(<%= properties %>)" class="btn btn-danger">Submit</button>
+              <button onclick="submitAll(<%= properties %>)" class="btn btn-danger" id="submitButton" disabled>Submit</button>
 
             </li>
-            <li><button onclick="toggleMarker(<%= properties %>, 'arrow')" class="btn btn-info">Define camera rotation</button></li>
+            <li><button onclick="defineRotation(<%= properties %>, '<%= icon %>', '<%= rotation %>')" class="btn btn-info">Define camera rotation</button></li>
             <li>
             <button id="openModal1" data-toggle="modal" data-target="#modalCameraRotation" hidden>openModal1</button></li>
-            <li><button onclick="showPolygon(<%= properties %>)" class="btn btn-info">Show polygon</button></li>
-            <li><button id="bOnImage"onclick="submitForm()" class="btn btn-info" disabled>Buildings on image</button></li>
+            <li><button onclick="showPolygon(<%= properties %>)" class="btn btn-warning">Show polygon</button></li>
+            <li><button id="bOnImage"onclick="submitForm()" class="btn btn-warning" disabled>Buildings on image</button></li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
               <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
               <input value=<%= properties %> id="properties" name="properties" style="width:15" hidden>
               <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15" hidden>
-              <input value="x" id="mapRotation" name="mapRotation" style="width:30" hidden>
-              <input value="x" id="arrow" name="arrow" style="width:30" hidden>
+              <input value="0" id="mapRotation" name="mapRotation" style="width:30" hidden>
+              <input value="x" id="icon" name="icon" style="width:30" hidden>
               <button onclick="submitForm()" style="white-space: nowrap;" class="btn btn-info" id="get">Mark buildings</button>
      
               <input value="<%= radius %>" id="radius" name="radius" class="input">
@@ -195,9 +195,11 @@
       var vectorSource3
       var vectorLayer3
       var modalCameraRotation = true
+      var currentIcon = ""
       // TBD: get coordinates of click
       function submitForm() {
         document.getElementById("mapRotation").value = map.getView().getRotation();
+        document.getElementById("icon").value = currentIcon;
         jQuery("#getObjects").submit()
       }
 
@@ -275,39 +277,31 @@
         }
         return degrees
       }
-
-      /* show the triangle polygon
-        * @param coordsString: coordinates of the polygon nodes (left and right to the focus point)
-        * @param lat: Latitude cooridnate of the origin (camera location)
-        * @param lon: Longitude coordinate of the origin (camera location)
-        * @param targetLat: Latitude coordinate of the focus point
-        * @param targetLon: Longitude coordinate of the focus point
+          
+      /**
+      * Displays polygon on the map from the given coordinates
+      * @param {String} polygonCoords Coordinates of all polygon points
       */
-      function findTriangle(coordsString, lat, lon, targetLat, targetLon)  {
+      function drawPolygon(polygonCoords) {
+        console.log("TEst 1")
         if (vectorLayer2) {
+          console.log("TEst 2")
           map.removeLayer(vectorLayer2)
           map.removeLayer(vectorLayer3)
           map.render()
         }
-        var imageCoords = [ Number(lon), Number(lat) ]
-        var target = [ Number(targetLon), Number(targetLat) ]
-
-        var split = coordsString.split(" ")
-        left = [ parseFloat(split[1]), parseFloat(split[0]) ]
-        right = [ parseFloat(split[3]), parseFloat(split[2]) ]
-        var point1 = ol.proj.transform(imageCoords, 'EPSG:4326', 'EPSG:3857');
-        var point2 = ol.proj.transform(left, 'EPSG:4326', 'EPSG:3857');
-        var point3 = ol.proj.transform(right, 'EPSG:4326', 'EPSG:3857');
-        var point4 = ol.proj.transform(imageCoords, 'EPSG:4326', 'EPSG:3857');
-        var point6 = ol.proj.transform(target, 'EPSG:4326', 'EPSG:3857');
-
+        console.log("TEst 3 " + polygonCoords )
+        var pc = JSON.parse(polygonCoords)
+        console.log("Rotation: from Ob " + pc[1] )
+        var point1 = [ Number(pc[0].originLat), Number(pc[0].originLon) ]
+        var point2 = [ Number(pc[0].leftLat), Number(pc[0].leftLon) ]
+        var point3 = [ Number(pc[0].rightLat), Number(pc[0].rightLon) ]
+        var point4 = [ Number(pc[0].originLat), Number(pc[0].originLon) ]
+        var point6 = [ Number(pc[0].targetLat), Number(pc[0].targetLon) ]
+        // display polygon on map
         var feature = new ol.Feature({
           geometry: new ol.geom.Polygon([[point1, point2, point3, point4]]),
         });
-
-        var coords = coordsString + " " + lat + " " + lon
-        document.getElementById('polyCoords').value = coords
-
         vectorSource2 = new ol.source.Vector({
                 features: [ feature ]
         });
@@ -315,9 +309,9 @@
                 source: vectorSource2,
         });
         map.addLayer(vectorLayer2)
-        /*draw line */
+        // display line to the target
         var featureL = new ol.Feature({
-                    geometry: new ol.geom.LineString([point6, point1])
+          geometry: new ol.geom.LineString([point6, point1])
         });
         vectorSource3 = new ol.source.Vector({
                 features: [featureL ]
@@ -326,18 +320,40 @@
           source: vectorSource3
         });
         map.addLayer(vectorLayer3) 
+        //activate "Buildings on image button"
         jQuery('#bOnImage').removeAttr('disabled');
+        //transform polygon coordinates to EPSG:4326 and save them
+        var point1 = ol.proj.transform(point1, 'EPSG:3857', 'EPSG:4326');
+        var point2 = ol.proj.transform(point2, 'EPSG:3857', 'EPSG:4326');
+        var point3 = ol.proj.transform(point3, 'EPSG:3857', 'EPSG:4326');
+        var polyCoords = point1[1] + " " + point1[0] + " " + 
+        point2[1] + " " + point2[0] + " " + point3[1] + " " + point3[0] + " " + point1[1] + " " + point1[0] 
+        document.getElementById('polyCoords').value = polyCoords
       }
-          
-      /* send request to the server to get polygon coordinates */
+
+      /**
+      * Send request to the server to calculate polygon coordinates
+      * @param {[Number]} properties GPS coordinates of the image in EPSG:4326 (read from exif)
+      */
       function showPolygon(properties) {
-  
+        if (modalCameraRotation) {
+          var mcr = "t" 
+        } else {
+          var mcr = "f"
+        }
+        //transform GPS coordinates of the image to EPSG:3857 map projection
+        var origin = new ol.geom.Point(ol.proj.transform([ properties[1], properties[0] ], 'EPSG:4326', 'EPSG:3857'))
+        //send request to server to calculate the polygon coordinates
         jQuery.get("/showPolygon", { 
-          mapRotation : map.getView().getRotation(),
-          lat: properties[0],
-          lon: properties[1]
+          mapRotation : map.getView().getRotation(),          //current map rotation
+          modalCameraRotation: mcr,
+          origin: JSON.stringify(origin.getCoordinates()),
+          objectCoords: document.getElementById("objectCoords").value,
+          imageSize: document.getElementById("imageSize").value,
+          objectCoordsMap: document.getElementById("objectCoordsMap").value
         }, function(response){
-          findTriangle(response.coords, response.lat, response.lon, response.targetLat, response.targetLon)          
+        //get response from server and display the polygon (viewable area)
+          drawPolygon(response.polygonCoords)        
         });
       }
 
@@ -351,24 +367,21 @@
 
 
       function defineCenter(bb) {
-  
+  /*
         var p1 = ol.proj.transform([ Number(bb[1]), Number(bb[0])], 'EPSG:3857', 'EPSG:4326')
-        var p2 = ol.proj.transform([ Number(bb[3]), Number(bb[2])], 'EPSG:3857', 'EPSG:4326')    
+        var p2 = ol.proj.transform([ Number(bb[3]), Number(bb[2])], 'EPSG:3857', 'EPSG:4326')    */
 
         var x = (Number(bb[0])+Number(bb[2]))/2
         var y = (Number(bb[1])+Number(bb[3]))/2 
-        var temp = ol.proj.transform([x, y], 'EPSG:3857', 'EPSG:4326')
-        var test1 = ol.proj.transform([ 7.566651, 51.965695 ], 'EPSG:4326', 'EPSG:3857')
-        var test2 = ol.proj.transform([ 842315.7363304143,6793925.045580625 ], 'EPSG:3857', 'EPSG:4326')  
-        /*
-        var x = (Number(bb[0])+Number(bb[2]))/2
-        var y = (Number(bb[1])+Number(bb[3]))/2*/
-        var center = [ { x: temp[0], y: temp[1] } ]
+        //var temp = ol.proj.transform([x, y], 'EPSG:3857', 'EPSG:4326')
+
+        var center = [ { x: x, y: y } ]
         center = JSON.stringify(center)
         return center
       }
 
       function defineCenterMultiple(buildings) {
+        // NOT IMPLEMENTED YET!
         /*
         var lat3 = 0
         var lon3 = 0
@@ -377,53 +390,68 @@
         }*/
       }
 
-      function submitObject(properties) {
-        var select = map.getInteractions().getArray()[3] 
-        var features = select.getFeatures();
-        var feature = features.item(0);
-        document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
-        var selectedBuildings = [ { 
-              id:  feature.getProperties().name,
-              geometry: feature.getGeometry().getCoordinates() 
-            }]
-        if (features.getLength()>1) {
-          selectedBuildings = []
-          var l = features.getLength()
-          var xx = 0
-          var yy = 0
-          for (i=0; i<l; i++) {
-            selectedBuildings.push({ 
-              id:  features.item(i).getProperties().name,
-              geometry: features.item(i).getGeometry().getCoordinates() 
-            })
-            var c = defineCenter(features.item(i).getGeometry().getExtent())
-            c = JSON.parse(c)
-            xx = xx + c[0].x
-            yy = yy + c[0].y
-          } 
-          xx = xx/l
-          yy = yy/l
-          var center = JSON.stringify( [ { x: xx, y: yy } ] )
-          document.getElementById("objectCoordsMap").value = center
+      function submitAll(properties) {  
+        if (map.getInteractions().getArray().length>3) {
+          var select = map.getInteractions().getArray()[3] 
+          var features = select.getFeatures();
+          var feature = features.item(0);
+          document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
+          var selectedBuildings = [{ 
+                id:  feature.getProperties().name,
+                geometry: feature.getGeometry().getCoordinates() 
+              }]
+
+          // if multiple buildings are selected save them and calculate the center of all buildings
+          if (features.getLength()>1) {
+            selectedBuildings = []
+            var l = features.getLength()
+            var xx = 0
+            var yy = 0
+            for (i=0; i<l; i++) {
+              selectedBuildings.push({ 
+                id:  features.item(i).getProperties().name,
+                geometry: features.item(i).getGeometry().getCoordinates() 
+              })
+              var c = defineCenter(features.item(i).getGeometry().getExtent())
+              c = JSON.parse(c)
+              xx = xx + c[0].x
+              yy = yy + c[0].y
+            } 
+            xx = xx/l
+            yy = yy/l
+            var center = JSON.stringify( [ { x: xx, y: yy } ] )
+            document.getElementById("objectCoordsMap").value = center
+          }
         }
         
+        var origin = new ol.geom.Point(ol.proj.transform([ properties[1], properties[0] ], 'EPSG:4326', 'EPSG:3857'))
+        if (modalCameraRotation) {
+          var mcr = "t" 
+        } else {
+          var mcr = "f"
+        }
         jQuery.get("/showPolygon", { 
           mapRotation : map.getView().getRotation(),
-          lat: properties[0],
-          lon: properties[1],
+          modalCameraRotation: mcr,
+          origin: JSON.stringify(origin.getCoordinates()),
           objectCoords: document.getElementById("objectCoords").value,
           imageSize: document.getElementById("imageSize").value,
           objectCoordsMap: document.getElementById("objectCoordsMap").value,
           selectedBuildings: JSON.stringify(selectedBuildings)
-
         }, function(response){
-          findTriangle(response.coords, response.lat, response.lon, response.targetLat, response.targetLon)          
+          console.log("response")
+          drawPolygon(response.polygonCoords)         
         });
       }
 
       //add marker
-      function showMarker(properties1, icon, rotation) {   
-          
+      function showMarker(properties1, icon, rotation) { 
+        console.log("Show Marker with  " + icon)
+            currentIcon  = icon
+            if (icon=="arrow") {
+              modalCameraRotation = false
+            }
+           
           if (typeof(properties1)=="string") {
             var splitProp = properties1.split(",")
             var lat = Number(splitProp[0].slice(2, splitProp[0].length))
@@ -434,13 +462,13 @@
           }
           
           if (icon=="arrow" && vectorLayer!=undefined) {
-            document.getElementById("arrow").value = "showArrow"
+            
             marker = true
             arrow = true
             var source = "https://i.imgur.com/gz61vEY.png"
             var iconStyle = new ol.style.Style({
               image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                anchor: [ 0.5, 200],
+                anchor: [ 0.5, 400],
                 scale: 0.2,
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'pixels',
@@ -448,9 +476,10 @@
               }))
             });
             vectorLayer.setStyle(iconStyle)
-            map.render()
+            console.log("1")
+            //map.render()
           } else if (icon=="arrow") {
-            document.getElementById("arrow").value = "showArrow"
+            console.log("2")
             marker = true
             arrow = true
             var source = "https://i.imgur.com/gz61vEY.png"
@@ -461,7 +490,9 @@
             var iconFeatures=[];
             var iconFeature = new ol.Feature({
               geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+
             });
+            var testpoint = new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'))
             iconFeatures.push(iconFeature);
             var vectorSource = new ol.source.Vector({
               features: iconFeatures 
@@ -488,8 +519,8 @@
             map.setView(newView)
           }
           } 
-
             else {
+              console.log("3")
             var source = "http://i1230.photobucket.com/albums/ee488/PerfectlyDarkTails/Map-Marker-Flag-2-Right-Red-icon_zps4cea0902.png"
             marker = true 
           if (properties) {
@@ -522,6 +553,7 @@
                   zoom: 17,
                   rotation: Number(rotation)
             })
+            var testpoint = new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'))
             map.addLayer(vectorLayer)
             map.setView(newView)
           }
@@ -540,39 +572,42 @@
         }
       }
 
-      function toggleMarker(properties) {
-        
-        if (modalCameraRotation) {
-          jQuery.noConflict();
-          //jQuery("#openModal1").click()
-          jQuery("#modalCameraRotation").modal("show");
-        }
-        modalCameraRotation = false
-        if (vectorLayer==undefined) {
-          showMarker(properties, "arrow")
-        } else if (marker==true && arrow==false) {
-          /*map.removeLayer(vectorLayer4)
-          map.render()*/
-          showMarker(properties, "arrow")
-        } else if (marker==true && arrow==true) {
+      function toggleMarker() {
+        console.log("Map rotation: " + radToDegree( map.getView().getRotation()))
+        if (marker) {
           vectorLayer.setVisible(false)
           marker=false
-        } else if (marker==false) {
+        } else {
           vectorLayer.setVisible(true)
           marker=true
         }
+      }
+
+       function defineRotation(properties, icon, rotation) {
+        if (modalCameraRotation) {
+          jQuery('#submitButton').removeAttr('disabled');
+          jQuery.noConflict();
+          //jQuery("#openModal1").click()
+          jQuery("#modalCameraRotation").modal("show");
+          modalCameraRotation = false
+          showMarker(properties, "arrow", rotation)
+        } else {
+          toggleMarker()
+        }
+        
       }
       /* display building which can be seen on image 
       * @param building: coordinates of all buildings' nodes
       * @param properties: coordinates of the map center
       */
-      function showBuildings(buildings, properties, arrow, rotation) {
-        console.log(Number(rotation))
+      function showBuildings(buildings, properties, icon, rotation) {
+        if (icon=="arrow") {
+          jQuery('#submitButton').removeAttr('disabled');
+        }
         buildingsSeen = true
         var features = []
 
         var buildingsArray = JSON.parse(buildings)
-        console.log("Show buildings: " + buildingsArray)
         for (id in buildingsArray) {
           var buildingCoords = buildingsArray[id].geometry
           var split = buildingCoords.split(":")
@@ -621,15 +656,15 @@
         map.addLayer(vectorLayer4)
         map.setView(newView2)  
         markObjects()    
-        if (arrow=="show") {
-          showMarker(JSON.stringify(properties), "arrow", rotation)
-        }
+        showMarker(JSON.stringify(properties), icon, rotation)
+        
       }
 
       function markObjects() {
         var mySelectInteraction = new ol.interaction.Select()
         mySelectInteraction.getFeatures().on('add', function(e) {
           if (e.target.getArray().length==1) {
+            jQuery('#submitButton').removeAttr('disabled');
             markObject(); 
           } else {
             jQuery.noConflict();
@@ -644,6 +679,10 @@
             markObject(); 
           } if (e.target.getArray().length==0) {
             jQuery.noConflict();
+            if (modalCameraRotation) {
+              console.log("HDJddddddddddd")
+              jQuery('#submitButton').attr('disabled', true)
+            } 
             jQuery('#myImg').imgAreaSelect({remove:true}); 
           }
           var feature = e.element // Do something with the feature

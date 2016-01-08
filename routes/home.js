@@ -1,27 +1,33 @@
 var express = require('express');
+var async = require('async');
 var router = express.Router();
 var MyImage = require('../models/image');
 var Entry = require('../models/entry');
 var multer = require('multer');
+var fs = require('fs');
 router.use(multer({ dest: './public/images', inMemory: true }).single('image'));
-
 var im = require('imagemagick');
 var gm = require('gm').subClass({ imageMagick: true });
 var fs = require('fs');
-var async = require('async');
 var dms2dec = require('dms2dec');
 var request = require('request');
-var orb = require('orbjs');
+var orb = require('orbjs'); 
 var LatLon = require('geodesy').LatLonEllipsoidal;
-var Dms = require('geodesy').Dms;
+var Dms = require('geodesy').Dms; 
 var Vector3d = require('geodesy').Vector3d;
 var Vec2D = require('vector2d');
 var exif = require('exif-reader');
 var turf = require('turf');
-var wgs = require('WGS84IntersectUtil');
+var wgs = require('WGS84IntersectUtil'); 
 var gju = require('geojson-utils');
-//var easyimg = require('easyimage');
 
+
+/**
+ * Checks if array contains a sertain number
+ * @param {Number} random
+ * @param {[Number]} array
+ * @return {boolean} is in array
+ */
 function randomInArray(random, array) {
 
   var result = false
@@ -33,15 +39,29 @@ function randomInArray(random, array) {
   }
   return result
 }
-/* proceed to the next image */
+
+/*
+*
+* Survey
+*
+*/
+
+/* Render different pages depending on the test 
+*  there are 4 tests:
+*  test 1: display camera marker
+*  test 2: display flag marker and buildings
+*  test 3: display camera marker and buildings
+*  test 4: display flag marker and buildings, disable bounding box on image
+*/
 router.post('/next', function(req, res) {
-  var test = ""
-  var next = ""
-  var names = []
-  var array = req.body.nextImage.split(" ")
-  var showBuilding = false
-  var arrow = "no"
-  var all = "false"
+  var test = ""                               // test number (1 to 4)
+  var next = ""                               // files which have alredy been tested
+  var names = []                              // file names
+  var array = req.body.nextImage.split(" ")   // files that have been tested already
+  var showBuilding = false                    // if true, buildings in a certain radius will be displayed
+  var arrow = "no"                            // type of a marker (no, flag or camera)
+  var all = "false"                           // if true, bounding box on image will be disabled 
+  //go to the next test if 3 images proceeded
   if (array.length==3 && req.body.test=="1") {
     test = "2"
     array = []
@@ -55,11 +75,11 @@ router.post('/next', function(req, res) {
     test = req.body.test
     next = req.body.nextImage
   }
-
+  // define file names for each test
   if (test=="1") {
     names = [
-    //126807950,
-    126966710,
+    //126807950, 
+    126966710, //USED FOR DEMOS ONLY
     126910684,
     126807944
     ]
@@ -67,7 +87,7 @@ router.post('/next', function(req, res) {
   } else if (test=="2") {
      names = [
       //125965583,
-      126966710,
+      126966710, //USED FOR DEMOS ONLY
       126810608,
       126810619
     ]
@@ -76,7 +96,7 @@ router.post('/next', function(req, res) {
   } else if (test=="3") {
      names = [
       //126910529,
-      126966710,
+      126966710, //USED FOR DEMOS ONLY
       126910521,
       126910508
     ]
@@ -85,7 +105,7 @@ router.post('/next', function(req, res) {
   } else if (test=="4") {
      names = [
       //126910693,
-      126966710,
+      126966710, //USED FOR DEMOS ONLY
       126910706,
       126807938
     ]
@@ -93,10 +113,12 @@ router.post('/next', function(req, res) {
     showBuilding = true
     all = "true"
   }
+  // files which have alredy been tested
   var nextArray = []
   for (index in array) {
     nextArray.push(Number(array[index]))
   }
+  // define the next file name randomly
   var x = Math.floor((Math.random() * 3))
   while (randomInArray(x, nextArray)) {
     x = Math.floor((Math.random() * 3))
@@ -106,16 +128,18 @@ router.post('/next', function(req, res) {
   } else {
     next = x
   }
-  // read exif
+  // read exif data of a current image
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
+  //read GPS data
   var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
-  console.log("EXIF: _____________________________________ ")
-  
+  //console.log("EXIF: _____________________________________ ")
+  // read focal length
   var focalLength = result.tags.FocalLength
-  console.log(focalLength)
-  // Find buildings in radius 200
+  //console.log(focalLength)
+
+  // find buildings in 200-m radius using overpass API
   var latlon = dec[0] + "," + dec[1]
     var data = 'way(around:' + 200 + ',' + latlon +  ')["building"];'
     var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
@@ -126,10 +150,9 @@ router.post('/next', function(req, res) {
       , lalon: latlon
       }
     , function (error, response, body) {
-      //get lat and lon from URL
-      var result = JSON.parse(body).elements
-      var buildings = []
-      var bodyString = body
+        var result = JSON.parse(body).elements
+        var buildings = []
+        var bodyString = body
         for (element in result) {
           var nodes = result[element].geometry
           var building = ""
@@ -141,36 +164,45 @@ router.post('/next', function(req, res) {
 
               buildings.push({ id: result[element].id, geometry: building }) 
         }
-        console.log("building: " + building)
-      res.render('home_for_survey.ejs', { 
-        imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
-        nextImage: next,
-        properties: JSON.stringify(dec),
-        coordsString: 'Home page',
-        buildingCoords: JSON.stringify(buildings),
-        showBuilding: showBuilding,
-        arrow: arrow,
-        test: test,
-        all: all
+        // render the next page
+        res.render('home_for_survey.ejs', { 
+          imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
+          nextImage: next,
+          properties: JSON.stringify(dec),
+          coordsString: 'Home page',
+          buildingCoords: JSON.stringify(buildings),
+          showBuilding: showBuilding,
+          arrow: arrow,
+          test: test,
+          all: all
+        })
       })
-  })
-
 });
 
-// Hilfsfunktion
-function defineVector(fov, targetLat, targetLon, imageCoords) {
-  console.log("I'm im defineVektor " + targetLat + " " + targetLon +" " + imageCoords)
+
+/* Display demo videos */
+router.get('/demo1', function(req, res) {
+  res.render('demo1.ejs');
+});
+
+/* Spacial Orientation Test*/
+router.get('/test', function(req, res) {
+  res.render('sot.ejs');
+});
+
+/**
+ * Defines polygon coordinates from the origin, target and FOV
+ * @param {Number} fov            Field of view in radians
+ * @param {String} targetLat      Latitude of the target point
+ * @param {String} targetLon      Longitude of the target point
+ * @param {[Number]} imageCoords  Coordinates of the origin
+ * @return {json} geographical coordinates of the polygon 
+ */
+function definePolygon(fov, targetLat, targetLon, imageCoords, target3857) {
   var target = new Vector3d(targetLat, targetLon, imageCoords.z)
   var targetGeo = target.toLatLonE(LatLon.datum.WGS84)
   //set new origin
   var result3 = target.minus(imageCoords)
-  console.log("NEW Coordinates: " + targetGeo.lat + " " + targetGeo.lon)
-  /*console.log("ORIGIN: " + imageCoords.x + " " + imageCoords.y)
-  console.log("TARGET: " + target.z)
-  console.log("DIF Z: " + result3.z)
-  console.log("length origin: " + imageCoords.length())
-  console.log("length target " + target.length())
-  */
   //extend the vector
   result3 = result3.times(1.2)
   //create Vec2D objects and rotate them
@@ -213,27 +245,14 @@ function defineVector(fov, targetLat, targetLon, imageCoords) {
    splitted[3],[parseInt(splitted[4]),parseInt(splitted[5]),parseInt(splitted[6])],splitted[7])
   var out = output1[0] + " " + output1[1] + " " + output2[0] + " " + output2[1]
 
-  return { out: out, targetGeo: targetGeo }
+  return { out: out, targetGeo: targetGeo, origin: imageCoords, target3857: target3857 }
 
 }
 
-/* define polygon nodes from given map rotation */ 
-function findPolygonFromRotation(fov, mapRotation, lat, lon) {
-  console.log("I'm in FindPolygon From Rotation")
-  var imageCoordsGeo = new LatLon(Number(lat), Number(lon), LatLon.datum.WGS84)
-  var rad = mapRotation
-  var degrees = Math.abs(rad)*(180/Math.PI)
-          if (degrees > 360) { 
-              degrees = degrees - (Math.floor(degrees / 360)*360) 
-          } 
-          if (rad<0) {
-            degrees = 360 - degrees
-          }
-  var rotation = rad
+function targetFromRotation(rotation, tlat, tlon, distance) {
   var alpha = 0
   var lon = 0
   var lat = 0
-  var distance = 300
   if (rotation<=1.5707963268) {
     alpha = rotation
     lon = -Math.sin(alpha)*distance
@@ -252,90 +271,186 @@ function findPolygonFromRotation(fov, mapRotation, lat, lon) {
     lat = -Math.cos(alpha)*distance
   }
 
-  var imageCoords = imageCoordsGeo.toCartesian()
-  var targetLat = Number(imageCoords.x)+Number(lat)
-  var targetLon = Number(imageCoords.y)+Number(lon)
+  var targetLat3857 = Number(tlat)+Number(lon)
+  var targetLon3857 = Number(tlon)+Number(-lat)
 
-  return defineVector(fov, targetLat, targetLon, imageCoords)
+  return [targetLat3857, targetLon3857]
+}
+/* define polygon nodes from given map rotation */ 
+function findPolygonFromRotation(fov, rotation, tlat, tlon) {
+  var distance = 300
+  var target = targetFromRotation(rotation, tlat, tlon, distance)
+  var targetLat3857 = target[0]
+  var targetLon3857 = target[1]
 
+  //rotate
+  var x = targetLat3857 - Number(tlat)
+  var y = targetLon3857 - Number(tlon)
+  var a = Number(fov)/2
+  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(tlat)
+  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(tlon)
+  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(tlat)
+  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(tlon)
+
+  var result1 = [{ 
+    originLat: tlat,
+    originLon: tlon, 
+    targetLat: targetLat3857,
+    targetLon: targetLon3857,
+    leftLat: xLeft,
+    leftLon: yLeft,
+    rightLat: xRight,
+    rightLon: yRight
+  }]
+
+  return result1
 }
 
-function findRotationFromTarget(targetLat, targetLon, imageCoords) {
+function findRotationFromTarget(targetLat, targetLon, originLat, originLon) {
   var targetLon = Number(targetLon)
   var targetLat = Number(targetLat)
-  var ix = Number(imageCoords.x)
-  var iy = Number(imageCoords.y)
-  console.log("Target: " + targetLat + " " + targetLon) 
-  console.log("Origin: " + ix + " " + iy) 
+  var ix = Number(originLat)
+  var iy = Number(originLon)
   var lat = targetLat-ix
   var lon = targetLon-iy
   var distance = Math.sqrt(Math.pow(lat,2)+Math.pow(lon,2))
-  console.log("Distance: " + distance)
   if ((targetLat>=ix) && (targetLon<=iy)) {
+    console.log("Case 1")
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(-lon/distance)
-    var rad = 3.1415926536-((rad1+rad2)/2)
-    return rad
+    var rad = 3.1415926536-((rad1+rad2)/2)+1.5707963268
+    return radToDegree(rad) 
   } else if ((targetLat<=ix) && (targetLon<=iy)) {
+    console.log("Case 2")
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(-lon/distance)
-    var rad = ((rad1+rad2)/2)
-    return rad
+    var rad = ((rad1+rad2)/2)+1.5707963268
+    return radToDegree(rad) 
   } else if ((targetLat>=ix) && (targetLon>=iy)) {
+    console.log("Case 3")
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(lon/distance)
-    var rad = 3.1415926536+((rad1+rad2)/2) 
-    return rad
+    var rad = 3.1415926536+((rad1+rad2)/2)+1.5707963268
+    return radToDegree(rad) 
   }  else if ((targetLat<=ix) && (targetLon>=iy)) {
+    console.log("Case 4")
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(lon/distance)
-    var rad = 6.2831853072-((rad1+rad2)/2)
-    return rad
+    var rad = 6.2831853072-((rad1+rad2)/2) + 1.5707963268
+    return radToDegree(rad) 
   }
 
 }
-
-/* define polygon nodes from matched object */
-function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
-  
+function radToDegree(rad) {
+        var degrees = Math.abs(rad)*(180/Math.PI)
+        if (degrees > 360) { 
+          degrees = degrees - (Math.floor(degrees / 360)*360) 
+        } 
+        if (rad<0) {
+          degrees = 360 - degrees
+        }
+        return degrees
+      }
+function targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
   var parsed = JSON.parse(objectCoordsMap)
-  var lat5 = parsed[0].y
-  var lon5 = parsed[0].x
-
-  var imageCoordsGeo = new LatLon(Number(lat), Number(lon), LatLon.datum.WGS84)
-    // if object marked
-
+  var targetLat = Number(parsed[0].x)
+  var targetLon = Number(parsed[0].y)
+  //first rotate (depending on the position on the image)
+  var x = targetLat - Number(lat)
+  var y = targetLon - Number(lon)
+  //define offset
   var radInPixel = fov/Number(imageSize)
   var splitOb = objectCoords.split(" ")
   var selectionCenter = ((Number(splitOb[2])-Number(splitOb[0]))/2)+Number(splitOb[0])
   // if object to the left of the center - positiv offset
   var offset = (Number(imageSize)/2)-selectionCenter
-  var radOffset = offset*radInPixel
+  var a = offset*radInPixel
+  targetLat = ((x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)) 
+  targetLon = ((y*Math.cos(a)) - (x*Math.sin(a))  + Number(lon)) 
 
-  // get req.query.objectCoordsMap
+  return [targetLat, targetLon]
+}
 
-  var targetGeo0 = new LatLon(lat5, lon5, LatLon.datum.WGS84)
-  var target0 = targetGeo0.toCartesian()
-  console.log("SSSSSSSSSSSS: " + target0)
-  var imageCoords = imageCoordsGeo.toCartesian()
-  //var target0 = new Vector3d(targetLat0, targetLon0, imageCoords.z)
+function distanceToObject(lat, lon, targetLat, targetLon) {
+  return Math.sqrt(Math.pow(targetLat-lat,2)+Math.pow(targetLon-lon,2))
+}
+/* define polygon nodes from matched object */
+function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
+  
+  var target = targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) 
+  var targetLat = target[0]
+  var targetLon = target[1]
+  var distance = distanceToObject(Number(lat), Number(lon), targetLat, targetLon)
 
-  //set new origin
-  var result0 = target0.minus(imageCoords)
-  console.log("Rad offset: " + radOffset)
-  var preResult = Vec2D.ObjectVector(result0.x, result0.y).rotate(-1.5*radOffset)
-  var targetLat = preResult.x + Number(imageCoords.x)
-  var targetLon = preResult.y + Number(imageCoords.y)
+  //second rotate to calculate polygon coords
+  x = (targetLat - Number(lat)) * 1.5
+  y = (targetLon - Number(lon)) * 1.5
+  a = Number(fov)/2
+  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(lat)
+  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(lon)
+  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
+  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
 
-  var rotation = findRotationFromTarget(targetLat, targetLon, imageCoords)
-  console.log("FOUND Rotation: " + rotation)
-
-  return defineVector(fov, targetLat, targetLon, imageCoords)
+  var result = { 
+    originLat: lat,
+    originLon: lon, 
+    targetLat: targetLat,
+    targetLon: targetLon,
+    leftLat: xLeft,
+    leftLon: yLeft,
+    rightLat: xRight,
+    rightLon: yRight
+  }
+  var rotation = findRotationFromTarget(targetLat, targetLon, lat, lon)
+  console.log("Rotation from o : " + rotation)
+  return [ result, rotation ]
 
 }
 
+
+function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, objectCoords, objectCoordsMap) {
+  var targetO = targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) 
+  var targetLatO = targetO[0]
+  var targetLonO = targetO[1]
+  var distance = distanceToObject(Number(lat), Number(lon), targetLatO, targetLonO)
+
+  var targetR = targetFromRotation(rotation, lat, lon, distance)
+  var targetLatR = targetR[0]
+  var targetLonR = targetR[1]
+
+  var targetLat = (targetLatO + targetLatR)/2
+  var targetLon = (targetLonO + targetLonR)/2
+
+  var rotationO = findRotationFromTarget(targetLatO, targetLonO, lat, lon)
+  var rotationResult = (Number(rotationO)  + radToDegree(Number(rotation)))/2
+  console.log("Result rotation: " + rotationO + " " + radToDegree(Number(rotation)) + " " + rotationResult)
+
+  x = (targetLat - Number(lat)) * 1.5
+  y = (targetLon - Number(lon)) * 1.5
+  console.log("x,y " + x + " " + y)
+
+  a = Number(fov)/2
+  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(lat)
+  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(lon)
+  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
+  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
+
+  var result = { 
+    originLat: lat,
+    originLon: lon, 
+    targetLat: targetLat,
+    targetLon: targetLon,
+    leftLat: xLeft,
+    leftLon: yLeft,
+    rightLat: xRight,
+    rightLon: yRight
+  }
+
+  return [ result, rotationResult ]
+
+}
 router.get('/nextPage', function(req, res) {
-  console.log("From next page " + req.query.number + " " + req.query.angle)
+ // console.log("From next page " + req.query.number + " " + req.query.angle)
   var objects = ['car', 'traffic light', 'stop sign', 'cat', 'tree', 'house', 'flower']
   var obs = []
   var number = Number(req.query.number) +1
@@ -396,29 +511,36 @@ router.get('/nextPage', function(req, res) {
     ob3: obs[2]
   })
 })
-/* display polygon on map */
-router.get('/showPolygon', function(req, res) {
-  if (req.query.objectCoords!= undefined) {
-    console.log("Get OBJECT")
-    console.log("Center: " + req.query.objectCoordsMap)
-    console.log("Selected buildings: " + req.query.selectedBuildings)
-    var result = findPolygonFromObject(
-      1.244672497, req.query.lat, req.query.lon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap
-    )
-   } else {
-    var result = findPolygonFromRotation(1.244672497, req.query.mapRotation, req.query.lat, req.query.lon)
-   }
-  res.send({ 
-    coords: result.out, 
-    lat: req.query.lat, 
-    lon: req.query.lon, 
-    targetLat: result.targetGeo.lat,
-    targetLon: result.targetGeo.lon
-    })
 
+/**
+* Get input from client and send calculated polygon coordinates 
+* 
+*/
+router.get('/showPolygon', function(req, res) {
+  console.log("Im Server--------------------------")
+  console.log("modalCameraRotation " + req.query.modalCameraRotation + " " + typeof(req.query.modalCameraRotation)) 
+  var originLat = Number(JSON.parse(req.query.origin)[0])
+  var originLon = Number(JSON.parse(req.query.origin)[1])
+  if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
+    console.log("OBJEKT OHNE ROTATION")
+    var result = findPolygonFromObject(1.244672497, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
+   } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap=="y") {
+     console.log("Rotation ohne objekt")
+    var result = findPolygonFromRotation(1.244672497, req.query.mapRotation, originLat, originLon)
+   } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap!="y") {
+    console.log("Rotation AND objekt")
+    var result = findPolygonFromRotationAndObject(
+      1.244672497, req.query.mapRotation, 
+      originLat, originLon, req.query.imageSize, 
+      req.query.objectCoords, req.query.objectCoordsMap)
+   } 
+  res.send({ 
+    polygonCoords: JSON.stringify(result)
+  })
 });
 
 /* GET home page (Survey) */
+
 router.get('/survey', function(req, res) {
   var names = [
   126966710,
@@ -435,6 +557,7 @@ router.get('/survey', function(req, res) {
   }
   */
   // read exif
+  
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
   var result = parser.parse();
@@ -461,58 +584,7 @@ router.get('/', function(req, res) {
         });
 });
 
-/* GET home page */
-router.get('/test', function(req, res) {
-
-      res.render('raphael.ejs');
-
-});
-
-router.get('/demo1', function(req, res) {
-
-      res.render('demo1.ejs');
-
-});
-
 function intersectLineBBox(line, bbox) {
-  console.log("Function 1")
-   var result = false
-   var segments = [];
-     // top
-   segments[0] = [[bbox[0], bbox[3]], [bbox[2], bbox[3]]];
-   // bottom
-   segments[1] = [[bbox[0], bbox[1]], [bbox[2], bbox[1]]];
-   // left
-   segments[2] = [[bbox[0], bbox[1]], [bbox[0], bbox[3]]];
-   // right
-   segments[3] = [[bbox[2], bbox[3]], [bbox[2], bbox[1]]];
-
-   ax1,ay1,ax2,ay2,bx1,by1,bx2,by2
-
-   var ax1 = line[0][0]
-   var ay1 = line[0][1]
-   var ax2 = line[1][0]
-   var ay2 = line[1][1]
-
-   for (i in segments) {
-    var bx1 = segments[i][0][0]
-    var by1 = segments[i][0][1]
-    var bx2 = segments[i][1][0]
-    var by2 = segments[i][1][1]
-    var v1=(bx2-bx1)*(ay1-by1)-(by2-by1)*(ax1-bx1);
-    var v2=(bx2-bx1)*(ay2-by1)-(by2-by1)*(ax2-bx1);
-    var v3=(ax2-ax1)*(by1-ay1)-(ay2-ay1)*(bx1-ax1);
-    var v4=(ax2-ax1)*(by2-ay1)-(ay2-ay1)*(bx2-ax1);
-    var intersection = (v1*v2<0) && (v3*v4<0);
-    if (intersection) {
-      result = true
-      break
-    }
-   }
-   return result
-}
-function intersectLineBBox(line, bbox) {
-  console.log("Function 2")
    var result = "not intersected"
    var segments = [];
      // top
@@ -551,12 +623,7 @@ function intersectLineBBox(line, bbox) {
 
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
-  console.log("Rotation: " + req.body.mapRotation)
-  if (req.body.arrow=="showArrow") {
-    var arrow = "show"
-  } else {
-    var arrow = "do not show"
-  }
+  console.log("Rotation: +++++++++++++++++++++++++++++++ " + req.body.mapRotation )
   var radius = "100"
   var latlon = ""
   var polygon = ""
@@ -568,14 +635,11 @@ router.post('/overpass', function(req, res) {
   } else {
     radius = req.body.radius
     var latlon = req.body.properties.slice(1, req.body.properties.length-1)
-    console.log("LatLon: " + latlon)
     var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
   }
   //var data = 'way(poly:"51.962034 7.626290 51.961175 7.627492")["building"];'
   var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
-  /*var latlon = req.body.properties.slice(1, req.body.properties.length-1)
-  var splitTest = latlon.split(",")
-  var originTest = splitTest[0] + " " + splitTest[1] */
+
   request(
       { method: 'GET'
       , uri: url
@@ -591,7 +655,6 @@ router.post('/overpass', function(req, res) {
       /*var test = ""
       var testId = ""*/
       if (polygon=="") {
-        console.log("HIER")
         for (element in result) {
           var nodes = result[element].geometry
           var building = ""
@@ -612,8 +675,8 @@ router.post('/overpass', function(req, res) {
               var lon = Number(split[1])
             } else {
               var split = polygon.split(" ")
-              var lat = Number(split[4])
-              var lon = Number(split[5])
+              var lat = Number(split[0])
+              var lon = Number(split[1])
             }
             var point = turf.point([lon, lat]);
 
@@ -775,7 +838,7 @@ router.post('/overpass', function(req, res) {
               }
             }
             if (add) {
-              console.log("I'm element " + result[element].id)
+              //console.log("I'm element " + result[element].id)
               for (node in nodes) {
                     var lat = nodes[node].lat
                     var lon = nodes[node].lon
@@ -786,31 +849,6 @@ router.post('/overpass', function(req, res) {
           }         
       }
 
-
-      //var point1 = turf.point(0,0);
-      /*var testPolygon = originTest + " " + test
-      var testData = 'way(poly:"' + testPolygon + '")["building"];'
-      var testUrl = 'http://overpass-api.de/api/interpreter?data=[out:json];' + testData + 'out geom;';
-      */
-      /*
-       request(
-      { method: 'GET'
-      , uri: testUrl
-      , gzip: true
-      }
-    , function (error, response, body) {
-       var result = JSON.parse(body).elements
-      var buildings = []
-      for (element in result) {
-        var nodes = result[element].geometry
-        var building = ""
-        for (node in nodes) {
-          var lat = nodes[node].lat
-          var lon = nodes[node].lon
-          building =  building + lat + " " + lon + ":"
-        }
-        buildings.push(building) 
-      } */
       res.render("image.ejs", {
         //data: JSON.stringify(JSON.parse(body), null, 4)
         imagePath: req.body.imagePath,
@@ -819,8 +857,8 @@ router.post('/overpass', function(req, res) {
         building: true,
         radius: radius,
         bodyString: bodyString,
-        arrow: arrow,
-        rotation: req.body.mapRotation
+        rotation: req.body.mapRotation,
+        icon: req.body.icon
       });
    // })    
     });
@@ -852,7 +890,9 @@ router.post('/upload', function(req, res) {
         //gps: GPSLatitude, GPSLongitude           
         properties: JSON.stringify(dec),
         building: false,
-        radius: "100"
+        radius: "100",
+        rotation: '0',
+        icon: "point"
         // data: JSON.stringify(dec)
       });
 
