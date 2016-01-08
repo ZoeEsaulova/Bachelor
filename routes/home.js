@@ -190,65 +190,6 @@ router.get('/test', function(req, res) {
   res.render('sot.ejs');
 });
 
-/**
- * Defines polygon coordinates from the origin, target and FOV
- * @param {Number} fov            Field of view in radians
- * @param {String} targetLat      Latitude of the target point
- * @param {String} targetLon      Longitude of the target point
- * @param {[Number]} imageCoords  Coordinates of the origin
- * @return {json} geographical coordinates of the polygon 
- */
-function definePolygon(fov, targetLat, targetLon, imageCoords, target3857) {
-  var target = new Vector3d(targetLat, targetLon, imageCoords.z)
-  var targetGeo = target.toLatLonE(LatLon.datum.WGS84)
-  //set new origin
-  var result3 = target.minus(imageCoords)
-  //extend the vector
-  result3 = result3.times(1.2)
-  //create Vec2D objects and rotate them
-  var v0 = Vec2D.ObjectVector(result3.x, result3.y).rotate(-fov/2)
-  var v1 = Vec2D.ObjectVector(result3.x, result3.y).rotate(fov/2)
-  var left3 = new Vector3d(v0.getX(), v0.getY(), result3.z)
-  var right3 = new Vector3d(v1.getX(), v1.getY(), result3.z)
-
-  var left4 = new Vector3d(v0.getX()+imageCoords.x, v0.getY()+imageCoords.y, result3.z+imageCoords.z)
-  var right4 = new Vector3d(v1.getX()+imageCoords.x, v1.getY()+imageCoords.y, result3.z+imageCoords.z)
-
-  result1 = left4.toLatLonE(LatLon.datum.WGS84)
-  result2 = right4.toLatLonE(LatLon.datum.WGS84)
-
-  var outputGeo1 = 
-  result1.toString().slice(0,2) + " " + 
-  result1.toString().slice(3,5) + " " + 
-  result1.toString().slice(6,8)  + " " + 
-  result1.toString().slice(9,10) + " " + 
-  result1.toString().slice(12,15)  + " " + 
-  result1.toString().slice(16,18) + " " + 
-  result1.toString().slice(19,21)+ " " + 
-  result1.toString().slice(22,23)
-
-  var outputGeo2 = 
-  result2.toString().slice(0,2) + " " + 
-  result2.toString().slice(3,5) + " " + 
-  result2.toString().slice(6,8)  + " " + 
-  result2.toString().slice(9,10) + " " + 
-  result2.toString().slice(12,15)  + " " + 
-  result2.toString().slice(16,18) + " " + 
-  result2.toString().slice(19,21)+ " " + 
-  result2.toString().slice(22,23)
-
-  var splitted = outputGeo1.split(" ")
-  var output1 = dms2dec([ parseInt(splitted[0]), parseInt(splitted[1]), parseInt(splitted[2])],
-   splitted[3],[parseInt(splitted[4]),parseInt(splitted[5]),parseInt(splitted[6])],splitted[7])
-  splitted = outputGeo2.split(" ")
-  var output2 = dms2dec([ parseInt(splitted[0]), parseInt(splitted[1]), parseInt(splitted[2])],
-   splitted[3],[parseInt(splitted[4]),parseInt(splitted[5]),parseInt(splitted[6])],splitted[7])
-  var out = output1[0] + " " + output1[1] + " " + output2[0] + " " + output2[1]
-
-  return { out: out, targetGeo: targetGeo, origin: imageCoords, target3857: target3857 }
-
-}
-
 function targetFromRotation(rotation, tlat, tlon, distance) {
   var alpha = 0
   var lon = 0
@@ -406,7 +347,6 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   return [ result, rotation ]
 
 }
-
 
 function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, objectCoords, objectCoordsMap) {
   var targetO = targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) 

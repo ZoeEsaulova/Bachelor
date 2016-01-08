@@ -357,15 +357,6 @@
         });
       }
 
-      /* save current map rotation and proceed to the next image */
-      function submitImage(properties) {
-        document.getElementById("mapRotation").value = map.getView().getRotation()
-        document.getElementById("lat").value = properties[0]
-        document.getElementById("lon").value = properties[1]
-        jQuery( "#nextForm" ).submit();
-      }
-
-
       function defineCenter(bb) {
   /*
         var p1 = ol.proj.transform([ Number(bb[1]), Number(bb[0])], 'EPSG:3857', 'EPSG:4326')
@@ -378,16 +369,6 @@
         var center = [ { x: x, y: y } ]
         center = JSON.stringify(center)
         return center
-      }
-
-      function defineCenterMultiple(buildings) {
-        // NOT IMPLEMENTED YET!
-        /*
-        var lat3 = 0
-        var lon3 = 0
-        for (i in buildings) {
-          lat3 = lat3 
-        }*/
       }
 
       function submitAll(properties) {  
