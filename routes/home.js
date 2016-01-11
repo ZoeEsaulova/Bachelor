@@ -96,6 +96,10 @@ router.post('/submitForm', function(req, res) {
 router.get('/survey/part2', function(req, res) {
   res.render('part2.ejs');
 });
+
+router.get('/thanks', function(req, res) {
+  res.render('thanks.ejs');
+});
 /* Render different pages depending for the survey 
 *  there are 4 tests:
 *  test 1: display camera marker
@@ -104,7 +108,12 @@ router.get('/survey/part2', function(req, res) {
 *  test 4: display flag marker and buildings, disable bounding box on image
 */
 router.post('/survey/next', function(req, res) {
-  console.log("V  A  L  U  E  S  ___________________________________________")
+  var array = req.body.nextImage.split(" ") 
+  if (array.length==3 && req.body.test=="4") {
+    console.log("R E D I R E C T")
+    res.redirect("/thanks")
+  } else {
+      console.log("V  A  L  U  E  S  ___________________________________________")
   console.log("nextImage " + req.body.nextImage)
   console.log("mapRotation " + req.body.mapRotation)
   console.log("lat " + req.body.lat)
@@ -116,7 +125,7 @@ router.post('/survey/next', function(req, res) {
   var test = ""                               // test number (1 to 4)
   var next = ""                               // files which have alredy been tested
   var names = []                              // file names
-  var array = req.body.nextImage.split(" ")   // files that have been tested already
+   // files that have been tested already
   var showBuilding = false                    // if true, buildings in a certain radius will be displayed
   var arrow = "no"                            // type of a marker (no, flag or camera)
   var all = "false"                           // if true, bounding box on image will be disabled 
@@ -240,6 +249,8 @@ router.post('/survey/next', function(req, res) {
           modal: modal
         })
       })
+  }
+
 });
 
 
