@@ -80,7 +80,8 @@ router.get('/survey', function(req, res) {
     nextImage: x,
     showBuilding: false,
     test: "1",
-    all: "false"
+    all: "false",
+    modal: false
   });
 });
 
@@ -102,7 +103,16 @@ router.get('/survey/part2', function(req, res) {
 *  test 3: display camera marker and buildings
 *  test 4: display flag marker and buildings, disable bounding box on image
 */
-router.post('/next', function(req, res) {
+router.post('/survey/next', function(req, res) {
+  console.log("V  A  L  U  E  S  ___________________________________________")
+  console.log("nextImage " + req.body.nextImage)
+  console.log("mapRotation " + req.body.mapRotation)
+  console.log("lat " + req.body.lat)
+  console.log("lon " + req.body.lon)
+  console.log("test " + req.body.test)
+  console.log("known " + req.body.known + " " + req.body.knownModal)
+  console.log("COmputer skills: " + req.body.computerSkills + " " + req.body.inputName)
+  var modal = false
   var test = ""                               // test number (1 to 4)
   var next = ""                               // files which have alredy been tested
   var names = []                              // file names
@@ -110,6 +120,9 @@ router.post('/next', function(req, res) {
   var showBuilding = false                    // if true, buildings in a certain radius will be displayed
   var arrow = "no"                            // type of a marker (no, flag or camera)
   var all = "false"                           // if true, bounding box on image will be disabled 
+  if (array.length==2) {
+    modal = true
+  }
   //go to the next test if 3 images proceeded
   if (array.length==3 && req.body.test=="1") {
     test = "2"
@@ -223,7 +236,8 @@ router.post('/next', function(req, res) {
           showBuilding: showBuilding,
           arrow: arrow,
           test: test,
-          all: all
+          all: all,
+          modal: modal
         })
       })
 });
