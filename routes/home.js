@@ -23,7 +23,7 @@ var gju = require('geojson-utils');
 
 
 /**
- * Checks if array contains a sertain number
+ * Checks if array contains a certain number
  * @param {Number} random
  * @param {[Number]} array
  * @return {boolean} is in array
@@ -46,7 +46,46 @@ function randomInArray(random, array) {
 *
 */
 
-/* Render different pages depending on the test 
+/* Spacial Orientation Test*/
+router.get('/survey/welcome', function(req, res) {
+  res.render('survey_welcome.ejs');
+});
+/* GET home page (Survey) */
+
+router.get('/survey', function(req, res) {
+  var names = [
+  126966710,
+    //126807950,
+    126910684,
+    126807944
+  ]
+  var x = Math.floor((Math.random() * 3));
+  /*
+  if (!req.query.nextImage) {
+    var image = 0
+  } else {
+    var image = req.query.nextImage
+  }
+  */
+  // read exif
+  
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
+  var parser = require('exif-parser').create(buf);
+  var result = parser.parse();
+  var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+  res.render('home_for_survey.ejs', { 
+    coordsString: 'Home page', 
+    imageSource:"http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
+    properties: JSON.stringify(dec),
+    nextImage: x,
+    showBuilding: false,
+    test: "1",
+    all: "false"
+  });
+});
+
+
+/* Render different pages depending for the survey 
 *  there are 4 tests:
 *  test 1: display camera marker
 *  test 2: display flag marker and buildings
@@ -181,8 +220,23 @@ router.post('/next', function(req, res) {
 
 
 /* Display demo videos */
-router.get('/demo1', function(req, res) {
-  res.render('demo1.ejs');
+router.get('/demo/:test?', function(req, res) {
+  if (req.params.test=="1") {
+    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
+    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+  } else if (req.params.test=="2") {
+    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
+    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+  } else if (req.params.test=="3") {
+    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
+    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+  } else {
+    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
+    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+  }
+  res.render("demo.ejs", { 
+    url: url
+  }) ;
 });
 
 /* Spacial Orientation Test*/
@@ -190,6 +244,14 @@ router.get('/test', function(req, res) {
   res.render('sot.ejs');
 });
 
+
+/**
+ * Finds target coordinates from rotation
+ * @param {Number} rotation
+ * @param {Number} tlat Latitude coordinate of the origin
+ * @param {Number} tlon Longitude coordinate of the origin
+ * @return {Number} distance Distance to the target
+ */
 function targetFromRotation(rotation, tlat, tlon, distance) {
   var alpha = 0
   var lon = 0
@@ -217,7 +279,14 @@ function targetFromRotation(rotation, tlat, tlon, distance) {
 
   return [targetLat3857, targetLon3857]
 }
-/* define polygon nodes from given map rotation */ 
+
+/**
+ * Finds polygon coordinates from rotation
+ * @param {Number} rotation
+ * @param {Number} tlat Latitude coordinate of the origin
+ * @param {Number} tlon Longitude coordinate of the origin
+ * @return {fov} fov Field of view
+ */
 function findPolygonFromRotation(fov, rotation, tlat, tlon) {
   var distance = 300
   var target = targetFromRotation(rotation, tlat, tlon, distance)
@@ -247,6 +316,14 @@ function findPolygonFromRotation(fov, rotation, tlat, tlon) {
   return result1
 }
 
+/**
+ * Finds rotation from target coordinates
+ * @param {targetLat} tlat Latitude coordinate of the target
+ * @param {targetLon} tlon Longitude coordinate of the target
+ * @param {originLat} tlat Latitude coordinate of the origin
+ * @param {originLon} tlon Longitude coordinate of the origin
+ * @return {Number} distance Distance to the target
+ */
 function findRotationFromTarget(targetLat, targetLon, originLat, originLon) {
   var targetLon = Number(targetLon)
   var targetLat = Number(targetLat)
@@ -492,39 +569,7 @@ router.get('/showPolygon', function(req, res) {
   })
 });
 
-/* GET home page (Survey) */
 
-router.get('/survey', function(req, res) {
-  var names = [
-  126966710,
-    //126807950,
-    126910684,
-    126807944
-  ]
-  var x = Math.floor((Math.random() * 3));
-  /*
-  if (!req.query.nextImage) {
-    var image = 0
-  } else {
-    var image = req.query.nextImage
-  }
-  */
-  // read exif
-  
-  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
-  var parser = require('exif-parser').create(buf);
-  var result = parser.parse();
-  var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
-  res.render('home_for_survey.ejs', { 
-    coordsString: 'Home page', 
-    imageSource:"http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
-    properties: JSON.stringify(dec),
-    nextImage: x,
-    showBuilding: false,
-    test: "1",
-    all: "false"
-  });
-});
 
 
 /* GET home page */

@@ -133,7 +133,7 @@
           <h3 style="color: red; margin: 5px;">Instruction&nbsp;<%= test %>: </h3>
           <% if (test=="1") { %>
            <div class="well">You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing at when the photo was taken.<br>Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon points at the right direction.<br> You can switch between satellite and map view and zoom in and out as you like. 
-           <a target="_blank" href="/demo1" id="link">See Demo Video</a>
+           <a target="_blank" href="/demo/<%= test %>" id="link">See Demo Video</a>
           </div>
             <% } else if (test=="2"){ %>
                  <div class="well">The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building <b>on the map</b> to select it. It must be a building that you can see in the photo.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and resize the bounding box to mark the selected building <b>on the photo</b>.<br>You can switch between satellite and map view and zoom in and out as you like.
