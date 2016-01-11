@@ -84,7 +84,17 @@ router.get('/survey', function(req, res) {
   });
 });
 
+router.get('/survey/part1', function(req, res) {
+  res.render('part1.ejs');
+});
 
+router.post('/submitForm', function(req, res) {
+  res.redirect('/survey/part1');
+});
+
+router.get('/survey/part2', function(req, res) {
+  res.render('part2.ejs');
+});
 /* Render different pages depending for the survey 
 *  there are 4 tests:
 *  test 1: display camera marker
@@ -240,7 +250,7 @@ router.get('/demo/:test?', function(req, res) {
 });
 
 /* Spacial Orientation Test*/
-router.get('/test', function(req, res) {
+router.get('/survey/part1/start', function(req, res) {
   res.render('sot.ejs');
 });
 
@@ -466,7 +476,7 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   return [ result, rotationResult ]
 
 }
-router.get('/nextPage', function(req, res) {
+router.get('/survey/part1/next', function(req, res) {
  // console.log("From next page " + req.query.number + " " + req.query.angle)
   var objects = ['car', 'traffic light', 'stop sign', 'cat', 'tree', 'house', 'flower']
   var obs = []
@@ -520,13 +530,16 @@ router.get('/nextPage', function(req, res) {
     obs.push('')
     obs.push('')
     obs.push('')
+    finish = true
   }
-  res.send({
+    res.send({
     number: number,
     ob1: obs[0],
     ob2: obs[1],
     ob3: obs[2]
   })
+
+  
 })
 
 /**
