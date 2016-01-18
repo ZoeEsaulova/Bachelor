@@ -79,7 +79,7 @@
       }
       #next {
         position: relative;
-        left: 5px;
+        left: 85%;
         margin-top: 5px
       }
       #link {
@@ -310,26 +310,27 @@
         <div class="col-lg-6">
           <img id="myImg" class="img-thumbnail" src=<%= imageSource %> alt="your image"/>
           <div style="padding-right: 10px; padding-left: 10px;">
-          <h3 style="color: red; margin: 5px;">Instruction&nbsp;<%= test %>: </h3>
+          <h3 style="color: red; margin: 5px;" id="heading1" hidden>Instruction&nbsp;<%= test %>: </h3>
           <% if (test=="1") { %>
-           <div class="well">You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing at when the photo was taken.<br>Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon points at the right direction.<br> You can switch between satellite and map view and zoom in and out as you like. 
+           <div class="well" id="instructionWell" hidden>You can see a photo and a map. An icon on the map marks the place where the photo has been taken. Please try to define the direction the camera was pointing at when the photo was taken.<br>Use <b>Shift + Left Mouse Key</b> to rotate the map so that the icon points at the right direction.<br> You can switch between satellite and map view and zoom in and out as you like. 
            <a target="_blank" href="/demo/<%= test %>" id="link">See Demo Video</a>
           </div>
             <% } else if (test=="2"){ %>
-                 <div class="well">The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building <b>on the map</b> to select it. It must be a building that you can see in the photo.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and resize the bounding box to mark the selected building <b>on the photo</b>.<br>You can switch between satellite and map view and zoom in and out as you like.
+                 <div class="well" id="instructionWell" hidden>The icon on the map marks the place where the photo has been taken. All buildings within the 200-m radius are highlighted. Please do the following:<br>1. Click one building <b>on the map</b> to select it. It must be a building that you can see in the photo.<br>2. After you have selected a building on the map, a bounding box appears on the image. Move and resize the bounding box to mark the selected building <b>on the photo</b>.<br>You can switch between satellite and map view and zoom in and out as you like.
                  <a target="_blank" href="/test" id="link">See Demo Video</a>
           </div>
             <% } else if (test=="3") { %>
-                    <div class="well">This is the combination of the first two tasks. Please do the following:<br>1.Use <b>Shift+Left Mouse Key</b> to rotate the map and set the right camera direction<br>2. Click one building on the map to select it. It must be a building that you can see in the photo. <br>3. After you have selected a building on the map, a bounding box appears on the photo. Move and resize the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out as you like. 
+                    <div class="well" id="instructionWell" hidden>This is the combination of the first two tasks. Please do the following:<br>1.Use <b>Shift+Left Mouse Key</b> to rotate the map and set the right camera direction<br>2. Click one building on the map to select it. It must be a building that you can see in the photo. <br>3. After you have selected a building on the map, a bounding box appears on the photo. Move and resize the bounding box to mark the selected building on the image.<br>You can switch between satellite and map view and zoom in and out as you like. 
                     <a target="_blank" href="/test" id="link">See Demo Video</a>
                     </div>
             <% } else if (test=="4") { %>
-                    <div class="well">Press and hold <b>Shift key</b> and select <b>all</b> buildings which are displayed on the photo.
+                    <div class="well" id="instructionWell" hidden>Press and hold <b>Shift key</b> and select <b>all</b> buildings which are displayed on the photo.
                     <a target="_blank" href="/test" id="link">See Demo Video</a>
             </div> <% }  %>
           
           <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" hidden>Show polygon</button>
-          <form method="post" action="/survey/next" enctype="multipart/form-data" id="nextForm">
+          <form class="form-horizontal" method="post" action="/survey/next" enctype="multipart/form-data" id="nextForm">
+          <fieldset>
           <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
           <input value="x" id="mapRotation" name="mapRotation" hidden>
           <input value="x" id="lat" name="lat" hidden>
@@ -337,17 +338,43 @@
           <input value="<%= test %>" id="test" name="test" hidden>
           <input value="<%= test %>" id="inputName2" name="inputName2" hidden>
           <input value="<%= test %>" id="computerSkills2" name="computerSkills2" hidden>
-          <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Do you know this place?&nbsp;&nbsp;</label>
-          <label for="yes">&nbsp;&nbsp;&nbsp;&nbsp;Yes</label>
-          <input type="radio" name="known" value="Yes" id="yes" onchange="setKnown(this.id);">
-          <label for="no">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No</label>
-          <input type="radio" name="known" value="No" id="no" onchange="setKnown(this.id);">
           <% if (modal) { %>
-              <button id="next" type="button" class="btn btn-danger" onclick="submitImageAndModal(<%= properties %>)" disabled="disabled">Next image</button>
+              <button id="next" type="button" class="btn btn-danger" onclick="submitImageAndModal(<%= properties %>)" style="visibility: hidden;">Next image</button>
           <% } else { %>
-             <button id="next" type="button" class="btn btn-danger" onclick="submitImage(<%= properties %>)" disabled="disabled">Next image</button>
+             <button id="next" type="button" class="btn btn-danger" onclick="submitImage(<%= properties %>)" style="visibility: hidden;" >Next image</button>
           <% }%>
+          <div id="knownDiv">
+              <label class="col-lg-4 control-label" style="text-align: left;">Do you know the place shown in the photo?</label>
+              <div class="col-lg-8">
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="known" id="muensterYes" value="easily" style="text-align: left;">
+                    Yes, I know where it is and I could easily find this place on map.
+                  </label>
+                </div>
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="known" id="muensterYes" value="probably" style="text-align: left;">
+                    I've seen this place and I probably could find it on map. 
+                  </label>
+                </div>
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="known" id="muensterYes" value="familiar" style="text-align: left;">
+                    This place looks familiar to me, but I'm not sure if I can find it on map.
+                  </label>
+                </div>
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="known" id="muensterNo" value="noIdea" style="text-align: left;">
+                    No, I have no idea where it is. 
+                  </label>
+                </div>
+              </div>
+            </div>
+          <button id="saveKnown" type="button" class="btn btn-danger" onclick="setKnown();" style="position: relative; left: 90%;">Next</button>
           
+          </fieldset>
           </form>
           </div>
         </div>
@@ -357,7 +384,7 @@
           <!-- Map placeholder -->
           <div class="row">
             <div class="col-lg-12">
-              <div id="map" ></div>
+              <div id="map" disabled></div>
             </div>
           </div>
         </div>
@@ -365,6 +392,8 @@
     </div>
 
     <script>
+      jQuery('#map').fadeTo(500,0.01);
+
       function showBuildings(buildings, properties, arrow, rotation, all) {
 
         buildingsSeen = true
@@ -426,10 +455,14 @@
           showMarker(JSON.stringify(properties), arrow, rotation)
         }
       }
-      function setKnown(id){
-          document.getElementById("next").disabled = false;
-          document.getElementById("knownModal").value = id
-          console.log(id)
+      function setKnown(){
+          jQuery('#map').fadeTo(500,1);
+          document.getElementById("heading1").hidden = false;
+          document.getElementById("instructionWell").hidden = false;
+          jQuery("#next").css("visibility", "visible")
+          jQuery("#knownDiv").css("visibility", "hidden")
+          jQuery("#saveKnown").css("visibility", "hidden")
+
       }
       function activateSubmit() {
 
