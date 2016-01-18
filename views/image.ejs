@@ -72,6 +72,7 @@
         margin: 2px;
         position: relative;
         top: 50%;
+        margin-top: 7px;
       }
       #get {
         margin-right: 1px;
@@ -111,7 +112,7 @@
               <p>Use Shift + left mouse key to rotate the map so that the arrow shows to the direction the camera was pointed to as the foto was taken</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Got it</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
             </div>
           </div>
           
@@ -135,8 +136,8 @@
             </li>
             <li><button onclick="defineRotation(<%= properties %>, '<%= icon %>', '<%= rotation %>')" class="btn btn-info">Define camera rotation</button></li>
             <!--li><button id="openModal1" data-toggle="modal" data-target="#modalCameraRotation" hidden>openModal1</button></li-->
-            <li><button onclick="showPolygon(<%= properties %>)" class="btn btn-warning">Show polygon</button></li>
-            <li><button id="bOnImage"onclick="submitForm()" class="btn btn-warning" disabled>Buildings on image</button></li>
+            <li><button onclick="submitAll(<%= properties %>)" class="btn btn-warning">Show polygon</button></li>
+            <li><button id="bOnImage"onclick="submitForm()" class="btn btn-warning" disabled>Find buildings</button></li>
             <li>
             <form id="getObjects" action='/overpass' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
               <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
@@ -310,7 +311,7 @@
         });
         map.addLayer(vectorLayer2)
         // display line to the target
-        var featureL = new ol.Feature({
+        /*var featureL = new ol.Feature({
           geometry: new ol.geom.LineString([point6, point1])
         });
         vectorSource3 = new ol.source.Vector({
@@ -319,7 +320,7 @@
         vectorLayer3 = new ol.layer.Vector({
           source: vectorSource3
         });
-        map.addLayer(vectorLayer3) 
+        map.addLayer(vectorLayer3) */
         //activate "Buildings on image button"
         jQuery('#bOnImage').removeAttr('disabled');
         //transform polygon coordinates to EPSG:4326 and save them
@@ -583,6 +584,7 @@
       * @param properties: coordinates of the map center
       */
       function showBuildings(buildings, properties, icon, rotation) {
+        console.log("Buildings: " + JSON.stringify(buildings))
         if (icon=="arrow") {
           jQuery('#submitButton').removeAttr('disabled');
         }
