@@ -4,22 +4,34 @@ var mongoose = require('mongoose');
 
 
 var entrySchema = mongoose.Schema({
+	name: String,
 	age: Number,
 	sex: String,
-	large: String, //largest room
-	small: String, //smallest room
-	like: String,
-	dislike: String,
-	room1: { 
-		sp: Number,
-		open: Number,
-		rSpace: Number,
-		invite: Number,
-		rest: Number,
-		cozy: Number,
-		roomy: Number,
-		wide: Number,
-		small: Number,
+	livingInMuenster: String,
+	howLong: Number,
+	visitMünster: Number,
+	compSkills: Number,
+	digitalMaps: Number,
+	photoServices: Number,
+	sot: [ Number ],
+	sotTime: String,
+	test1: { 
+		images: [ { type: mongoose.Schema.Types.ObjectId, ref: 'TestImage' } ],
+		easy: Number,
+		quickly: Number,
+		comfortable: Number,
+		difficult: String,
+		like: String,
+		dislike: String
+	},
+	test2: {
+		images: [ { type: mongoose.Schema.Types.ObjectId, ref: 'TestImage' } ],
+		easy: Number,
+		quickly: Number,
+		comfortable: Number,
+		difficult: String,
+		like: String,
+		dislike: String
 	}
 });
 

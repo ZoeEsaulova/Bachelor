@@ -3,6 +3,8 @@ var async = require('async');
 var router = express.Router();
 var MyImage = require('../models/image');
 var Entry = require('../models/entry');
+var MyTestImage = require('../models/testImage');
+var Entry = require('../models/entry');
 var multer = require('multer');
 var fs = require('fs');
 router.use(multer({ dest: './public/images', inMemory: true }).single('image'));
@@ -21,6 +23,9 @@ var turf = require('turf');
 //var wgs = require('WGS84IntersectUtil'); 
 var gju = require('geojson-utils');
 var po = require('poly-overlap');
+var reproject = require('reproject-spherical-mercator');
+var merc = require('mercator-projection');
+var proj4 = require('proj4');
 
 
 /**
@@ -102,19 +107,17 @@ router.get('/thanks', function(req, res) {
   res.render('thanks.ejs');
 });
 /* Render different pages depending for the survey 
-*  there are 4 tests:
+*  there are 2 tests:
 *  test 1: display camera marker
 *  test 2: display flag marker and buildings
-*  test 3: display camera marker and buildings
-*  test 4: display flag marker and buildings, disable bounding box on image
 */
 router.post('/survey/next', function(req, res) {
   var array = req.body.nextImage.split(" ") 
-  if (array.length==3 && req.body.test=="4") {
+  if (array.length==3 && req.body.test=="2") {
     console.log("R E D I R E C T")
     res.redirect("/thanks")
   } else {
-      console.log("V  A  L  U  E  S  ___________________________________________")
+  console.log("V  A  L  U  E  S  ___________________________________________")
   console.log("nextImage " + req.body.nextImage)
   console.log("mapRotation " + req.body.mapRotation)
   console.log("lat " + req.body.lat)
@@ -136,12 +139,6 @@ router.post('/survey/next', function(req, res) {
   //go to the next test if 3 images proceeded
   if (array.length==3 && req.body.test=="1") {
     test = "2"
-    array = []
-  } else if (array.length==3 && req.body.test=="2") {
-    test = "3"
-    array = []
-  } else if (array.length==3 && req.body.test=="3") {
-    test = "4"
     array = []
   } else {
     test = req.body.test
@@ -165,26 +162,7 @@ router.post('/survey/next', function(req, res) {
     ]
     arrow = '"Point"'
     showBuilding = true
-  } else if (test=="3") {
-     names = [
-      //126910529,
-      126966710, //USED FOR DEMOS ONLY
-      126910521,
-      126910508
-    ]
-    arrow = "arrow"
-    showBuilding = true
-  } else if (test=="4") {
-     names = [
-      //126910693,
-      126966710, //USED FOR DEMOS ONLY
-      126910706,
-      126807938
-    ]
-    arrow = '"Point"'
-    showBuilding = true
-    all = "true"
-  }
+  } 
   // files which have alredy been tested
   var nextArray = []
   for (index in array) {
@@ -263,13 +241,7 @@ router.get('/demo/:test?', function(req, res) {
   } else if (req.params.test=="2") {
     //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
     var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
-  } else if (req.params.test=="3") {
-    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
-    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
-  } else {
-    //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
-    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
-  }
+  } 
   res.render("demo.ejs", { 
     url: url
   }) ;
@@ -472,7 +444,10 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   var targetLatO = targetO[0]
   var targetLonO = targetO[1]
   var distance = distanceToObject(Number(lat), Number(lon), targetLatO, targetLonO)
-
+  var factor = 2.83477579755-(0.00522655115197*distance)
+   if (factor<1.2) {
+    factor = 1.2
+   }
   var targetR = targetFromRotation(rotation, lat, lon, distance)
   var targetLatR = targetR[0]
   var targetLonR = targetR[1]
@@ -484,8 +459,8 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   var rotationResult = (Number(rotationO)  + radToDegree(Number(rotation)))/2
   console.log("Result rotation: " + rotationO + " " + radToDegree(Number(rotation)) + " " + rotationResult)
 
-  x = (targetLat - Number(lat)) * 1.5
-  y = (targetLon - Number(lon)) * 1.5
+  x = (targetLat - Number(lat)) * factor
+  y = (targetLon - Number(lon)) * factor
   console.log("x,y " + x + " " + y)
 
   a = Number(fov)/2
@@ -597,6 +572,7 @@ router.get('/showPolygon', function(req, res) {
   var sensorWidth = 6.17
   var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
   console.log(fov)
+  // only object(s)
   if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
     console.log("OBJEKT OHNE ROTATION")
     var result = findPolygonFromObject(fov, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
@@ -615,7 +591,84 @@ router.get('/showPolygon', function(req, res) {
   })
 });
 
+router.post('/submitToDatabase', function(req, res) {
 
+
+
+  console.log("Im Server submitToDatabase") 
+  var r = 360-Number(radToDegree(req.body.mapRotation))
+  console.log("Rotation: " + r)
+  var originLat = Number(JSON.parse(req.body.origin)[0])
+  var originLon = Number(JSON.parse(req.body.origin)[1])
+  var wholePath = 'C:/users/Zoe/Bachelor/public' + req.body.imagePath
+  //Calculate FOV
+  // read exif data of a current image
+
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.body.imagePath);      
+  var parser = require('exif-parser').create(buf);
+  console.log(buf)
+  var result = parser.parse();
+  // read focal length
+  var focalLength = result.tags.FocalLength
+  console.log("Focal length: " + focalLength)
+  var sensorWidth = 6.17
+  var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
+  console.log(fov)
+  // only object(s)
+  if (req.body.objectCoordsMap!="y" && req.body.modalCameraRotation=="t" && req.body.multipleObjects!="Yes" ) {
+    console.log("OBJEKT(s) OHNE ROTATION")
+    var result = findPolygonFromObject(fov, originLat, originLon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)
+   } else if (req.body.modalCameraRotation=="f" && req.body.objectCoordsMap=="y") {
+     console.log("Rotation ohne objekt")
+    var result = findPolygonFromRotation(fov, req.body.mapRotation, originLat, originLon, focalLength)
+   } else if (req.body.modalCameraRotation=="f" && req.body.objectCoordsMap!="y" && req.body.multipleObjects!="Yes") {
+    console.log("Rotation AND objekt")
+    var result = findPolygonFromRotationAndObject(
+      fov, req.body.mapRotation, 
+      originLat, originLon, req.body.imageSize, 
+      req.body.objectCoords, req.body.objectCoordsMap)
+   } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="f") {
+      console.log("Rotation AND objekts ")
+      //Save to Database
+      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
+        myImage.direction = Number(req.body.mapRotation)
+        myImage.buildings = JSON.parse(req.body.selectedBuildings)
+        myImage.save()
+      })
+      res.redirect("/")
+   } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="t") {
+      console.log("Only objekts ")
+      var parsed = JSON.parse(req.body.objectCoordsMap)
+      var targetLat = Number(parsed[0].x)
+      var targetLon = Number(parsed[0].y)
+      //Save to Database
+      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
+        myImage.direction = Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon))
+        myImage.buildings = JSON.parse(req.body.selectedBuildings)
+        myImage.save()
+        console.log("Dir : " + myImage.direction)
+      })
+      
+      res.redirect("/")
+   }
+   var point1 = [ Number(result[0].originLat), Number(result[0].originLon) ]
+    var point2 = [ Number(result[0].leftLat), Number(result[0].leftLon) ]
+    var point3 = [ Number(result[0].rightLat), Number(result[0].rightLon) ]
+    var point4 = [ Number(result[0].originLat), Number(result[0].originLon) ]
+
+  var coords = []
+  coords.push(point1)
+  coords.push(point2)
+  coords.push(point3)
+  coords.push(point4)
+  var polyCoords = ""
+  for (x in coords) {
+    var mercator = proj4(proj4('EPSG:3857'), proj4('EPSG:4326'), coords[x])
+    polyCoords = polyCoords + mercator[1] + " " + mercator[0] + " "
+  }
+  console.log("Mercator: " + polyCoords)
+  // send overpass request 
+});
 
 
 /* GET home page */
@@ -801,6 +854,7 @@ router.post('/overpass', function(req, res) {
   //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
   if (req.body.polyCoords!="x") {
     var polygon = req.body.polyCoords
+    console.log("Polygon in overpass: " + req.body.polyCoords)
     var data = 'way(poly:"' + polygon + '")["building"];'
   } else {
     radius = req.body.radius
@@ -965,7 +1019,7 @@ router.post('/overpass', function(req, res) {
                       coordsX.push([lon,lat])               
                     }
                     coords.push(coords[0])
-                    console.log("First: " + coords[0] + " " + coords[coords.length-1])
+                  //  console.log("First: " + coords[0] + " " + coords[coords.length-1])
                 try { 
                   var poly = turf.polygon([coordsX])
                 } catch(err) {
@@ -1233,7 +1287,7 @@ router.post('/upload', function(req, res) {
         // data: JSON.stringify(dec)
       });
 
-/* WORKING
+/* WORKING*/
 //save image in db
 var image = new MyImage({ 
     name: req.file.originalname,
@@ -1244,7 +1298,7 @@ var image = new MyImage({
     if (err) return console.error(err)
       else console.log("Saved in database")
   });
-*/
+
 
       } 
     });
