@@ -67,7 +67,7 @@
     </style>
   </head>
 
-  <body onload="showMarker(<%= properties %>)">
+  <body onload="showMarkers(<%= imageData %>)">
     <!-- Navigation bar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
           <div class="container">
@@ -126,6 +126,13 @@
         var rotateControl = new ol.control.Rotate();
         var zoomControl = new ol.control.Zoom();
         var layerSwitcher = new ol.control.LayerSwitcher();
+              var vectorLayer
+      var vectorLayer4
+      var vectorLayer5
+      var vectorSource2
+      var vectorLayer2
+      var vectorSource3
+      var vectorLayer3
 
       // create map
         var map = new ol.Map({
@@ -155,18 +162,25 @@
         /* add marker 
         * @param properties: marker coordinates
         */
-        function showMarker(properties) {
-         
-          if (properties) {
-            var lat = properties[0]
-            var lon = properties[1]
-      
-            var iconFeatures=[];
-            var iconFeature = new ol.Feature({
-              geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
-              name: 'Muenster'
+        function showMarkers(imageData) {
+          console.log("ImageData: " + imageData.length)
+          console.log("Markers coords: " + imageData[0].coords[0])
+
+          if (imageData!=undefined) {
+
+            var iconFeatures=[]
+            for (x in imageData) {
+              var lat = imageData[x].coords[0]
+              var lon = imageData[x].coords[1]
+              var iconFeature = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+                name: 'Muenster',
+                buildings: imageData[x].buildings
             });
-            iconFeatures.push(iconFeature);
+              iconFeatures.push(iconFeature)
+            }
+            
+            
             var vectorSource = new ol.source.Vector({
               features: iconFeatures 
             });
@@ -183,13 +197,47 @@
               source: vectorSource,
               style: iconStyle
             });
-            var newView = new ol.View({
-              center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
-              zoom: 17
-            })
 
             map.addLayer(vectorLayer)
-            map.setView(newView)
+            var mySelectInteraction = new ol.interaction.Select({ layers: [vectorLayer]})
+            mySelectInteraction.getFeatures().on('add', function(e) {
+              if (vectorLayer4!=undefined) {
+                map.removeLayer(vectorLayer4)
+              }
+              var feature = e.element 
+              var buildings = feature.getProperties().buildings
+              console.log("yeeee: " + JSON.stringify(buildings))
+              var features = []
+              for (x in buildings) {
+                var feature = new ol.Feature({
+                  name: buildings[x].id,
+                  geometry: new ol.geom.Polygon(buildings[x].geometry)
+                });
+                features.push(feature)
+              }
+              
+              var vectorSource4 = new ol.source.Vector({
+                features: features
+              });
+              var myStyle = new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                  color: 'orange',
+                  width: 3
+                }),
+                fill: new ol.style.Fill({
+                  color: 'rgba(255, 153, 0, 0.5)'
+                })
+              })
+              vectorLayer4 = new ol.layer.Vector({
+                      source: vectorSource4,
+                      style: myStyle
+              })
+              
+              map.addLayer(vectorLayer4)
+              console.log()
+            })
+            map.addInteraction(mySelectInteraction) 
+
           }
         }
 

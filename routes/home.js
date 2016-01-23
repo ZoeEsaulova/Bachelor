@@ -678,12 +678,8 @@ router.post('/submitToDatabase', function(req, res) {
         myImage.save()
       }) 
 
-      res.render("home.ejs", {
 
-        buildingCoords: JSON.stringify(buildings),
-        properties: "[51.964045, 7.609542]"
-
-      });
+      res.redirect("/");
    // })    
     });
 });
@@ -700,20 +696,11 @@ router.get('/', function(req, res) {
             imageData.push(images[i])
           }
         }
-        console.log("Images: " + JSON.stringify(imageData))
-
-
-
-
-
-
-
-
-
 
         res.render('home.ejs', { 
         coordsString: 'Home page', 
         properties: "[51.964045, 7.609542]",
+        imageData: JSON.stringify(imageData)
         });
       })
       
