@@ -150,7 +150,7 @@
               <input value="x" id="polyCoords" name="polyCoords" style="width:15" hidden>
               <input value=<%= properties %> id="properties" name="properties" style="width:15" hidden>
               <input value=<%= imagePath %> id="imagePath" name="imagePath" style="width:15" hidden>
-              <input value="0" id="mapRotation" name="mapRotation" style="width:30" hidden>
+              <input value="0" id="mapRotation2" name="mapRotation" style="width:30" hidden>
               <input value="x" id="icon" name="icon" style="width:30" hidden>
               <button onclick="submitForm()" style="white-space: nowrap;" class="btn btn-info" id="get">Mark buildings</button>
      
@@ -205,11 +205,7 @@
       var modalCameraRotation = true
       var currentIcon = ""
       // TBD: get coordinates of click
-      function submitForm() {
-        document.getElementById("mapRotation").value = map.getView().getRotation();
-        document.getElementById("icon").value = currentIcon;
-        jQuery("#getObjects").submit()
-      }
+      
 
       // display uploaded image
       function preview(img, selection) {
@@ -286,6 +282,11 @@
         return degrees
       }
           
+      function submitForm() {
+        document.getElementById("mapRotation2").value = map.getView().getRotation();
+        document.getElementById("icon").value = currentIcon;
+        jQuery("#getObjects").submit()
+      }
       /**
       * Displays polygon on the map from the given coordinates
       * @param {String} polygonCoords Coordinates of all polygon points
@@ -301,11 +302,11 @@
         console.log("TEst 3 " + polygonCoords )
         var pc = JSON.parse(polygonCoords)
         console.log("Rotation: from Ob " + pc[1] )
-        var point1 = [ Number(pc[0].originLat), Number(pc[0].originLon) ]
-        var point2 = [ Number(pc[0].leftLat), Number(pc[0].leftLon) ]
-        var point3 = [ Number(pc[0].rightLat), Number(pc[0].rightLon) ]
-        var point4 = [ Number(pc[0].originLat), Number(pc[0].originLon) ]
-        var point6 = [ Number(pc[0].targetLat), Number(pc[0].targetLon) ]
+        var point1 = [ Number(pc[0][0].originLat), Number(pc[0][0].originLon) ]
+        var point2 = [ Number(pc[0][0].leftLat), Number(pc[0][0].leftLon) ]
+        var point3 = [ Number(pc[0][0].rightLat), Number(pc[0][0].rightLon) ]
+        var point4 = [ Number(pc[0][0].originLat), Number(pc[0][0].originLon) ]
+        var point6 = [ Number(pc[0][0].targetLat), Number(pc[0][0].targetLon) ]
         // display polygon on map
         var feature = new ol.Feature({
           geometry: new ol.geom.Polygon([[point1, point2, point3, point4]]),
@@ -613,7 +614,7 @@
       * @param properties: coordinates of the map center
       */
       function showBuildings(buildings, properties, icon, rotation) {
-        console.log("Buildings: " + JSON.stringify(buildings))
+        console.log("New rotation from server: " + rotation)
         if (icon=="arrow") {
           jQuery('#submitButton').removeAttr('disabled');
         }
@@ -659,7 +660,7 @@
                 source: vectorSource4,
                 style: myStyle
         });
-  
+  console.log("New rotation: " + rotation)
         var newView2 = new ol.View({
             center: ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'),
             zoom: 17,

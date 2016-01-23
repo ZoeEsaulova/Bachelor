@@ -297,7 +297,7 @@ function targetFromRotation(rotation, tlat, tlon, distance) {
  */
 function findPolygonFromRotation(fov, rotation, tlat, tlon, focal) {
   var distance = 16.0437156645*Number(focal) + 190.362376587
-  console.log("Distance: " + distance)
+  console.log("findPolygonFromRotation: " + fov + " " + rotation  + " " + tlat + " " + tlon + " " + focal)
   var target = targetFromRotation(rotation, tlat, tlon, distance)
   var targetLat3857 = target[0]
   var targetLon3857 = target[1]
@@ -321,8 +321,8 @@ function findPolygonFromRotation(fov, rotation, tlat, tlon, focal) {
     rightLat: xRight,
     rightLon: yRight
   }]
-
-  return result1
+  var newRotation = 360-radToDegree(Number(rotation))
+  return [ result1,  newRotation ]
 }
 
 /**
@@ -342,29 +342,25 @@ function findRotationFromTarget(targetLat, targetLon, originLat, originLon) {
   var lon = targetLon-iy
   var distance = Math.sqrt(Math.pow(lat,2)+Math.pow(lon,2))
   if ((targetLat>=ix) && (targetLon<=iy)) {
-    console.log("Case 1")
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(-lon/distance)
     var rad = 3.1415926536-((rad1+rad2)/2)+1.5707963268
-    return radToDegree(rad) 
+    return 360-radToDegree(rad) 
   } else if ((targetLat<=ix) && (targetLon<=iy)) {
-    console.log("Case 2")
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(-lon/distance)
     var rad = ((rad1+rad2)/2)+1.5707963268
-    return radToDegree(rad) 
+    return 360-radToDegree(rad) 
   } else if ((targetLat>=ix) && (targetLon>=iy)) {
-    console.log("Case 3")
     var rad1 = Math.acos(lat/distance)
     var rad2 = Math.asin(lon/distance)
     var rad = 3.1415926536+((rad1+rad2)/2)+1.5707963268
-    return radToDegree(rad) 
+    return 360-radToDegree(rad) 
   }  else if ((targetLat<=ix) && (targetLon>=iy)) {
-    console.log("Case 4")
     var rad1 = Math.acos(-lat/distance)
     var rad2 = Math.asin(lon/distance)
     var rad = 6.2831853072-((rad1+rad2)/2) + 1.5707963268
-    return radToDegree(rad) 
+    return 360-radToDegree(rad) 
   }
 
 }
@@ -408,12 +404,10 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   var targetLat = target[0]
   var targetLon = target[1]
   var distance = distanceToObject(Number(lat), Number(lon), targetLat, targetLon)
-   console.log("DISTANCE TO OBJECT: " + distance)
    var factor = 2.83477579755-(0.00522655115197*distance)
    if (factor<1.2) {
     factor = 1.2
    }
-   console.log("Factor: " + factor)
   //second rotate to calculate polygon coords
   x = (targetLat - Number(lat)) * factor
   y = (targetLon - Number(lon)) * factor
@@ -423,7 +417,7 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
   var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
   var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
 
-  var result = { 
+  var result = [{ 
     originLat: lat,
     originLon: lon, 
     targetLat: targetLat,
@@ -432,9 +426,8 @@ function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoo
     leftLon: yLeft,
     rightLat: xRight,
     rightLon: yRight
-  }
+  }]
   var rotation = findRotationFromTarget(targetLat, targetLon, lat, lon)
-  console.log("Rotation from o : " + rotation)
   return [ result, rotation ]
 
 }
@@ -456,12 +449,10 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   var targetLon = (targetLonO + targetLonR)/2
 
   var rotationO = findRotationFromTarget(targetLatO, targetLonO, lat, lon)
-  var rotationResult = (Number(rotationO)  + radToDegree(Number(rotation)))/2
-  console.log("Result rotation: " + rotationO + " " + radToDegree(Number(rotation)) + " " + rotationResult)
+  var rotationResult = (Number(rotationO)  + (360-radToDegree(Number(rotation))))/2
 
   x = (targetLat - Number(lat)) * factor
   y = (targetLon - Number(lon)) * factor
-  console.log("x,y " + x + " " + y)
 
   a = Number(fov)/2
   var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(lat)
@@ -469,7 +460,7 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
   var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
 
-  var result = { 
+  var result = [{ 
     originLat: lat,
     originLon: lon, 
     targetLat: targetLat,
@@ -478,7 +469,7 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
     leftLon: yLeft,
     rightLat: xRight,
     rightLon: yRight
-  }
+  }]
 
   return [ result, rotationResult ]
 
@@ -564,14 +555,12 @@ router.get('/showPolygon', function(req, res) {
 
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.query.imagePath);      
   var parser = require('exif-parser').create(buf);
-  console.log(buf)
   var result = parser.parse();
   // read focal length
   var focalLength = result.tags.FocalLength
   console.log("Focal length: " + focalLength)
   var sensorWidth = 6.17
   var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
-  console.log(fov)
   // only object(s)
   if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
     console.log("OBJEKT OHNE ROTATION")
@@ -586,15 +575,13 @@ router.get('/showPolygon', function(req, res) {
       originLat, originLon, req.query.imageSize, 
       req.query.objectCoords, req.query.objectCoordsMap)
    } 
+   console.log("Result in showPolygon: " + JSON.stringify(result))
   res.send({ 
     polygonCoords: JSON.stringify(result)
   })
 });
 
 router.post('/submitToDatabase', function(req, res) {
-
-
-
   console.log("Im Server submitToDatabase") 
   var r = 360-Number(radToDegree(req.body.mapRotation))
   console.log("Rotation: " + r)
@@ -606,14 +593,13 @@ router.post('/submitToDatabase', function(req, res) {
 
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.body.imagePath);      
   var parser = require('exif-parser').create(buf);
-  console.log(buf)
   var result = parser.parse();
   // read focal length
   var focalLength = result.tags.FocalLength
   console.log("Focal length: " + focalLength)
   var sensorWidth = 6.17
   var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
-  console.log(fov)
+
   // only object(s)
   if (req.body.objectCoordsMap!="y" && req.body.modalCameraRotation=="t" && req.body.multipleObjects!="Yes" ) {
     console.log("OBJEKT(s) OHNE ROTATION")
@@ -630,8 +616,9 @@ router.post('/submitToDatabase', function(req, res) {
    } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="f") {
       console.log("Rotation AND objekts ")
       //Save to Database
+      console.log("Rotation: " + req.body.mapRotation + " " + radToDegree(Number(req.body.mapRotation)))
       MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
-        myImage.direction = Number(req.body.mapRotation)
+        myImage.direction = 360-radToDegree(Number(req.body.mapRotation))
         myImage.buildings = JSON.parse(req.body.selectedBuildings)
         myImage.save()
       })
@@ -646,125 +633,91 @@ router.post('/submitToDatabase', function(req, res) {
         myImage.direction = Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon))
         myImage.buildings = JSON.parse(req.body.selectedBuildings)
         myImage.save()
-        console.log("Dir : " + myImage.direction)
       })
       
       res.redirect("/")
    }
-   var point1 = [ Number(result[0].originLat), Number(result[0].originLon) ]
-    var point2 = [ Number(result[0].leftLat), Number(result[0].leftLon) ]
-    var point3 = [ Number(result[0].rightLat), Number(result[0].rightLon) ]
-    var point4 = [ Number(result[0].originLat), Number(result[0].originLon) ]
+   // Transformation 
+   var point1 = [ Number(result[0][0].originLat), Number(result[0][0].originLon) ]
+    var point2 = [ Number(result[0][0].leftLat), Number(result[0][0].leftLon) ]
+    var point3 = [ Number(result[0][0].rightLat), Number(result[0][0].rightLon) ]
+    var point4 = [ Number(result[0][0].originLat), Number(result[0][0].originLon) ]
 
   var coords = []
   coords.push(point1)
   coords.push(point2)
   coords.push(point3)
   coords.push(point4)
-  var polyCoords = ""
+  var polygon = ""
   for (x in coords) {
     var mercator = proj4(proj4('EPSG:3857'), proj4('EPSG:4326'), coords[x])
-    polyCoords = polyCoords + mercator[1] + " " + mercator[0] + " "
+    polygon = polygon + mercator[1] + " " + mercator[0] + " "
   }
-  console.log("Mercator: " + polyCoords)
   // send overpass request 
+  var latlon = ""
+  var radius = "100"
+  var data = 'way(poly:"' + polygon + '")["building"];'
+  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
+  request(
+      { method: 'GET'
+      , uri: url
+      , gzip: true
+      , lalon: latlon
+      , polygon: polygon
+      , wholePath: wholePath
+      }
+    , function (error, response, body) { 
+
+      var bodyString = body
+      console.log("Polygon: " + polygon)
+      var buildings = findViewableBuildings(polygon, body, latlon)[0]
+      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
+        console.log("Image found " +  Number(result[1]) + " " + buildings)
+        myImage.direction = Number(result[1])
+        myImage.buildings = buildings
+        myImage.save()
+      }) 
+
+      res.render("home.ejs", {
+
+        buildingCoords: JSON.stringify(buildings),
+        properties: "[51.964045, 7.609542]"
+
+      });
+   // })    
+    });
 });
 
 
 /* GET home page */
 router.get('/', function(req, res) {
+      // Find saved images
+      MyImage.find({}).exec(function(err,images) {
 
-      res.render('home.ejs', { 
+        var imageData = []
+        for (var i=0; i<images.length; i++) {
+          if (images[i].buildings.length>0) {
+            imageData.push(images[i])
+          }
+        }
+        console.log("Images: " + JSON.stringify(imageData))
+
+
+
+
+
+
+
+
+
+
+        res.render('home.ejs', { 
         coordsString: 'Home page', 
         properties: "[51.964045, 7.609542]",
-
         });
+      })
+      
 });
-
-function intersectLineBBox(line, bbox) {
-   var result = "not intersected"
-   var segments = []
-   var bbPoints = []
-/*
-     // top
-   segments[0] = [[bbox[0], bbox[3]], [bbox[2], bbox[3]]];
-   // bottom
-   segments[1] = [[bbox[0], bbox[1]], [bbox[2], bbox[1]]];
-   // left
-   segments[2] = [[bbox[0], bbox[1]], [bbox[0], bbox[3]]];
-   // right
-   segments[3] = [[bbox[2], bbox[3]], [bbox[2], bbox[1]]];
-*/
-   // top
-   segments[0] = [[bbox[0][1], bbox[0][0]], [bbox[1][1], bbox[1][0]]];
-   // bottom
-   segments[1] = [[bbox[1][1], bbox[1][0]], [bbox[2][1], bbox[2][0]]];
-   // left
-   segments[2] = [[bbox[2][1], bbox[2][0]], [bbox[3][1], bbox[3][0]]];
-   // right
-   segments[3] = [[bbox[3][1], bbox[3][0]], [bbox[0][1], bbox[0][0]]];
-   ax1,ay1,ax2,ay2,bx1,by1,bx2,by2
-
-   var ax1 = line[0][0]
-   var ay1 = line[0][1]
-   var ax2 = line[1][0]
-   var ay2 = line[1][1]
-
-   for (i in segments) {
-    if (bbPoints.length>1) {
-      break
-    }
-    var bx1 = segments[i][0][0]
-    var by1 = segments[i][0][1]
-    var bx2 = segments[i][1][0]
-    var by2 = segments[i][1][1]
-    
-    /*var v1=(bx2-bx1)*(ay1-by1)-(by2-by1)*(ax1-bx1);
-    var v2=(bx2-bx1)*(ay2-by1)-(by2-by1)*(ax2-bx1);
-    var v3=(ax2-ax1)*(by1-ay1)-(ay2-ay1)*(bx1-ax1);
-    var v4=(ax2-ax1)*(by2-ay1)-(ay2-ay1)*(bx2-ax1);
-    var intersection = (v1*v2<0) && (v3*v4<0);
-    if (intersection) {
-      result = "intersected"
-      break
-    }*/
-    ua_t = (bx2 - bx1) * (ay1 - by1) - (by2 - by1) * (ax1 - bx1),
-    ub_t = (ax2 - ax1) * (ay1 - by1) - (ay2 - ay1) * (ax1 - bx1),
-    u_b = (by2 - by1) * (ax2 - ax1) - (bx2 - bx1) * (ay2 - ay1);
-        if (u_b != 0) {
-          var ua = ua_t / u_b,
-            ub = ub_t / u_b;
-          if (0 <= ua && ua <= 1 && 0 <= ub && ub <= 1) {
-            var coord1 = ax1 + ua * (ax2 - ax1)
-            var coord2 = ay1 + ua * (ay2 - ay1)
-/*
-            var latlon1 = new LatLon(ay2, ax2, LatLon.datum.WGS84)
-            var latlon2 = new LatLon(coord2, coord1, LatLon.datum.WGS84)
-            var dist2 = latlon1.distanceTo(latlon2)
-            var dist = Math.sqrt(Math.pow(ax2-coord1,2)+Math.pow(ay2-coord2,2))
-            console.log("DISTANCE FROM COORDS::________________ " + dist2) */
-
-            bbPoints.push(new LatLon(coord2, coord1, LatLon.datum.WGS84))
-
-            /*if (dist2>1) {
-              result = "intersected"
-              break
-            }*/
-            /*
-            intersects.push({
-              'type': 'Point',
-              'coordinates': [ax1 + ua * (ax2 - ax1), ay1 + ua * (ay2 - ay1)]
-            });*/
-           
-          } 
-        }}
-  if (bbPoints.length<2) {
-    result = "not intersected"
-   } else if (bbPoints[0].distanceTo(bbPoints[1])>1) {
-    result = "intersected"
-   }
-   return result
-}
 
   function boundingBoxAroundPolyCoords (nodes) {
 
@@ -841,132 +794,48 @@ function intersectLineBBox(line, bbox) {
   function findMax( array ){
     return Math.max.apply( Math, array );
   };
-/* GET nodes, ways and relations inside a triangle polygon */
-router.post('/overpass', function(req, res) {
-  const p0 = [[0,0], [1,0], [1,1]];
-  const p1 = [[0.5,0.5], [1.5,0.5], [1.5,1.5]];
-  console.log("PO: " + po.overlap(p0,p1))
-  console.log("Rotation: +++++++++++++++++++++++++++++++ " + req.body.mapRotation )
-  var radius = "100"
-  var latlon = ""
-  var polygon = ""
-  // 51.964112, 7.612124, 51.964059, 7.614774, 51.962793, 7.613277
-  //var polygon = "51.964112 7.612124 51.964059 7.614774 51.962793 7.613277"
-  if (req.body.polyCoords!="x") {
-    var polygon = req.body.polyCoords
-    console.log("Polygon in overpass: " + req.body.polyCoords)
-    var data = 'way(poly:"' + polygon + '")["building"];'
-  } else {
-    radius = req.body.radius
-    var latlon = req.body.properties.slice(1, req.body.properties.length-1)
-    var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
-  }
-  //var data = 'way(poly:"51.962034 7.626290 51.961175 7.627492")["building"];'
-  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
 
-  request(
-      { method: 'GET'
-      , uri: url
-      , gzip: true
-      , lalon: latlon
-      , polygon: polygon
-      }
-    , function (error, response, body) {
-
-      //get lat and lon from URL
-      var result = JSON.parse(body).elements
-      var buildings = []
-      var bodyString = body
-      var coords = []
-      //console.log("splitPolygon: " + splitPolygon[0] + " " + splitPolygon[1])
-      /*var test = ""
-      var testId = ""*/
-      if (polygon=="") {
-        for (element in result) {          
-          var nodes = result[element].geometry
-          var building = ""
-          for (node in nodes) {
-                var lat = nodes[node].lat
-                var lon = nodes[node].lon
-                building =  building + lat + " " + lon + ":"
-                coords.push([Number(lat), Number(lon)])
-              }
-              bounds = boundingBoxAroundPolyCoords([coords])
-              var bounds = boundingBoxAroundPolyCoords(nodes)
-              /*var building = ""
-              for (i in bounds) {
-                building =  building + bounds[i][0] + " " + bounds[i][1] + ":"
-              }*/
-              //building = bounds.minlat + " " + bounds.minlon + ":" + bounds.maxlat + " " + bounds.maxlon + ":"
-              
-              buildings.push({ id: result[element].id, geometry: building }) 
-        }
+  function findViewableBuildings(polygon, body, latlon) {
+    var result = JSON.parse(body).elements
+    var buildings = []
+    var bodyString = body
+    var coords = []
+    var splitPolygon = polygon.split(" ")
+    var viewArea = turf.polygon([[
+      [Number(splitPolygon[1]), Number(splitPolygon[0])], 
+      [Number(splitPolygon[3]), Number(splitPolygon[2])], 
+      [Number(splitPolygon[5]), Number(splitPolygon[4])],
+      [Number(splitPolygon[1]), Number(splitPolygon[0])]
+    ]]) 
+    // find buildings in polygon
+    // for all buildings
+    for (element in result) {
+      //define origin coordinates
+      if (latlon!="") {
+        var split = latlon.split(",")
+        var lat = Number(split[0])
+        var lon = Number(split[1])
       } else {
-
-
-        var splitPolygon = polygon.split(" ")
-        var viewArea = turf.polygon([[
-        [Number(splitPolygon[1]), Number(splitPolygon[0])], 
-        [Number(splitPolygon[3]), Number(splitPolygon[2])], 
-        [Number(splitPolygon[5]), Number(splitPolygon[4])],
-        [Number(splitPolygon[1]), Number(splitPolygon[0])]
-      ]]) 
-
-
-        // find buildings in polygon
-        // for all buildings
-          for (element in result) {
-            //define origin coordinates
-            if (latlon!="") {
-
-              var split = latlon.split(",")
-              var lat = Number(split[0])
-              var lon = Number(split[1])
-            } else {
-              var split = polygon.split(" ")
-              var lat = Number(split[0])
-              var lon = Number(split[1])
-            }
-            var point = turf.point([lon, lat]); //origin
-            //console.log("Origin: " + lon + " " +lat + " " + turf.inside(point,viewArea))
-            /*lat = 51.962146
-            lon = 7.626533*/
-
-            var poly1status = true
-            var poly2status = true
-            var poly3status = true
-            var poly4status = true
-            var poly5status = true
-
-            var add = true
-            var nodes = result[element].geometry //get all nodes of the building
-            var building = ""
-            //testId = result[element].id
-            
-            //var bounds = result[element].bounds // get bounding box of the building
-            var bounds = boundingBoxAroundPolyCoords(nodes)
-            // create line which connect origin with all bounding box nodes
-           /* var poly1 = [[lon, lat], [bounds[0][1], bounds[0][0]] ] 
-            var poly2 = [[lon, lat], [bounds[1][1], bounds[1][0]] ] 
-            var poly3 = [[lon, lat], [bounds[2][1], bounds[2][0]] ] 
-            var poly4 = [[lon, lat], [bounds[3][1], bounds[3][0]] ] 
-            var poly5 = [[lon, lat], [(bounds[0][1]+bounds[2][1])/2, (bounds[1][0]+bounds[3][1])/2]]*/
-
-
-            /*var poly1 = [[lon, lat], [Number(bounds.minlon), Number(bounds.minlat)]]           
-            var poly2 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.maxlat)]]                
-            var poly3 = [[lon, lat], [Number(bounds.maxlon), Number(bounds.minlat)]]         
-            var poly4 = [[lon, lat], [Number(bounds.minlon), Number(bounds.maxlat)]]
-            var poly5 = [[lon, lat], 
-            [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]]*/
-            
-
-            var poly1 = turf.linestring([
-                      [lon, lat], 
-                      [bounds[0][1], bounds[0][0]]
-                      ])
-            var poly2 = turf.linestring([ 
-                      [lon, lat], 
+        var split = polygon.split(" ")
+        var lat = Number(split[0])
+        var lon = Number(split[1])
+      }
+      var point = turf.point([lon, lat]); //origin
+      var poly1status = true
+      var poly2status = true
+      var poly3status = true
+      var poly4status = true
+      var poly5status = true
+      var add = true
+      var nodes = result[element].geometry //get all nodes of the building
+      var building = ""
+      var bounds = boundingBoxAroundPolyCoords(nodes)
+      var poly1 = turf.linestring([
+        [lon, lat], 
+        [bounds[0][1], bounds[0][0]]
+      ])
+      var poly2 = turf.linestring([ 
+        [lon, lat], 
                       [bounds[1][1], bounds[1][0]] 
                       ])
             var poly3 = turf.linestring([
@@ -981,13 +850,7 @@ router.post('/overpass', function(req, res) {
                       [lon, lat], 
                       [(bounds[0][1]+bounds[2][1])/2, (bounds[1][0]+bounds[3][1])/2]
                       ])
-/*
-            var bbPoint1 = turf.point([Number(bounds.minlon), Number(bounds.minlat)])
-            var bbPoint2 = turf.point([Number(bounds.maxlon), Number(bounds.maxlat)])
-            var bbPoint3 = turf.point([Number(bounds.maxlon), Number(bounds.minlat)])
-            var bbPoint4 = turf.point([Number(bounds.minlon), Number(bounds.maxlat)])
-            var bbPoint5 = turf.point([(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2])
-*/  
+
             var bbPoint1 = turf.point([bounds[0][1], bounds[0][0]])
             var bbPoint2 = turf.point([bounds[1][1], bounds[1][0]])
             var bbPoint3 = turf.point([bounds[2][1], bounds[2][0]])
@@ -1006,10 +869,7 @@ router.post('/overpass', function(req, res) {
                   Number(result[x].bounds.maxlon), 
                   Number(result[x].bounds.maxlat)
                 ];
-                //console.log("intersected? " + wgs.intersectLineBBox(poly1, bbox))
-              // var poly = turf.bboxPolygon(bbox);
-                
-                
+           
                 var nodesX = result[x].geometry
                 
                     var coordsX = []
@@ -1019,42 +879,19 @@ router.post('/overpass', function(req, res) {
                       coordsX.push([lon,lat])               
                     }
                     coords.push(coords[0])
-                  //  console.log("First: " + coords[0] + " " + coords[coords.length-1])
                 try { 
                   var poly = turf.polygon([coordsX])
                 } catch(err) {
                   console.log("TURF ERROR: " + err)
                   break
                 }
-                //coordsX = [ [bbox[0], bbox[1] ], [ bbox[2],bbox[3] ] ]
-
-                // if origin is not inside the boundign box of the building
-                if (!(turf.inside(point,poly))) {
-
                 if (poly1status) {
-                 /* console.log("turf " + turf.intersect(poly1, poly) + " " + typeof(turf.intersect(poly1, poly)))
-                  var we2 = turf.intersect(poly1, poly)!=undefined
-                  var we3 = turf.intersect(poly1, poly)!="undefined"
-
-                  console.log("true? " +  we2 + " " + we3)*/
-                 // if (po.overlap(poly1,coordsX)) {
-                    //if (intersectLineBBox(poly1,boundsX)=="intersected") {
                     var intersection1 = turf.intersect(poly1, poly)
 
                     if (intersection1!=undefined) {
-                   //   console.log("Inter: " + JSON.stringify(intersection1))
                       if (intersection1.geometry.type!="Point") {
                         poly1status = false
                       }
-                    //console.log("coords[0] " + turf.intersect(poly1x, poly).geometry.coordinates[0])
-                    
-                    if (result[element].id=="100219948") {
-                    console.log("Großes Gebueude intersects " + result[x].id + " mit point 1")
-                    console.log("Intersection: " + turf.intersect(poly1, poly))
-                  } else if (result[element].id=="251664274") {
-                    console.log("Kleines Gebueude intersects " + result[x].id + " mit point 1")
-                    console.log("Point 1 in dreieck?: " + turf.inside(bbPoint1,viewArea))
-                  }
                   } else if (!(turf.inside(bbPoint1,viewArea))) {
                     poly1status = false
                   }
@@ -1063,17 +900,9 @@ router.post('/overpass', function(req, res) {
                 if (poly2status) {
                    var intersection2 = turf.intersect(poly2, poly)
                   if (intersection2!=undefined) {
-                   // console.log("Inter: " + JSON.stringify(intersection2))
                        if (intersection2.geometry.type!="Point") {
                         poly2status = false
                       }
-                     if (result[element].id=="100219948") {
-                    console.log("Großes Gebueude intersects " + result[x].id + " mit point 2")
-                    console.log("Intersection: " + turf.intersect(poly2, poly))
-                  } else if (result[element].id=="251664274") {
-                    console.log("Kleines Gebueude intersects " + result[x].id + " mit Point 2")
-                    console.log("Point 2 in dreieck?: " + turf.inside(bbPoint2,viewArea))
-                  }
                   } else if (!turf.inside(bbPoint2,viewArea)) {
                     poly2status = false
                   }
@@ -1081,16 +910,7 @@ router.post('/overpass', function(req, res) {
                 if (poly3status) {
                   var intersection3 = turf.intersect(poly3, poly)
                  if (intersection3!=undefined) {
-                 // console.log("Inter: " + JSON.stringify(intersection3).geometry.type)
                      if (intersection3.geometry.type!="Point") {
-                      if (result[element].id=="100219948") {
-                    console.log("Großes Gebueude intersects " + result[x].id + " mit point 3")
-                    console.log("Intersection: 3" + JSON.stringify(intersection3.geometry.type))
-                    console.log(typeof(intersection3.geometry.type))
-                    console.log(JSON.stringify(intersection3.geometry.type)=='"Point"')
-                    console.log(intersection3.geometry.type=="Point")
-
-                  }
                         poly3status = false
                       }
                      
@@ -1101,36 +921,19 @@ router.post('/overpass', function(req, res) {
                 if (poly4status) {
                    var intersection4 = turf.intersect(poly4, poly)
                  if (intersection4!=undefined) {
-                 // console.log("Inter: " + JSON.stringify(intersection4))
                      if (intersection4.geometry.type!="Point") {
                         poly4status = false
                       }
-                    if (result[element].id=="100219948") {
-                    console.log("Großes Gebueude intersects " + result[x].id + " mit point 4")
-                    console.log("Intersection: " + turf.intersect(poly4, poly))
-                  } else if (result[element].id=="251664274") {
-                    console.log("Kleines Gebueude intersects " + result[x].id + " mit Point 4")
-                    console.log("Point 4 in dreieck?: " + turf.inside(bbPoint4,viewArea))
-                  }
-                  }else if (!turf.inside(bbPoint4,viewArea)) {
+                  } else if (!turf.inside(bbPoint4,viewArea)) {
                     poly4status = false
                   }
-
                 }
                 if (poly5status) {
                   var intersection5 = turf.intersect(poly5, poly)
                   if (intersection5!=undefined) {
-                //    console.log("Inter: " + JSON.stringify(intersection5))
                      if (intersection5.geometry.type!="Point") {
                         poly5status = false
                       }
-                    if (result[element].id=="100219948") {
-                    console.log("Großes Gebueude intersects " + result[x].id + " mit point 5")
-                    console.log("Intersection: " + turf.intersect(poly5, poly))
-                  } else if (result[element].id=="251664274") {
-                    console.log("Kleines Gebueude intersects " + result[x].id + " mit Point 5")
-                    console.log("Point 5 in dreieck?: " + turf.inside(bbPoint5,viewArea))
-                  }
                   } else if (!turf.inside(bbPoint5,viewArea)) {
                     poly5status = false
                   }
@@ -1140,92 +943,7 @@ router.post('/overpass', function(req, res) {
                   add = false
                   break
                 } 
-                } else {
-                    var poly1x = turf.linestring([
-                      [lon, lat], 
-                      [Number(bounds.minlon), Number(bounds.minlat)]
-                      ])
-                    var poly2x = turf.linestring([ 
-                      [lon, lat], 
-                      [Number(bounds.maxlon), Number(bounds.maxlat)]
-                      ])
-                    var poly3x = turf.linestring([
-                      [lon, lat], 
-                      [Number(bounds.minlat), Number(bounds.maxlon)]
-                      ])
-                    var poly4x = turf.linestring([ 
-                      [lon, lat], 
-                      [Number(bounds.minlon), Number(bounds.maxlat)]
-                      ])
-                    var poly5x = turf.linestring([ 
-                      [lon, lat], 
-                      [(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2]
-                      ])
-                    var nodesX = result[x].geometry
-                    var coordsX = []
-                    for (node in nodesX) {
-                      var lat = Number(nodesX[node].lat)
-                      var lon = Number(nodesX[node].lon)
-                      coordsX.push([lon,lat])               
-                    }
-                    var poly = turf.polygon([coordsX])
-                    if (poly1status) {
-                      try {
-                      var intersection1 = turf.intersect(poly1x, poly);
-
-                      if (intersection1!=undefined) {
-                        poly1status = false
-                      }
-                      } catch(err) {
-                        console.log(err)
-                        }
-                    }
-                    if (poly2status) {
-                      try {
-                      var intersection2 = turf.intersect(poly2x, poly);
-                      if (intersection2!=undefined) {
-                        poly2status = false
-                      }
-                      } catch(err) {
-                        console.log(err)
-                        }
-                    }
-                    if (poly3status) {
-                      try {
-                      var intersection3 = turf.intersect(poly3x, poly);
-                      if (intersection3!=undefined) {
-                        poly3status = false
-                      }
-                      } catch(err) {
-                        console.log(err)
-                        }
-                    }
-                    if (poly4status) {
-                      try {
-                      var intersection4 = turf.intersect(poly4x, poly);
-                      if (intersection4!=undefined) {
-                        poly4status = false
-                      }
-                      } catch(err) {
-                        console.log(err)
-                        }
-                    }
-                    if (poly5status) {
-                      try {
-                      var intersection5 = turf.intersect(poly5x, poly);
-                      if (intersection5!=undefined) {
-                        poly5status = false
-                      }
-                      } catch(err) {
-                        console.log(err)
-                        }
-                    }
-                    if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
-                    add = false
-                    break
-                    } 
-                }
-
+                 
               }
             }
             if (add) {
@@ -1237,7 +955,64 @@ router.post('/overpass', function(req, res) {
                   }
                   buildings.push({ id: result[element].id, geometry: building }) 
             }  
-          }         
+          }
+
+          return buildings
+
+  }
+/* GET nodes, ways and relations inside a triangle polygon */
+router.post('/overpass', function(req, res) {
+  console.log("Rotation in overpass: " + req.body.mapRotation)
+  var latlon = ""
+  var polygon = ""
+  var radius = "100"
+  if (req.body.polyCoords!="x") {
+    var polygon = req.body.polyCoords
+    var data = 'way(poly:"' + polygon + '")["building"];'
+    
+  } else {
+    radius = req.body.radius
+    var latlon = req.body.properties.slice(1, req.body.properties.length-1)
+    var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
+  }
+  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
+  request(
+      { method: 'GET'
+      , uri: url
+      , gzip: true
+      , lalon: latlon
+      , polygon: polygon
+      }
+    , function (error, response, body) { 
+      //get lat and lon from URL
+      var result = JSON.parse(body).elements
+      var buildings = []
+      var bodyString = body
+      var coords = []
+      if (polygon=="") {
+        for (element in result) {          
+          var nodes = result[element].geometry
+          var building = ""
+          for (node in nodes) {
+                var lat = nodes[node].lat
+                var lon = nodes[node].lon
+                building =  building + lat + " " + lon + ":"
+                coords.push([Number(lat), Number(lon)])
+              }
+              bounds = boundingBoxAroundPolyCoords([coords])
+              var bounds = boundingBoxAroundPolyCoords(nodes)
+              //Display bounding boxen
+              /*var building = ""
+              for (i in bounds) {
+                building =  building + bounds[i][0] + " " + bounds[i][1] + ":"
+              }*/
+              //building = bounds.minlat + " " + bounds.minlon + ":" + bounds.maxlat + " " + bounds.maxlon + ":"
+              
+              buildings.push({ id: result[element].id, geometry: building }) 
+        }
+      } else {
+        buildings = findViewableBuildings(polygon, body, latlon)
+        //console.log(JSON.stringify(buildings))  
       }
 
       res.render("image.ejs", {
