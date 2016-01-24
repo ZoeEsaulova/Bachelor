@@ -258,7 +258,7 @@ name, Web address and this disclaimer is kept intact.
     //führe eine funktion aus oder refresh die seite
     //dieser Teil hier wird genau einmal ausgeführt und zwar 
     //wenn die Zeit um ist.
-    strZeit = window.location = "http://localhost:4444/survey/part2";
+    strZeit = window.location = "http://localhost:4444/survey/part2/<%= entryId %>";
   }
   // Ausgabestring in Tag mit id="id" schreiben
   document.getElementById(id).innerHTML = strZeit;
@@ -270,14 +270,16 @@ function countdown2(d,h,m,s,id)
   countdown(d*60*60*24+h*60*60+m*60+s,id);
 }
 
-  function nextPage(properties) {
+  function nextPage(entryId) {
       console.log("angle: " + angle)
         jQuery.get("/survey/part1/next/<%= entryId %>", { 
           number: number,
           angle: angle
         }, function(response){
           if (response.number=="finish") {
-            window.location = "/survey/part2/<%= entryId %>"
+            var adress = "/survey/part2/<%= entryId %>"
+            console.log("adress: " + adress)
+            window.location = adress
           }
           number = Number(response.number)         
           document.getElementById("number").innerHTML = response.number

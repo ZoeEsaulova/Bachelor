@@ -512,6 +512,14 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
 
 }
 router.get('/survey/part1/next/:entryId?', function(req, res) {
+  //save the result
+  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
+    entry.sot.push(Number(req.query.angle))
+    entry.save()
+    console.log("Angle: " + req.query.angle)
+    console.log("sotMeanError2: " + entry.sotMeanError2)
+  })
+
  // console.log("From next page " + req.query.number + " " + req.query.angle)
   var objects = ['car', 'traffic light', 'stop sign', 'cat', 'tree', 'house', 'flower']
   var obs = []

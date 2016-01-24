@@ -35,5 +35,18 @@ var entrySchema = mongoose.Schema({
 	}
 });
 
+entrySchema.virtual('sotMeanError').get(function () {
+	var result = [ 123, 237, 83, 156, 319, 235, 333, 260, 280, 48, 26, 150 ]
+	var diffSum = 0
+	for (j = 0; j<this.sot.length; j++) {
+        diffSum = diffSum + Math.abs(this.sot[j]-result[j])
+     }
+  	return diffSum/this.sot.length
+})
+
+entrySchema.set('toJSON', { virtuals: true });
+entrySchema.set('toObject', { virtuals: true });
+
+
 // create the model for datasets and expose it to our app
 module.exports = mongoose.model('Entry', entrySchema);
