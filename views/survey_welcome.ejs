@@ -20,6 +20,7 @@
   	jQuery(document).ready(function() {
   		
   		jQuery('#visitMuenster').hide();
+  		jQuery('#howLong').hide();
 	   jQuery('input[type="radio"]').click(function() {
 	       if(jQuery(this).attr('id') == 'muensterYes') {
 	            jQuery('#howLong').show();           
@@ -59,7 +60,7 @@
       <div class="col-lg-12">
       <div class="panel panel-default" style="margin: 5px; background-color: rgba(188,243,245,1);">
 			  <div class="panel-body">
-			    <p >Thank you for agreeing to take part in this survey.</p>
+			<p >Thank you for agreeing to take part in this survey.</p>
 	      	<p >The survey cosists of 2 main parts:</p>
 	      	<p >1. Spacial Orientation Test.</p>
 	      	<p >2. Determination of Camera Heading.</p>
@@ -92,7 +93,8 @@
 				    <div class="form-group">
 				      <label for="select" class="col-lg-4 control-label">Sex</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">
+				        <select class="form-control" id="select" name="sex" >
+				          <option>---</option>
 				          <option>female</option>
 				          <option>male</option>
 				          <option>other</option>
@@ -104,13 +106,13 @@
 				      <div class="col-lg-6">
 				        <div class="radio">
 				          <label>
-				            <input type="radio" name="optionsRadios" id="muensterYes" value="option1" checked="">
+				            <input type="radio" name="muenster" id="muensterYes" value="yes">
 				            Yes
 				          </label>
 				        </div>
 				        <div class="radio">
 				          <label>
-				            <input type="radio" name="optionsRadios" id="muensterNo" value="option2">
+				            <input type="radio" name="muenster" id="muensterNo" value="no">
 				            No
 				          </label>
 				        </div>
@@ -119,62 +121,67 @@
 				    <div class="form-group" id="howLong">
 				      <label for="select" class="col-lg-4 control-label">How long?</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">
-				          <option>less than 6 months</option>
-				          <option>6 - 12 months</option>
-				          <option>1 - 2 years</option>
-				          <option>3 - 4 years</option>
-				          <option>more than 4 years</option>
+				        <select class="form-control" id="select" name="howLong">
+				         <option value="0">---</option>
+				          <option value="1">less than 6 months</option>
+				          <option value="2">6 - 12 months</option>
+				          <option value="3">1 - 2 years</option>
+				          <option value="4">3 - 4 years</option>
+				          <option value="5">more than 4 years</option>
 				        </select>
 				      </div>
 				    </div>
 				    <div class="form-group" id="visitMuenster">
 				      <label for="select" class="col-lg-4 control-label">How often do you visit Münster?</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">
-				          <option>every day</option>
-				          <option>almost every day</option>
-				          <option>several times per week</option>
-				          <option>several times per month</option>
-				          <option>several times per year</option>
-				          <option>I do not visit Münster</option>
+				        <select class="form-control" id="select" name="visitMuenster">
+				          <option value="0">---</option>
+				          <option value="1">every day</option>
+				          <option value="2">almost every day</option>
+				          <option value="3">several times per week</option>
+				          <option value="4">several times per month</option>
+				          <option value="5">several times per year</option>
+				          <option value="6">I do not visit Münster</option>
 				        </select>
 				      </div>
 				    </div>
 				    <div class="form-group">
 				      <label for="select" class="col-lg-4 control-label">How would you describe your computer skills?</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">
-				          <option>Excellent</option>
-				          <option>Good</option>
-				          <option>Quite good</option>
-				          <option>Basic</option>
+				        <select class="form-control" id="select" name="compSkills">
+				          <option value="0">---</option>
+				          <option value="1">Excellent</option>
+				          <option value="2">Good</option>
+				          <option value="3">Quite good</option>
+				          <option value="4">Basic</option>
 				        </select>
 				      </div>
 				    </div>
 				    <div class="form-group">
-				      <label for="select" class="col-lg-4 control-label">How often do you use digital maps  (e.g. Google Maps, Goole Earth, Open Street Map)?</label>
+				      <label for="select" class="col-lg-4 control-label">How often do you use digital maps (e.g. Google Maps, Goole Earth, Open Street Map)?</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">
-				          <option>every day</option>
-				          <option>almost every day</option>
-				          <option>several times per week</option>
-				          <option>several times per month</option>
-				          <option>several times per year</option>
-				          <option>never</option>
+				        <select class="form-control" id="select" name="digitalMaps">
+				         <option value="0">---</option>
+				          <option value="1">every day</option>
+				          <option value="2">almost every day</option>
+				          <option value="3">several times per week</option>
+				          <option value="4">several times per month</option>
+				          <option value="5">several times per year</option>
+				          <option value="6">never</option>
 				        </select>
 				      </div>
 				    </div>
 				    <div class="form-group">
 				      <label for="select" class="col-lg-4 control-label">How often do you use Photo Sharing Servecis (e.g. Flickr, Panoramio, Printerest)?</label>
 				      <div class="col-lg-6">
-				        <select class="form-control" id="select">			          
-				          <option>every day</option>
-				          <option>almost every day</option>
-				          <option>several times per week</option>
-				          <option>several times per month</option>
-				          <option>several times per year</option>
-				          <option>never</option>
+				        <select class="form-control" id="select" name="photoServices">	
+				         <option value="0">---</option>
+				          <option value="1">every day</option>
+				          <option value="2">almost every day</option>
+				          <option value="3">several times per week</option>
+				          <option value="4">several times per month</option>
+				          <option value="5">several times per year</option>
+				          <option value="6">never</option>
 				        </select>
 				      </div>
 				    </div>

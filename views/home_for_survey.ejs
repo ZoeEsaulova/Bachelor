@@ -115,7 +115,7 @@
               <h4 class="modal-title">Please evaluate the task you have just finished</h4>
             </div>
             <div class="modal-body">
-        <form class="form-horizontal" style="margin: 5px;" method="post" action="/survey/next">
+        <form class="form-horizontal" style="margin: 5px;" method="post" action="/survey/next/<%= entryId %>">
           <fieldset>
             <div class="form-group">
               <label for="inputEmail" class="col-lg-4 control-label"></label>
@@ -329,7 +329,7 @@
             </div> <% }  %>
           
           <button onclick="showPolygon(<%= properties %>)" id="polygon" type="button" hidden>Show polygon</button>
-          <form class="form-horizontal" method="post" action="/survey/next" enctype="multipart/form-data" id="nextForm">
+          <form class="form-horizontal" method="post" action="/survey/next/<%= entryId %>" enctype="multipart/form-data" id="nextForm">
           <fieldset>
           <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
           <input value="x" id="mapRotation" name="mapRotation" hidden>

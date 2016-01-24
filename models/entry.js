@@ -9,7 +9,7 @@ var entrySchema = mongoose.Schema({
 	sex: String,
 	livingInMuenster: String,
 	howLong: Number,
-	visitMünster: Number,
+	visitMuenster: Number,
 	compSkills: Number,
 	digitalMaps: Number,
 	photoServices: Number,

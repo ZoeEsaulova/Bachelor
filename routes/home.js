@@ -10,7 +10,6 @@ var fs = require('fs');
 router.use(multer({ dest: './public/images', inMemory: true }).single('image'));
 var im = require('imagemagick');
 var gm = require('gm').subClass({ imageMagick: true });
-var fs = require('fs');
 var dms2dec = require('dms2dec');
 var request = require('request');
 var orb = require('orbjs'); 
@@ -58,7 +57,7 @@ router.get('/survey/welcome', function(req, res) {
 });
 /* GET home page (Survey) */
 
-router.get('/survey', function(req, res) {
+router.get('/survey/:entryId?', function(req, res) {
   var names = [
   126966710,
     //126807950,
@@ -87,20 +86,55 @@ router.get('/survey', function(req, res) {
     showBuilding: false,
     test: "1",
     all: "false",
-    modal: false
+    modal: false,
+    entryId: req.params.entryId
   });
 });
 
-router.get('/survey/part1', function(req, res) {
-  res.render('part1.ejs');
+router.get('/survey/part1/:entryId?', function(req, res) {
+  res.render('part1.ejs', {
+    entryId: req.params.entryId
+  });
 });
 
 router.post('/submitForm', function(req, res) {
-  res.redirect('/survey/part1');
+  console.log("inputName: " + req.body.inputName)
+  console.log("inputAge: " + req.body.inputAge)
+  console.log("sex: " + req.body.sex)
+  console.log("muenster: " + req.body.muenster)
+  console.log("howLong: " + req.body.howLong)
+
+  console.log("visitMuenster: " + req.body.visitMuenster)
+  console.log("compSkills: " + req.body.compSkills)
+  console.log("digitalMaps: " + req.body.digitalMaps)
+  console.log("photoServices: " + req.body.photoServices)
+  //save image in db
+  var entry = new Entry({ 
+      name: req.body.inputName,
+      age: Number(req.body.inputAge),
+      sex: req.body.sex,
+      livingInMuenster: req.body.muenster,
+      howLong: Number(req.body.howLong),
+      visitMuenster: Number(req.body.visitMuenster),
+      compSkills: Number(req.body.compSkills),
+      digitalMaps: Number(req.body.digitalMaps),
+      photoServices: Number(req.body.photoServices),
+  })
+
+    entry.save(function (err) {
+      if (err) return console.error("Database error: " + err)
+        else console.log("Saved in database")
+    });
+
+
+    var entryId = entry._id
+  res.redirect('/survey/part1/' + entryId);
 });
 
-router.get('/survey/part2', function(req, res) {
-  res.render('part2.ejs');
+router.get('/survey/part2/:entryId?', function(req, res) {
+  res.render('part2.ejs', {
+    entryId: req.params.entryId
+  });
 });
 
 router.get('/thanks', function(req, res) {
@@ -111,7 +145,7 @@ router.get('/thanks', function(req, res) {
 *  test 1: display camera marker
 *  test 2: display flag marker and buildings
 */
-router.post('/survey/next', function(req, res) {
+router.post('/survey/next/:entryId?', function(req, res) {
   var array = req.body.nextImage.split(" ") 
   if (array.length==3 && req.body.test=="2") {
     console.log("R E D I R E C T")
@@ -225,7 +259,8 @@ router.post('/survey/next', function(req, res) {
           arrow: arrow,
           test: test,
           all: all,
-          modal: modal
+          modal: modal,
+          entryId: req.params.entryId
         })
       })
   }
@@ -248,8 +283,10 @@ router.get('/demo/:test?', function(req, res) {
 });
 
 /* Spacial Orientation Test*/
-router.get('/survey/part1/start', function(req, res) {
-  res.render('sot.ejs');
+router.get('/survey/part1/start/:entryId?', function(req, res) {
+  res.render('sot.ejs', {
+    entryId: req.params.entryId
+  });
 });
 
 
@@ -474,7 +511,7 @@ function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, ob
   return [ result, rotationResult ]
 
 }
-router.get('/survey/part1/next', function(req, res) {
+router.get('/survey/part1/next/:entryId?', function(req, res) {
  // console.log("From next page " + req.query.number + " " + req.query.angle)
   var objects = ['car', 'traffic light', 'stop sign', 'cat', 'tree', 'house', 'flower']
   var obs = []
@@ -534,7 +571,8 @@ router.get('/survey/part1/next', function(req, res) {
     number: number,
     ob1: obs[0],
     ob2: obs[1],
-    ob3: obs[2]
+    ob3: obs[2],
+    entryId: req.params.entryId
   })
 
   
@@ -582,24 +620,33 @@ router.get('/showPolygon', function(req, res) {
 });
 
 router.post('/submitToDatabase', function(req, res) {
+  console.log("RRRRRRRR: " + req.body.imagePath)
+  var imageName = req.body.imagePath.split("/")[2]
   console.log("Im Server submitToDatabase") 
   var r = 360-Number(radToDegree(req.body.mapRotation))
   console.log("Rotation: " + r)
   var originLat = Number(JSON.parse(req.body.origin)[0])
   var originLon = Number(JSON.parse(req.body.origin)[1])
-  var wholePath = 'C:/users/Zoe/Bachelor/public' + req.body.imagePath
+  var focalLength = 0
+  var fov = 0
+  //var wholePath = 'C:/users/Zoe/Bachelor/public' + req.body.imagePath
+  var imageId = req.params.imageId
   //Calculate FOV
   // read exif data of a current image
-
-  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.body.imagePath);      
-  var parser = require('exif-parser').create(buf);
-  var result = parser.parse();
-  // read focal length
-  var focalLength = result.tags.FocalLength
-  console.log("Focal length: " + focalLength)
-  var sensorWidth = 6.17
-  var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
-
+  fs.rename('C:/users/Zoe/Bachelor/public' + req.body.imagePath, 'C:/users/Zoe/Bachelor/public/db' + req.body.imagePath, function(error) {
+    if (error) {
+      console.log("Image upload error: " + error)
+    } else {
+      var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/db' + req.body.imagePath);      
+      var parser = require('exif-parser').create(buf);
+      var result = parser.parse();
+      // read focal length
+      focalLength = result.tags.FocalLength
+      var sensorWidth = 6.17
+      fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
+    }
+  })
+  console.log("Values: " + focalLength + " " + fov)
   // only object(s)
   if (req.body.objectCoordsMap!="y" && req.body.modalCameraRotation=="t" && req.body.multipleObjects!="Yes" ) {
     console.log("OBJEKT(s) OHNE ROTATION")
@@ -617,23 +664,42 @@ router.post('/submitToDatabase', function(req, res) {
       console.log("Rotation AND objekts ")
       //Save to Database
       console.log("Rotation: " + req.body.mapRotation + " " + radToDegree(Number(req.body.mapRotation)))
-      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
-        myImage.direction = 360-radToDegree(Number(req.body.mapRotation))
-        myImage.buildings = JSON.parse(req.body.selectedBuildings)
-        myImage.save()
+      /* WORKING*/
+      //save image in db
+      var image = new MyImage({ 
+          name: imageName,
+          path: 'C:/users/Zoe/Bachelor/public/db/images/' + imageName,
+          coords: [ Number(originLat), Number(originLon) ],
+          direction: 360-radToDegree(Number(req.body.mapRotation)),
+          buildings: JSON.parse(req.body.selectedBuildings)
       })
+
+      image.save(function (err) {
+        if (err) return console.error(err)
+          else console.log("Image " + imageName + " is saved in database")
+      });
+
       res.redirect("/")
    } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="t") {
       console.log("Only objekts ")
       var parsed = JSON.parse(req.body.objectCoordsMap)
       var targetLat = Number(parsed[0].x)
       var targetLon = Number(parsed[0].y)
-      //Save to Database
-      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
-        myImage.direction = Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon))
-        myImage.buildings = JSON.parse(req.body.selectedBuildings)
-        myImage.save()
+
+      /* WORKING*/
+      //save image in db
+      var image = new MyImage({ 
+          name: imageName,
+          path: 'C:/users/Zoe/Bachelor/public/db/images/' + imageName,
+          coords: [ Number(originLat), Number(originLon) ],
+          direction: Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon)),
+          buildings: JSON.parse(req.body.selectedBuildings)
       })
+
+      image.save(function (err) {
+        if (err) return console.error(err)
+          else console.log("Image " + imageName + " is saved in database")
+      });
       
       res.redirect("/")
    }
@@ -664,19 +730,29 @@ router.post('/submitToDatabase', function(req, res) {
       , gzip: true
       , lalon: latlon
       , polygon: polygon
-      , wholePath: wholePath
+      , imageId: imageId
       }
     , function (error, response, body) { 
 
       var bodyString = body
       console.log("Polygon: " + polygon)
       var buildings = findViewableBuildings(polygon, body, latlon)[0]
-      MyImage.findOne({ path: wholePath }).exec(function(err, myImage) {
-        console.log("Image found " +  Number(result[1]) + " " + buildings)
-        myImage.direction = Number(result[1])
-        myImage.buildings = buildings
-        myImage.save()
-      }) 
+
+      /* WORKING*/
+      //save image in db
+      var image = new MyImage({ 
+          name: imageName,
+          path: 'C:/users/Zoe/Bachelor/public/db/images/' + imageName,
+          coords: [ Number(originLat), Number(originLon) ],
+          direction: Number(result[1]),
+          buildings: buildings
+      })
+
+      image.save(function (err) {
+        if (err) return console.error(err)
+          else console.log("Image " + imageName + " is saved in database")
+      });
+
 
 
       res.redirect("/");
@@ -1022,7 +1098,7 @@ router.post('/overpass', function(req, res) {
 router.post('/upload', function(req, res) {
   var serverPath = '/images/' + req.file.originalname;
   //working saving 
-
+console.log("Upload: " + req.file.path)
   fs.rename(req.file.path, 'C:/users/Zoe/Bachelor/public' + serverPath, function(error) {
     if (error) {
       res.send({
@@ -1037,6 +1113,7 @@ router.post('/upload', function(req, res) {
 
   
       var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+
       //res.send(exifData)
       res.render('image.ejs', { 
         imagePath: serverPath,
@@ -1049,17 +1126,7 @@ router.post('/upload', function(req, res) {
         // data: JSON.stringify(dec)
       });
 
-/* WORKING*/
-//save image in db
-var image = new MyImage({ 
-    name: req.file.originalname,
-    path: 'C:/users/Zoe/Bachelor/public' + serverPath,
-    coords: dec })
 
-  image.save(function (err) {
-    if (err) return console.error(err)
-      else console.log("Saved in database")
-  });
 
 
       } 

@@ -30,7 +30,10 @@ app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.use('/survey', express.static(__dirname + '/public'));
 app.use('/survey/part1', express.static(__dirname + '/public'));
+app.use('/survey/part1/start', express.static(__dirname + '/public'));
 app.use('/survey/part2', express.static(__dirname + '/public'));
+app.use('/survey/next', express.static(__dirname + '/public'));
+app.use('/submitToDatabase', express.static(__dirname + '/public'));
 
 var routes = require('./routes/home');
 //var survey = require('./routes/survey');

@@ -272,12 +272,12 @@ function countdown2(d,h,m,s,id)
 
   function nextPage(properties) {
       console.log("angle: " + angle)
-        jQuery.get("/survey/part1/next", { 
+        jQuery.get("/survey/part1/next/<%= entryId %>", { 
           number: number,
           angle: angle
         }, function(response){
           if (response.number=="finish") {
-            window.location = "/survey/part2"
+            window.location = "/survey/part2/<%= entryId %>"
           }
           number = Number(response.number)         
           document.getElementById("number").innerHTML = response.number
