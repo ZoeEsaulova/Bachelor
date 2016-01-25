@@ -65,14 +65,7 @@ router.get('/survey/:entryId?', function(req, res) {
     126807944
   ]
   var x = Math.floor((Math.random() * 3));
-  /*
-  if (!req.query.nextImage) {
-    var image = 0
-  } else {
-    var image = req.query.nextImage
-  }
-  */
-  // read exif
+
   
   var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' + names[x] + ".jpg");      
   var parser = require('exif-parser').create(buf);
@@ -146,40 +139,27 @@ router.get('/thanks', function(req, res) {
 *  test 2: display flag marker and buildings
 */
 router.post('/survey/next/:entryId?', function(req, res) {
-  var array = req.body.nextImage.split(" ") 
-  if (array.length==3 && req.body.test=="2") {
-    console.log("R E D I R E C T")
-    res.redirect("/thanks")
-  } else {
   console.log("V  A  L  U  E  S  ___________________________________________")
+  console.log("known " + req.body.known)
   console.log("nextImage " + req.body.nextImage)
   console.log("mapRotation " + req.body.mapRotation)
   console.log("lat " + req.body.lat)
   console.log("lon " + req.body.lon)
   console.log("test " + req.body.test)
-  console.log("known " + req.body.known + " " + req.body.knownModal)
-  console.log("COmputer skills: " + req.body.computerSkills + " " + req.body.inputName)
-  var modal = false
-  var test = ""                               // test number (1 to 4)
-  var next = ""                               // files which have alredy been tested
-  var names = []                              // file names
-   // files that have been tested already
-  var showBuilding = false                    // if true, buildings in a certain radius will be displayed
-  var arrow = "no"                            // type of a marker (no, flag or camera)
-  var all = "false"                           // if true, bounding box on image will be disabled 
-  if (array.length==2) {
-    modal = true
-  }
-  //go to the next test if 3 images proceeded
-  if (array.length==3 && req.body.test=="1") {
-    test = "2"
-    array = []
-  } else {
-    test = req.body.test
-    next = req.body.nextImage
-  }
-  // define file names for each test
-  if (test=="1") {
+  console.log("whatLike " + req.body.whatLike)
+  console.log("whatDislike " + req.body.whatDislike)
+  console.log("whatDifficult " + req.body.whatDifficult)
+  console.log("comfortable " + req.body.comfortable)
+  console.log("quickly " + req.body.quickly)
+  console.log("easy " + req.body.easy)
+
+  var arrow
+  var array = req.body.nextImage.split(" ") 
+  var curIndex = Number(array[array.length-1])
+  var showBuilding = false 
+  var names = []  
+    // define file names for each test
+  if (req.body.test=="1") {
     names = [
     //126807950, 
     126966710, //USED FOR DEMOS ONLY
@@ -187,7 +167,8 @@ router.post('/survey/next/:entryId?', function(req, res) {
     126807944
     ]
     arrow = "arrow";
-  } else if (test=="2") {
+  } else if (req.body.test=="2") {
+    console.log("Arrow: " + arrow)
      names = [
       //125965583,
       126966710, //USED FOR DEMOS ONLY
@@ -197,6 +178,120 @@ router.post('/survey/next/:entryId?', function(req, res) {
     arrow = '"Point"'
     showBuilding = true
   } 
+
+  // read exif data of a current image
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/images/' +  names[curIndex] + ".jpg");      
+  var parser = require('exif-parser').create(buf);
+  var result = parser.parse();
+  //read GPS data
+  var dec = [ result.tags.GPSLatitude, result.tags.GPSLongitude ]
+  //console.log("EXIF: _____________________________________ ")
+  // read focal length
+  var focalLength = result.tags.FocalLength
+  var sensorWidth = 6.17
+  var fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
+
+  //save in db
+  var testImage = new MyTestImage({ 
+    name: names[curIndex],
+    test: Number(req.body.test),    
+    GPSLatitudeRef: result.tags.GPSLatitudeRef,
+    GPSLatitude: Number(result.tags.GPSLatitude),
+    GPSLongitudeRef: result.tags.GPSLongitudeRef,
+    GPSLongitude: Number(result.tags.GPSLongitude),
+    GPSImgDirection: Number(result.tags.GPSImgDirection),
+    focalLength: Number(result.tags.FocalLength),
+    familiarPlace: Number(req.body.known),
+    directionFromUser: 360-radToDegree(Number(req.body.mapRotation))
+
+  })
+  testImage.save(function (err) {
+    if (err) return console.error(err)
+    else console.log("Image " + array[array.length-1] + " is saved in database")
+  });
+  var imageId = testImage._id
+  if (req.body.markedObjectId!="y") {
+
+  MyTestImage.findOne({ _id: testImage._id}).exec(function(err, image) {
+    
+      console.log("Ich darf nicht hier sein !!!!!!!!!!!!!!!!!!")
+      image.markedObjectId = req.body.markedObjectId
+      image.objectCoordsOnImage = req.body.objectCoords
+      image.centerCoordsOnMap = req.body.objectCoordsMap
+      var parsed = JSON.parse(req.body.objectCoordsMap)
+      var targetLat = Number(parsed[0].x)
+      var targetLon = Number(parsed[0].y)
+      image.directionFromObject = Number(findRotationFromTarget(targetLat, targetLon, 0, 0))
+      polygonCoords = findPolygonFromObject(fov, req.body.lat, req.body.lon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)[0]
+      image.save()
+  })
+} else {
+  MyTestImage.findOne({ _id: testImage._id}).exec(function(err, image) {
+      polygonCoords = findPolygonFromRotation(fov, Number(req.body.mapRotation), req.body.lat, req.body.lon, focalLength)[0]
+      image.save()
+  })
+}
+if (req.body.test=="1") {
+  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
+    entry.test1.images.push(imageId)
+    entry.save()
+  })
+} else {
+  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
+    entry.test2.images.push(imageId)
+    entry.save()
+  })
+}
+  
+if (array.length==3 && req.body.test=="1") {
+  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
+    entry.test1.easy = Number(req.body.easy),
+    entry.test1.quickly = Number(req.body.quickly),
+    entry.test1.comfortable = Number(req.body.comfortable),
+    entry.test1.difficult = req.body.whatDifficult,
+    entry.test1.like = req.body.whatLike,
+    entry.test1.dislike = req.body.whatDislike
+    entry.save()
+  })
+} else if (array.length==3 && req.body.test=="2") {
+  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
+    entry.test2.easy = Number(req.body.easy),
+    entry.test2.quickly = Number(req.body.quickly),
+    entry.test2.comfortable = Number(req.body.comfortable),
+    entry.test2.difficult = req.body.whatDifficult,
+    entry.test2.like = req.body.whatLike,
+    entry.test2.dislike = req.body.whatDislike
+    entry.save()
+  })
+}
+
+  if (array.length==3 && req.body.test=="2") {
+    console.log("R E D I R E C T")
+    res.redirect("/thanks")
+  } else {
+
+  var modal = false
+  var test = ""                               // test number (1 to 4)
+  var next = ""                               // files which have alredy been tested
+                              // file names
+   // files that have been tested already
+                     // if true, buildings in a certain radius will be displayed
+                          // type of a marker (no, flag or camera)
+                        // if true, bounding box on image will be disabled 
+  if (array.length==2) {
+    modal = true
+  }
+  //go to the next test if 3 images proceeded
+  if (array.length==3 && req.body.test=="1") {
+    test = "2"
+    array = []
+    arrow = "point"
+    showBuilding = true
+  } else {
+    test = req.body.test
+    next = req.body.nextImage
+  }
+
   // files which have alredy been tested
   var nextArray = []
   for (index in array) {
@@ -225,8 +320,8 @@ router.post('/survey/next/:entryId?', function(req, res) {
 
   // find buildings in 200-m radius using overpass API
   var latlon = dec[0] + "," + dec[1]
-    var data = 'way(around:' + 200 + ',' + latlon +  ')["building"];'
-    var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
+  var data = 'way(around:' + 200 + ',' + latlon +  ')["building"];'
+  var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
       request(
       { method: 'GET'
       , uri: url
@@ -237,17 +332,20 @@ router.post('/survey/next/:entryId?', function(req, res) {
         var result = JSON.parse(body).elements
         var buildings = []
         var bodyString = body
-        for (element in result) {
+         for (element in result) {          
           var nodes = result[element].geometry
-          var building = ""
-          for (node in nodes) {
-                var lat = nodes[node].lat
-                var lon = nodes[node].lon
-                building =  building + lat + " " + lon + ":"
+          //var building = ""
+          var geometry = []
+              for (node in nodes) {
+                    var lat = Number(nodes[node].lat)
+                    var lon = Number(nodes[node].lon)
+                    var oneNode = proj4(proj4('EPSG:4326'), proj4('EPSG:3857'), [ lon, lat ])
+                    //building =  building + lat + " " + lon + ":"
+                    geometry.push(oneNode)
               }
+                  buildings.push({ id: result[element].id, geometry: [geometry] }) 
 
-              buildings.push({ id: result[element].id, geometry: building }) 
-        }
+      }
         // render the next page
         res.render('home_for_survey.ejs', { 
           imageSource: "http://static.panoramio.com/photos/large/" + names[x] + ".jpg",
@@ -258,7 +356,6 @@ router.post('/survey/next/:entryId?', function(req, res) {
           showBuilding: showBuilding,
           arrow: arrow,
           test: test,
-          all: all,
           modal: modal,
           entryId: req.params.entryId
         })
@@ -525,6 +622,7 @@ router.get('/survey/part1/next/:entryId?', function(req, res) {
   var obs = []
   var number = Number(req.query.number) +1
   if (number==2) {
+    
     obs.push('cat')
     obs.push('tree')
     obs.push('car')
@@ -533,6 +631,7 @@ router.get('/survey/part1/next/:entryId?', function(req, res) {
     obs.push('cat')
     obs.push('house')
   } else if (number==4) {
+    number = "finish"
     obs.push('cat')
     obs.push('flower')
     obs.push('car')
@@ -639,22 +738,22 @@ router.post('/submitToDatabase', function(req, res) {
   var fov = 0
   //var wholePath = 'C:/users/Zoe/Bachelor/public' + req.body.imagePath
   var imageId = req.params.imageId
+  var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public' + req.body.imagePath);      
+      var parser = require('exif-parser').create(buf);
+      var result = parser.parse();
+      // read focal length
+      focalLength = Number(result.tags.FocalLength)
+      var sensorWidth = 6.17
+      fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
+      console.log("Values: " + req.body.multipleObjects + " " + req.body.modalCameraRotation)
   //Calculate FOV
   // read exif data of a current image
   fs.rename('C:/users/Zoe/Bachelor/public' + req.body.imagePath, 'C:/users/Zoe/Bachelor/public/db' + req.body.imagePath, function(error) {
     if (error) {
       console.log("Image upload error: " + error)
-    } else {
-      var buf = fs.readFileSync('C:/users/Zoe/Bachelor/public/db' + req.body.imagePath);      
-      var parser = require('exif-parser').create(buf);
-      var result = parser.parse();
-      // read focal length
-      focalLength = result.tags.FocalLength
-      var sensorWidth = 6.17
-      fov = 2*Math.atan(0.5*sensorWidth/Number(focalLength))
-    }
+    } 
   })
-  console.log("Values: " + focalLength + " " + fov)
+ 
   // only object(s)
   if (req.body.objectCoordsMap!="y" && req.body.modalCameraRotation=="t" && req.body.multipleObjects!="Yes" ) {
     console.log("OBJEKT(s) OHNE ROTATION")
@@ -688,6 +787,7 @@ router.post('/submitToDatabase', function(req, res) {
       });
 
       res.redirect("/")
+      
    } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="t") {
       console.log("Only objekts ")
       var parsed = JSON.parse(req.body.objectCoordsMap)
@@ -713,7 +813,7 @@ router.post('/submitToDatabase', function(req, res) {
    }
    // Transformation 
    var point1 = [ Number(result[0][0].originLat), Number(result[0][0].originLon) ]
-    var point2 = [ Number(result[0][0].leftLat), Number(result[0][0].leftLon) ]
+   var point2 = [ Number(result[0][0].leftLat), Number(result[0][0].leftLon) ]
     var point3 = [ Number(result[0][0].rightLat), Number(result[0][0].rightLon) ]
     var point4 = [ Number(result[0][0].originLat), Number(result[0][0].originLon) ]
 
@@ -744,7 +844,7 @@ router.post('/submitToDatabase', function(req, res) {
 
       var bodyString = body
       console.log("Polygon: " + polygon)
-      var buildings = findViewableBuildings(polygon, body, latlon)[0]
+      var buildings = findViewableBuildings(polygon, body, latlon)
 
       /* WORKING*/
       //save image in db
@@ -1018,13 +1118,16 @@ router.get('/', function(req, res) {
               }
             }
             if (add) {
-              //console.log("I'm element " + result[element].id)
+              //console.log("I'm element " + result[element].id) sonne
+              var geometry = []
               for (node in nodes) {
-                    var lat = nodes[node].lat
-                    var lon = nodes[node].lon
-                    building =  building + lat + " " + lon + ":"
-                  }
-                  buildings.push({ id: result[element].id, geometry: building }) 
+                    var lat = Number(nodes[node].lat)
+                    var lon = Number(nodes[node].lon)
+                    var oneNode = proj4(proj4('EPSG:4326'), proj4('EPSG:3857'), [ lon, lat ])
+                    //building =  building + lat + " " + lon + ":"
+                    geometry.push(oneNode)
+              }
+                  buildings.push({ id: result[element].id, geometry: [geometry] }) 
             }  
           }
 
@@ -1063,23 +1166,26 @@ router.post('/overpass', function(req, res) {
       if (polygon=="") {
         for (element in result) {          
           var nodes = result[element].geometry
-          var building = ""
-          for (node in nodes) {
-                var lat = nodes[node].lat
-                var lon = nodes[node].lon
-                building =  building + lat + " " + lon + ":"
-                coords.push([Number(lat), Number(lon)])
+          //var building = ""
+          var geometry = []
+              for (node in nodes) {
+                    var lat = Number(nodes[node].lat)
+                    var lon = Number(nodes[node].lon)
+                    var oneNode = proj4(proj4('EPSG:4326'), proj4('EPSG:3857'), [ lon, lat ])
+                    //building =  building + lat + " " + lon + ":"
+                    geometry.push(oneNode)
               }
-              bounds = boundingBoxAroundPolyCoords([coords])
+                  buildings.push({ id: result[element].id, geometry: [geometry] }) 
+
+              /*bounds = boundingBoxAroundPolyCoords([coords])
               var bounds = boundingBoxAroundPolyCoords(nodes)
               //Display bounding boxen
-              /*var building = ""
+              var building = ""
               for (i in bounds) {
                 building =  building + bounds[i][0] + " " + bounds[i][1] + ":"
               }*/
               //building = bounds.minlat + " " + bounds.minlon + ":" + bounds.maxlat + " " + bounds.maxlon + ":"
-              
-              buildings.push({ id: result[element].id, geometry: building }) 
+
         }
       } else {
         buildings = findViewableBuildings(polygon, body, latlon)

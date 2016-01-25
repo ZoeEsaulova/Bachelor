@@ -270,16 +270,14 @@ function countdown2(d,h,m,s,id)
   countdown(d*60*60*24+h*60*60+m*60+s,id);
 }
 
-  function nextPage(entryId) {
+  function nextPage() {
       console.log("angle: " + angle)
         jQuery.get("/survey/part1/next/<%= entryId %>", { 
           number: number,
           angle: angle
         }, function(response){
           if (response.number=="finish") {
-            var adress = "/survey/part2/<%= entryId %>"
-            console.log("adress: " + adress)
-            window.location = adress
+            window.location = "/survey/part2/<%= entryId %>"
           }
           number = Number(response.number)         
           document.getElementById("number").innerHTML = response.number

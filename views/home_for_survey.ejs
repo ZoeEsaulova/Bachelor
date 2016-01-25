@@ -100,7 +100,7 @@
   </head>
 
   <% if (showBuilding) { %>
-       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '0', <%= all %>)">
+       <body onload="showBuildings('<%= buildingCoords %>','<%= properties %>', '<%= arrow %>', '0')">
   <% } else { %>
        <body onload="showMarker(<%= properties %>, 'arrow', '0')">
   <% }%>
@@ -150,27 +150,27 @@
               <label for="inputEmail" class="col-lg-4 control-label">The task was easy</label>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="easy" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="easy" value="0" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="easy" value="option1"style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="easy" value="1"style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="easy" value="option1" checked="" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="easy" value="2" checked="" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="easy" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="easy" value="3" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="easy" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="easy" value="4" style="margin: 0px;">
                 </div>
               </div>
             </div>
@@ -178,27 +178,27 @@
               <label for="inputEmail" class="col-lg-4 control-label"> I was able to complete the task quickly</label>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="quickly" value="option1"style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="quickly" value="0"style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="quickly" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="quickly" value="1" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="quickly" value="option1" checked="" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="quickly" value="2" checked="" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="quickly" value="option1"style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="quickly" value="3"style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="quickly" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="quickly" value="4" style="margin: 0px;">
                 </div>
               </div>
             </div>
@@ -206,55 +206,59 @@
               <label for="inputEmail" class="col-lg-4 control-label">I felt comfortable making the task</label>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="comfortable" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="comfortable" value="0" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="comfortable" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="comfortable" value="1" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="comfortable" value="option1" checked="" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="comfortable" value="2" checked="" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="comfortable" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="comfortable" value="3" style="margin: 0px;">
                 </div>
               </div>
               <div class="col-lg-1">
                 <div class="radio">
-                  <input class="inputClass" type="radio" name="comfortable" value="option1" style="margin: 0px;">
+                  <input class="inputClass" type="radio" name="comfortable" value="4" style="margin: 0px;">
                 </div>
               </div>
             </div>
             <div class="form-group">
               <label for="textArea" class="col-lg-2 control-label">What did you find to be difficult about this task?</label>
               <div class="col-lg-10">
-                <textarea class="form-control" rows="3" id="difficult"></textarea>
+                <textarea class="form-control" rows="3" id="difficult" name="whatDifficult"></textarea>
                 <span class="help-block">(optional)</span>
               </div>
             </div>
             <div class="form-group">
               <label for="textArea" class="col-lg-2 control-label">What did you like about this task?</label>
               <div class="col-lg-10">
-                <textarea class="form-control" rows="3" id="textArea" value="optional"></textarea>
+                <textarea class="form-control" rows="3" id="textArea" name="whatLike"></textarea>
                 <span class="help-block">(optional)</span>
               </div>
             </div>
             <div class="form-group">
               <label for="textArea" class="col-lg-2 control-label">What didn't you like about the task?</label>
               <div class="col-lg-10">
-                <textarea class="form-control" rows="3" id="textArea" value="optional"></textarea>
+                <textarea class="form-control" rows="3" id="textArea" name="whatDislike"></textarea>
                 <span class="help-block">(optional)</span>
               </div>
             </div>
             <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
-            <input value="x" id="mapRotation" name="mapRotation" hidden>
-            <input value="x" id="lat" name="lat" hidden>
-            <input value="x"id="lon" name="lon" hidden>
+            <input value="0" id="mapRotation1" name="mapRotation" hidden>
+            <input value="y" id="objectCoords1" name="objectCoords" style="width:15" hidden>
+            <input value="y" id="objectCoordsMap1" name="objectCoordsMap" style="width:15" hidden>
+            <input value="y" id="imageSize1" name="imageSize" style="width:15" hidden>
+            <input value="y" id="markedObjectId1" name="markedObjectId" hidden>
+            <input value="x" id="lat1" name="lat" hidden>
+            <input value="x" id="lon1" name="lon" hidden>
             <input value="<%= test %>" id="test" name="test" hidden>
             <input value="" id="knownModal" name="known" hidden>
             <!--input type="radio" name="knownYes" value="Yes" id="yesModal" onchange="setKnown();" hidden>
@@ -285,9 +289,7 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active">
-              <input value="y" id="objectCoords" name="objectCoords" style="width:15" hidden>
-              <input value="y" id="objectCoordsMap" name="objectCoordsMap" style="width:15" hidden>
-              <input value="y" id="imageSize" name="imageSize" style="width:15" hidden>             
+                           
               <button onclick="submitObject(<%= properties %>)" hidden>Submit object</button>
             </li>
             <li>
@@ -332,14 +334,16 @@
           <form class="form-horizontal" method="post" action="/survey/next/<%= entryId %>" enctype="multipart/form-data" id="nextForm">
           <fieldset>
           <input value="<%= nextImage %>" id="nextImage" name="nextImage" id="hidden1" hidden>
-          <input value="x" id="mapRotation" name="mapRotation" hidden>
-          <input value="x" id="lat" name="lat" hidden>
-          <input value="x"id="lon" name="lon" hidden>
+          <input value="0" id="mapRotation2" name="mapRotation" hidden>
+          <input value="x" id="lat2" name="lat" hidden>
+          <input value="x" id="lon2" name="lon" hidden>
           <input value="<%= test %>" id="test" name="test" hidden>
-          <input value="<%= test %>" id="inputName2" name="inputName2" hidden>
-          <input value="<%= test %>" id="computerSkills2" name="computerSkills2" hidden>
+          <input value="y" id="objectCoords2" name="objectCoords" style="width:15" hidden>
+          <input value="y" id="objectCoordsMap2" name="objectCoordsMap" style="width:15" hidden>
+          <input value="y" id="imageSize2" name="imageSize" style="width:15" hidden>
+          <input value="y" id="markedObjectId2" name="markedObjectId" hidden>
           <% if (modal) { %>
-              <button id="next" type="button" class="btn btn-danger" onclick="submitImageAndModal(<%= properties %>)" style="visibility: hidden;">Next image</button>
+              <button id="next" type="button" class="btn btn-danger" onclick="submitImageAndModal(<%= properties %>)" style="visibility: hidden;" >Next image</button>
           <% } else { %>
              <button id="next" type="button" class="btn btn-danger" onclick="submitImage(<%= properties %>)" style="visibility: hidden;" >Next image</button>
           <% }%>
@@ -348,31 +352,31 @@
               <div class="col-lg-8">
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="muensterYes" value="easily" style="text-align: left;">
+                    <input type="radio" name="known" id="known1" value="0" style="text-align: left;">
                     Yes, I know where it is and I could easily find this place on map.
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="muensterYes" value="probably" style="text-align: left;">
+                    <input type="radio" name="known" id="known2" value="1" style="text-align: left;">
                     I've seen this place and I probably could find it on map. 
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="muensterYes" value="familiar" style="text-align: left;">
+                    <input type="radio" name="known" id="known3" value="2" style="text-align: left;">
                     This place looks familiar to me, but I'm not sure if I can find it on map.
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="muensterNo" value="noIdea" style="text-align: left;">
+                    <input type="radio" name="known" id="known4" value="3" style="text-align: left;">
                     No, I have no idea where it is. 
                   </label>
                 </div>
               </div>
             </div>
-          <button id="saveKnown" type="button" class="btn btn-danger" onclick="setKnown();" style="position: relative; left: 90%;">Next</button>
+          <button id="saveKnown" type="button" class="btn btn-danger" onclick="setKnown();" style="position: relative; left: 90%;" disabled="disabled">Next</button>
           
           </fieldset>
           </form>
@@ -392,33 +396,61 @@
     </div>
 
     <script>
+    jQuery( "#known1" ).change(function() {
+      jQuery('#saveKnown').removeAttr('disabled');
+      jQuery('#saveKnown').prop('disabled', false);
+    });
+    jQuery( "#known2" ).change(function() {
+      jQuery('#saveKnown').removeAttr('disabled');
+      jQuery('#saveKnown').prop('disabled', false);
+    });
+    //G
+    jQuery( "#known3" ).change(function() {
+      jQuery('#saveKnown').removeAttr('disabled');
+      jQuery('#saveKnown').prop('disabled', false);
+    });
+    //G
+    jQuery( "#known4" ).change(function() {
+      jQuery('#saveKnown').removeAttr('disabled');
+      jQuery('#saveKnown').prop('disabled', false);
+    });
+    //G
+    //Global variables
+      var buildingsSeen = false
+      var marker = false
+      var arrow = false
+      var vectorLayer
+      var vectorLayer2
+      var vectorLayer3
+      var vectorLayer4
+      var vectorLayer5
+
+      var vectorSource2 
+      var vectorSource3
+      
+      var modalCameraRotation = true
+      var currentIcon = ""
+
       jQuery('#map').fadeTo(500,0.01);
 
-      function showBuildings(buildings, properties, arrow, rotation, all) {
-
+      function showBuildings(buildings2, properties, icon, rotation) {
+        jQuery('#next').attr('disabled', true)
         buildingsSeen = true
         var features = []
 
-        var buildingsArray = JSON.parse(buildings)
-        console.log("Show buildings: " + buildingsArray)
+        var buildings = JSON.parse(buildings2)
+        console.log("Show buildings: " + buildings)
         
-        for (id in buildingsArray) {
-          var buildingCoords = buildingsArray[id].geometry
-          var split = buildingCoords.split(":")
-          var points = []
-          for (node in split) {
-            var subsplit = split[node].split(" ")
-            var pointCoords = [ parseFloat(subsplit[1]), parseFloat(subsplit[0]) ]
-            points.push(ol.proj.transform(pointCoords, 'EPSG:4326', 'EPSG:3857'))
-          }
-          points.pop()
-
-          var feature = new ol.Feature({
-            name: buildingsArray[id].id,
-            geometry: new ol.geom.Polygon([points])
-          });
-          features.push(feature)
-        }
+         for (x in buildings) {
+                  console.log("type: " + typeof(buildings[x].geometry[0][0]))
+                 if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
+                  var feature = new ol.Feature({
+                    name: buildings[x].id,
+                    geometry: new ol.geom.Polygon(buildings[x].geometry)
+                  });
+                  features.push(feature) 
+                 }                
+                }
 
         var splitProp = properties.split(",")
         var lat = Number(splitProp[0].slice(1, splitProp[0].length+1))
@@ -450,10 +482,9 @@
         map.addLayer(vectorLayer4)
         map.setView(newView2)
         map.render()  
-        markObjects(all)    
-        if (arrow!="no") {
-          showMarker(JSON.stringify(properties), arrow, rotation)
-        }
+        markObjects()    
+        showMarker(JSON.stringify(properties), arrow, rotation)
+        
       }
       function setKnown(){
           jQuery('#map').fadeTo(500,1);
@@ -467,31 +498,42 @@
       function activateSubmit() {
 
       }
-      function markObjects(all) {
-        var t = (all=="false")
-        var s = JSON.stringify(all=="false")
-        console.log("ALL: " + all + " " + typeof(all) + " " + t + " " + s)
+      function markObjects() {
         var mySelectInteraction = new ol.interaction.Select()
-        if (!all) {
-
-          mySelectInteraction.getFeatures().on('add', function(e) {
+        mySelectInteraction.getFeatures().on('add', function(e) {
           if (e.target.getArray().length==1) {
+            jQuery('#next').prop('disabled', false);
+            jQuery('#next').removeAttr('disabled');
             markObject(); 
           } else {
             jQuery.noConflict();
             jQuery('#myImg').imgAreaSelect({remove:true});
+            jQuery('#next').attr('disabled', true)
           }
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
         });
 
         mySelectInteraction.getFeatures().on('remove', function(e) {
           if (e.target.getArray().length==1) {
+            jQuery('#next').prop('disabled', false);
+            jQuery('#next').removeAttr('disabled');
+            
             markObject(); 
+            
           } if (e.target.getArray().length==0) {
             jQuery.noConflict();
+            if (modalCameraRotation) {
+              jQuery('#next').prop('disabled', true);
+            } 
             jQuery('#myImg').imgAreaSelect({remove:true}); 
-          }       
+          } else {
+            jQuery('#next').attr('disabled', true)
+          }
+          var feature = e.element // Do something with the feature
+          var coordinates = feature.getGeometry().getCoordinates()
+         // console.log("Feature: " + e.target.getArray().length)         
         });
-        }      
         map.addInteraction(mySelectInteraction) 
       }
 
@@ -500,14 +542,20 @@
         var width = img.width
         var xy = selection.x1 + " " + selection.y1 + " " + selection.x2 + " " + selection.y2
         console.log(xy)
-        document.getElementById("objectCoords").value = xy;
-        document.getElementById("imageSize").value = width;  
+        document.getElementById("objectCoords1").value = xy;
+        document.getElementById("imageSize1").value = width;  
+        document.getElementById("objectCoords2").value = xy;
+        document.getElementById("imageSize2").value = width; 
       }
 
       // mark an object on image using bounding box
       function markObject() {
-          document.getElementById("objectCoords").value = "253 120 413 250"
+          document.getElementById("objectCoords1").value = "253 120 413 250"
+          document.getElementById("objectCoords2").value = "253 120 413 250"
           jQuery.noConflict();
+
+           jQuery('#next').prop('disabled', false);
+            //jQuery('#next').removeAttr('disabled');
           jQuery('#myImg').imgAreaSelect({
               x1: 253, y1: 120, x2: 413, y2: 250, 
               handles: true,
@@ -553,7 +601,7 @@
           })
         ],
         view: myView,
-        interactions: [interaction, mouseZoom,pan, pinch ]
+        interactions: [interaction, mouseZoom, pan, pinch ]
       });
 
       /* convert radians to degrees 
@@ -597,10 +645,10 @@
 
         var coords = coordsString + " " + lat + " " + lon
         document.getElementById('polyCoords').value = coords
-        var vectorSource2 = new ol.source.Vector({
+        vectorSource2 = new ol.source.Vector({
                 features: [feature ]
         });
-        var vectorLayer2 = new ol.layer.Vector({
+        vectorLayer2 = new ol.layer.Vector({
                 source: vectorSource2,
         });
         map.addLayer(vectorLayer2)
@@ -608,10 +656,10 @@
         var featureL = new ol.Feature({
                     geometry: new ol.geom.LineString([point6, point1])
         });
-        var vectorSource3 = new ol.source.Vector({
+        vectorSource3 = new ol.source.Vector({
                 features: [featureL ]
         });
-        var vectorLayer3 = new ol.layer.Vector({
+        vectorLayer3 = new ol.layer.Vector({
           source: vectorSource3
         });
         map.addLayer(vectorLayer3) 
@@ -627,13 +675,43 @@
           findTriangle(response.coords, response.lat, response.lon, response.targetLat, response.targetLon)          
         });
       }
+      function defineCenter(bb) {
+  /*
+        var p1 = ol.proj.transform([ Number(bb[1]), Number(bb[0])], 'EPSG:3857', 'EPSG:4326')
+        var p2 = ol.proj.transform([ Number(bb[3]), Number(bb[2])], 'EPSG:3857', 'EPSG:4326')    */
 
+        var x = (Number(bb[0])+Number(bb[2]))/2
+        var y = (Number(bb[1])+Number(bb[3]))/2 
+        //var temp = ol.proj.transform([x, y], 'EPSG:3857', 'EPSG:4326')
+
+        var center = [ { x: x, y: y } ]
+        center = JSON.stringify(center)
+        return center
+      }
       /* save current map rotation and proceed to the next image */
       function submitImage(properties) {
-        console.log("Submit Image ")
-        document.getElementById("mapRotation").value = map.getView().getRotation()
-        document.getElementById("lat").value = properties[0]
-        document.getElementById("lon").value = properties[1]
+        if (map.getInteractions().getArray().length>4) {
+          var select = map.getInteractions().getArray()[4] 
+          console.log("Select: " + select.getKeys() + " " + select.length + " " + select[0])
+          var features = select.getFeatures();
+          var feature = features.item(0);
+          document.getElementById("objectCoordsMap1").value = defineCenter(feature.getGeometry().getExtent())
+          document.getElementById("objectCoordsMap2").value = defineCenter(feature.getGeometry().getExtent())
+          document.getElementById("markedObjectId1").value = feature.getProperties().name
+          document.getElementById("markedObjectId2").value = feature.getProperties().name
+          var selectedBuildings = [{ 
+                id:  feature.getProperties().name,
+                geometry: feature.getGeometry().getCoordinates() 
+          }]
+        }
+        var origin = new ol.geom.Point(ol.proj.transform([ properties[1], properties[0] ], 'EPSG:4326', 'EPSG:3857'))
+        console.log("Origin: " + JSON.stringify(origin.getCoordinates()) + " " + origin.getCoordinates()[0])
+        document.getElementById("mapRotation1").value = map.getView().getRotation()
+        document.getElementById("mapRotation2").value = map.getView().getRotation()
+        document.getElementById("lat1").value = origin.getCoordinates()[0]
+        document.getElementById("lon1").value = origin.getCoordinates()[1]
+        document.getElementById("lat2").value = origin.getCoordinates()[0]
+        document.getElementById("lon2").value = origin.getCoordinates()[1]
         jQuery( "#nextForm" ).submit();
       }
 
@@ -642,16 +720,40 @@
         document.getElementById("inputName2").value = document.getElementById("inputName1").value
         document.getElementById("computerSkills2").value = document.getElementById("computerSkills1").value
         console.log(document.getElementById("inputName1").value + " " + document.getElementById("computerSkills1").value)
-        document.getElementById("mapRotation").value = map.getView().getRotation()
-        document.getElementById("lat").value = properties[0]
-        document.getElementById("lon").value = properties[1]
+        document.getElementById("mapRotation1").value = map.getView().getRotation()
+        document.getElementById("mapRotation2").value = map.getView().getRotation()
+         var origin = new ol.geom.Point(ol.proj.transform([ properties[1], properties[0] ], 'EPSG:4326', 'EPSG:3857'))
+        document.getElementById("lat1").value = origin.getCoordinates()[0]
+        document.getElementById("lon1").value = origin.getCoordinates()[1]
+        document.getElementById("lat2").value = origin.getCoordinates()[0]
+        document.getElementById("lon2").value = origin.getCoordinates()[1]
         //jQuery( "#nextForm" ).submit();
       }
 
       function submitImageAndModal(properties) {
-        document.getElementById("mapRotation").value = map.getView().getRotation()
-        document.getElementById("lat").value = properties[0]
-        document.getElementById("lon").value = properties[1]
+        if (map.getInteractions().getArray().length>4) {
+          var select = map.getInteractions().getArray()[4] 
+          console.log("Select: " + select.getKeys() + " " + select.length + " " + select[0])
+          var features = select.getFeatures();
+          var feature = features.item(0);
+          document.getElementById("objectCoordsMap1").value = defineCenter(feature.getGeometry().getExtent())
+          document.getElementById("objectCoordsMap2").value = defineCenter(feature.getGeometry().getExtent())
+          document.getElementById("markedObjectId1").value = feature.getProperties().name
+          document.getElementById("markedObjectId2").value = feature.getProperties().name
+          var selectedBuildings = [{ 
+                id:  feature.getProperties().name,
+                geometry: feature.getGeometry().getCoordinates() 
+          }]
+        }
+
+        document.getElementById("mapRotation1").value = map.getView().getRotation()
+        document.getElementById("mapRotation2").value = map.getView().getRotation()
+        var origin = new ol.geom.Point(ol.proj.transform([ properties[1], properties[0] ], 'EPSG:4326', 'EPSG:3857'))
+        document.getElementById("lat1").value = origin.getCoordinates()[0]
+        document.getElementById("lon1").value = origin.getCoordinates()[1]
+        document.getElementById("lat2").value = origin.getCoordinates()[0]
+        document.getElementById("lon2").value = origin.getCoordinates()[1]
+
         console.log("submitImageAndModal")
         jQuery.noConflict();
         jQuery("#modal").modal("show");
@@ -675,8 +777,13 @@
       }
 
       //add marker
-      function showMarker(properties1, icon, rotation) {   
-          
+      function showMarker(properties1, icon, rotation) { 
+        console.log("Show Marker with  " + icon)
+            currentIcon  = icon
+            if (icon=="arrow") {
+              modalCameraRotation = false
+            }
+           
           if (typeof(properties1)=="string") {
             var splitProp = properties1.split(",")
             var lat = Number(splitProp[0].slice(2, splitProp[0].length))
@@ -686,8 +793,25 @@
             var properties = properties1
           }
           
-          if (icon=="arrow") {
-            //document.getElementById("arrow").value = "showArrow"
+          if (icon=="arrow" && vectorLayer!=undefined) {
+            
+            marker = true
+            arrow = true
+            var source = "https://i.imgur.com/gz61vEY.png"
+            var iconStyle = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                anchor: [ 0.5, 400],
+                scale: 0.2,
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                src: source
+              }))
+            });
+            vectorLayer.setStyle(iconStyle)
+            console.log("1")
+            //map.render()
+          } else if (icon=="arrow") {
+            console.log("2")
             marker = true
             arrow = true
             var source = "https://i.imgur.com/gz61vEY.png"
@@ -698,7 +822,9 @@
             var iconFeatures=[];
             var iconFeature = new ol.Feature({
               geometry: new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857')),
+
             });
+            var testpoint = new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'))
             iconFeatures.push(iconFeature);
             var vectorSource = new ol.source.Vector({
               features: iconFeatures 
@@ -725,8 +851,8 @@
             map.setView(newView)
           }
           } 
-
             else {
+              console.log("3")
             var source = "http://i1230.photobucket.com/albums/ee488/PerfectlyDarkTails/Map-Marker-Flag-2-Right-Red-icon_zps4cea0902.png"
             marker = true 
           if (properties) {
@@ -759,6 +885,7 @@
                   zoom: 17,
                   rotation: Number(rotation)
             })
+            var testpoint = new ol.geom.Point(ol.proj.transform([ lon, lat ], 'EPSG:4326', 'EPSG:3857'))
             map.addLayer(vectorLayer)
             map.setView(newView)
           }

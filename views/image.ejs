@@ -236,7 +236,7 @@
       var mouseZoom = new ol.interaction.MouseWheelZoom();
       var interaction = new ol.interaction.DragRotate({ condition: ol.events.condition.shiftKeyOnly });
       var pan = new ol.interaction.DragPan();
-
+      var pinch = new ol.interaction.PinchRotate();
       var rotateControl = new ol.control.Rotate();
       var zoomControl = new ol.control.Zoom();
       var layerSwitcher = new ol.control.LayerSwitcher();
@@ -263,7 +263,7 @@
           })
         ],
         view: myView,
-        interactions: [interaction, mouseZoom,pan ]
+        interactions: [interaction, mouseZoom,pan, pinch ]
       });
 
       
@@ -356,15 +356,16 @@
       }
 
       function showPolygon(properties) {  
-        if (map.getInteractions().getArray().length>3) {
-          var select = map.getInteractions().getArray()[3] 
+        if (map.getInteractions().getArray().length>4) {
+          var select = map.getInteractions().getArray()[4] 
           var features = select.getFeatures();
           var feature = features.item(0);
+          console.log("Length: " + features.getLength())
           document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
           var selectedBuildings = [{ 
                 id:  feature.getProperties().name,
                 geometry: feature.getGeometry().getCoordinates() 
-              }]
+          }]
 
           // if multiple buildings are selected save them and calculate the center of all buildings
           if (features.getLength()>1) {
@@ -411,10 +412,11 @@
         });
       }
       function submitToDatabase(properties) {  
-        if (map.getInteractions().getArray().length>3) {
-          var select = map.getInteractions().getArray()[3] 
+        if (map.getInteractions().getArray().length>4) {
+          var select = map.getInteractions().getArray()[4] 
           var features = select.getFeatures();
           var feature = features.item(0);
+          console.log("Length: " + features.getLength())
           document.getElementById("objectCoordsMap").value = defineCenter(feature.getGeometry().getExtent())
           var selectedBuildings = [{ 
                 id:  feature.getProperties().name,
@@ -613,7 +615,7 @@
       * @param building: coordinates of all buildings' nodes
       * @param properties: coordinates of the map center
       */
-      function showBuildings(buildings, properties, icon, rotation) {
+      function showBuildings(buildingsCoords, properties, icon, rotation) {
         console.log("New rotation from server: " + rotation)
         if (icon=="arrow") {
           jQuery('#submitButton').removeAttr('disabled');
@@ -621,24 +623,19 @@
         buildingsSeen = true
         var features = []
 
-        var buildingsArray = JSON.parse(buildings)
-        for (id in buildingsArray) {
-          var buildingCoords = buildingsArray[id].geometry
-          var split = buildingCoords.split(":")
-          var points = []
-          for (node in split) {
-            var subsplit = split[node].split(" ")
-            var pointCoords = [ parseFloat(subsplit[1]), parseFloat(subsplit[0]) ]
-            points.push(ol.proj.transform(pointCoords, 'EPSG:4326', 'EPSG:3857'))
-          }
-          points.pop()
 
-          var feature = new ol.Feature({
-            name: buildingsArray[id].id,
-            geometry: new ol.geom.Polygon([points])
-          });
-          features.push(feature)
-        }
+        var buildings = JSON.parse(buildingsCoords)
+
+          for (x in buildings) {
+                  console.log("type: " + typeof(buildings[x].geometry[0][0]))
+                 if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
+                  var feature = new ol.Feature({
+                    name: buildings[x].id,
+                    geometry: new ol.geom.Polygon(buildings[x].geometry)
+                  });
+                  features.push(feature) 
+                 }                
+                }
 
         var splitProp = properties.split(",")
         var lat = Number(splitProp[0].slice(1, splitProp[0].length+1))
@@ -694,7 +691,6 @@
           } if (e.target.getArray().length==0) {
             jQuery.noConflict();
             if (modalCameraRotation) {
-              console.log("HDJddddddddddd")
               jQuery('#submitButton').attr('disabled', true)
             } 
             jQuery('#myImg').imgAreaSelect({remove:true}); 

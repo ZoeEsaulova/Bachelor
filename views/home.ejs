@@ -123,6 +123,7 @@
         var mouseZoom = new ol.interaction.MouseWheelZoom();
         var interaction = new ol.interaction.DragRotate();
         var pan = new ol.interaction.DragPan();
+        var pinch = new ol.interaction.PinchRotate()
         var rotateControl = new ol.control.Rotate();
         var zoomControl = new ol.control.Zoom();
         var layerSwitcher = new ol.control.LayerSwitcher();
@@ -156,7 +157,7 @@
               center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
               zoom: 13
             }),
-            interactions: [ interaction, mouseZoom, pan ]
+            interactions: [ interaction, mouseZoom, pan, pinch]
           });
 
         /* add marker 
@@ -175,7 +176,8 @@
               var iconFeature = new ol.Feature({
                 geometry: new ol.geom.Point([ lon, lat ]),
                 name: 'Muenster',
-                buildings: imageData[x].buildings
+                buildings: imageData[x].buildings,
+                format: imageData[x].format
             });
               iconFeatures.push(iconFeature)
             }
@@ -206,19 +208,25 @@
               }
               var feature = e.element 
               var buildings = feature.getProperties().buildings
+  
               console.log("buildings: " + JSON.stringify(buildings))
+
+
               var features = []
-              for (x in buildings) {
-                console.log("type: " + typeof(buildings[x].geometry[0][0]))
-               if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
-                var feature = new ol.Feature({
-                  name: buildings[x].id,
-                  geometry: new ol.geom.Polygon(buildings[x].geometry)
-                });
-                features.push(feature) 
-               }
-                      
-              }
+
+                console.log("Format 3857")
+                  for (x in buildings) {
+                  console.log("type: " + typeof(buildings[x].geometry[0][0]))
+                 if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
+                  var feature = new ol.Feature({
+                    name: buildings[x].id,
+                    geometry: new ol.geom.Polygon(buildings[x].geometry)
+                  });
+                  features.push(feature) 
+                 }                
+                }
+
+
               console.log("yeeee: " + features.length + " " + features[0]) 
               //console.log("yeeee: " + JSON.stringify(features))
               var vectorSource4 = new ol.source.Vector({
