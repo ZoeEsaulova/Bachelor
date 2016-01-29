@@ -44,6 +44,21 @@ entrySchema.virtual('sotMeanError').get(function () {
   	return diffSum/this.sot.length
 })
 
+entrySchema.virtual('test1.time').get(function () {
+	var time = 0
+	for (i in this.test1.images) {
+		time = time + this.test1.images[i].time
+	}
+  	return time
+})
+
+entrySchema.virtual('test2.time').get(function () {
+	var time = 0
+	for (i in this.test2.images) {
+		time = time + this.test2.images[i].time
+	}
+  	return time
+})
 entrySchema.set('toJSON', { virtuals: true });
 entrySchema.set('toObject', { virtuals: true });
 

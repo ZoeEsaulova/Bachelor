@@ -19,7 +19,8 @@ var testImageSchema = mongoose.Schema({
 	centerCoordsOnMap: String,
 	imageSize: String,
 	directionFromObject: Number,
-	polygonCoords: []
+	polygonCoords: [],
+	time: Number
 });
 
 // create the model for datasets and expose it to our app

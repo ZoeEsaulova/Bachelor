@@ -139,6 +139,7 @@ router.get('/thanks', function(req, res) {
 *  test 2: display flag marker and buildings
 */
 router.post('/survey/next/:entryId?', function(req, res) {
+
   console.log("V  A  L  U  E  S  ___________________________________________")
   console.log("known " + req.body.known)
   console.log("nextImage " + req.body.nextImage)
@@ -152,11 +153,23 @@ router.post('/survey/next/:entryId?', function(req, res) {
   console.log("comfortable " + req.body.comfortable)
   console.log("quickly " + req.body.quickly)
   console.log("easy " + req.body.easy)
-
+  console.log("Time: " + req.body.time)
+  console.log("Demo?: " + req.body.demoClicked)
+  
   var arrow
   var array = req.body.nextImage.split(" ") 
   var curIndex = Number(array[array.length-1])
   var showBuilding = false 
+  //calculate time needed for the test image
+  var timeSplit = req.body.time.split(":")
+  var time = 1800-(Number(timeSplit[2])+(Number(timeSplit[1])*60))
+  var demoDur = 100
+  if (req.body.demoClicked=="ja" && array.length==1) {
+    time = time - demoDur
+  } else if (req.body.demoClicked=="ja") {
+    time = time - 20
+  } 
+  console.log("Result time: " + time)
   var names = []  
     // define file names for each test
   if (req.body.test=="1") {
@@ -202,7 +215,8 @@ router.post('/survey/next/:entryId?', function(req, res) {
     GPSImgDirection: Number(result.tags.GPSImgDirection),
     focalLength: Number(result.tags.FocalLength),
     familiarPlace: Number(req.body.known),
-    directionFromUser: 360-radToDegree(Number(req.body.mapRotation))
+    directionFromUser: 360-radToDegree(Number(req.body.mapRotation)),
+    time: time
 
   })
   testImage.save(function (err) {
@@ -235,6 +249,7 @@ if (req.body.test=="1") {
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
     entry.test1.images.push(imageId)
     entry.save()
+    console.log("JA! ------------ " + entry.test1.time)
   })
 } else {
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
@@ -614,7 +629,8 @@ router.get('/survey/part1/next/:entryId?', function(req, res) {
     entry.sot.push(Number(req.query.angle))
     entry.save()
     console.log("Angle: " + req.query.angle)
-    console.log("sotMeanError2: " + entry.sotMeanError2)
+    console.log("sotMeanError2: " + entry.sotMeanError)
+    console.log("Time: " + req.query.time)
   })
 
  // console.log("From next page " + req.query.number + " " + req.query.angle)
