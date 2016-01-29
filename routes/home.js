@@ -155,7 +155,8 @@ router.post('/survey/next/:entryId?', function(req, res) {
   console.log("easy " + req.body.easy)
   console.log("Time: " + req.body.time)
   console.log("Demo?: " + req.body.demoClicked)
-  
+  var originLat = Number(req.body.lat)
+  var originLon = Number(req.body.lon)
   var arrow
   var array = req.body.nextImage.split(" ") 
   var curIndex = Number(array[array.length-1])
@@ -227,15 +228,15 @@ router.post('/survey/next/:entryId?', function(req, res) {
   if (req.body.markedObjectId!="y") {
 
   MyTestImage.findOne({ _id: testImage._id}).exec(function(err, image) {
-    
-      console.log("Ich darf nicht hier sein !!!!!!!!!!!!!!!!!!")
       image.markedObjectId = req.body.markedObjectId
       image.objectCoordsOnImage = req.body.objectCoords
       image.centerCoordsOnMap = req.body.objectCoordsMap
       var parsed = JSON.parse(req.body.objectCoordsMap)
       var targetLat = Number(parsed[0].x)
       var targetLon = Number(parsed[0].y)
-      image.directionFromObject = Number(findRotationFromTarget(targetLat, targetLon, 0, 0))
+      console.log("22222222222222222 " + targetLat + " " + targetLon + " " + originLat + " " + originLon)
+      image.directionFromObject = Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon))
+      console.log("Rot: " + Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon)))
       polygonCoords = findPolygonFromObject(fov, req.body.lat, req.body.lon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)[0]
       image.save()
   })
@@ -282,6 +283,7 @@ if (array.length==3 && req.body.test=="1") {
 
   if (array.length==3 && req.body.test=="2") {
     console.log("R E D I R E C T")
+
     res.redirect("/thanks")
   } else {
 
@@ -627,10 +629,11 @@ router.get('/survey/part1/next/:entryId?', function(req, res) {
   //save the result
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
     entry.sot.push(Number(req.query.angle))
+    var timeSplit = req.query.time.split(":")
+    entry.sotTime = 300-(Number(timeSplit[2])+(Number(timeSplit[1])*60))
     entry.save()
-    console.log("Angle: " + req.query.angle)
-    console.log("sotMeanError2: " + entry.sotMeanError)
-    console.log("Time: " + req.query.time)
+    console.log("Sot length: " + entry.sot.length)
+    console.log("Sot last: " + entry.sot[entry.sot.length-1])
   })
 
  // console.log("From next page " + req.query.number + " " + req.query.angle)
@@ -726,6 +729,7 @@ router.get('/showPolygon', function(req, res) {
   if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
     console.log("OBJEKT OHNE ROTATION")
     var result = findPolygonFromObject(fov, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
+    console.log("ROTATIONNNNNNNNNNNNNNNN: " + result[1])
    } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap=="y") {
      console.log("Rotation ohne objekt")
     var result = findPolygonFromRotation(fov, req.query.mapRotation, originLat, originLon, focalLength)
@@ -824,7 +828,7 @@ router.post('/submitToDatabase', function(req, res) {
         if (err) return console.error(err)
           else console.log("Image " + imageName + " is saved in database")
       });
-      
+
       res.redirect("/")
    }
    // Transformation 
@@ -887,6 +891,11 @@ router.post('/submitToDatabase', function(req, res) {
 
 /* GET home page */
 router.get('/', function(req, res) {
+ // MyTestImage.findAndStreamCsv({}).pipe(fs.createWriteStream('test_images.csv'));
+  Entry.findAndStreamCsv({}).pipe(fs.createWriteStream('entries.csv'));
+  /*Entry.find({}).exec(function(err, entry) {
+    console.log("Entry: " + entry.)
+  })*/
       // Find saved images
       MyImage.find({}).exec(function(err,images) {
 
@@ -1163,6 +1172,7 @@ router.post('/overpass', function(req, res) {
   } else {
     radius = req.body.radius
     var latlon = req.body.properties.slice(1, req.body.properties.length-1)
+    console.log("DATAAAAAAAAAAAAAAA: " + latlon + " " + radius)
     var data = 'way(around:' + radius + ',' + latlon +  ')["building"];'
   }
   var url = 'http://overpass-api.de/api/interpreter?data=[out:json];' + data + 'out geom;';
@@ -1174,6 +1184,9 @@ router.post('/overpass', function(req, res) {
       , polygon: polygon
       }
     , function (error, response, body) { 
+      if (error) {
+        console.log("Error from overpass: " + error)
+      }
       //get lat and lon from URL
       var result = JSON.parse(body).elements
       var buildings = []

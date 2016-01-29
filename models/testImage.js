@@ -1,7 +1,7 @@
 /* Database schema for datasets*/
 
 var mongoose = require('mongoose');
-
+var mongooseToCsv = require('mongoose-to-csv');
 
 var testImageSchema = mongoose.Schema({
 	name: { type: String },
@@ -20,7 +20,48 @@ var testImageSchema = mongoose.Schema({
 	imageSize: String,
 	directionFromObject: Number,
 	polygonCoords: [],
-	time: Number
+	time: Number,
+	temp: String
+});
+
+testImageSchema.plugin(mongooseToCsv, {
+  headers: 'Name test GPSLatitudeRef GPSLatitude GPSLongitudeRef GPSLongitude GPSImgDirection focalLength familiarPlace directionFromUser markedObjectId objectCoordsOnImage centerCoordsOnMap_x centerCoordsOnMap_y imageSize directionFromObject polygonCoords time',
+  constraints: {
+    'Name': 'name',
+	"test": "test",
+	"GPSLatitudeRef": "GPSLatitudeRef",
+	"GPSLatitude": "GPSLatitude",
+	"GPSLongitudeRef": "GPSLongitudeRef",
+	"GPSLongitude": "GPSLongitude", 
+	"GPSImgDirection": "GPSImgDirection",
+	"focalLength": "focalLength",
+	"familiarPlace": "familiarPlace",
+	"directionFromUser": "directionFromUser",
+	"markedObjectId": "markedObjectId",
+	"objectCoordsOnImage": "objectCoordsOnImage",
+	"imageSize": "imageSize",
+	"directionFromObject": "directionFromObject",
+	"polygonCoords": "polygonCoords",
+	"time": "time"
+  },
+  virtuals: {
+    'centerCoordsOnMap_x': function(doc) {
+    	if (doc.centerCoordsOnMap!=undefined) {
+    		console.log("dddddddddddddddddddddddddddddddddddd " )
+    		return JSON.parse(doc.centerCoordsOnMap)[0].x
+    	} else {
+    		return undefined
+    	}
+      
+    },
+    'centerCoordsOnMap_y': function(doc) {
+      if (doc.centerCoordsOnMap!=undefined) {
+    		return JSON.parse(doc.centerCoordsOnMap)[0].y
+    	} else {
+    		return undefined
+    	}
+    }
+  }
 });
 
 // create the model for datasets and expose it to our app

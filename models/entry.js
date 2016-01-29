@@ -1,7 +1,7 @@
 /* Database schema for datasets*/
 
 var mongoose = require('mongoose');
-
+var mongooseToCsv = require('mongoose-to-csv');
 
 var entrySchema = mongoose.Schema({
 	name: String,
@@ -32,7 +32,8 @@ var entrySchema = mongoose.Schema({
 		difficult: String,
 		like: String,
 		dislike: String
-	}
+	},
+	temp: String
 });
 
 entrySchema.virtual('sotMeanError').get(function () {
@@ -59,6 +60,40 @@ entrySchema.virtual('test2.time').get(function () {
 	}
   	return time
 })
+
+entrySchema.plugin(mongooseToCsv, {
+  headers: 'sot_result Name Age Sex livingInMuenster howLong visitMuenster compSkills digitalMaps photoServices sotTime sotMeanError test1_easy test1_time',
+  constraints: {
+    'Name': 'name',
+	"Age": "age",
+	"Sex": "sex",
+	"livingInMuenster": "livingInMuenster",
+	"howLong": "howLong",
+	"visitMuenster": "visitMuenster", 
+	"compSkills": "compSkills",
+	"digitalMaps": "digitalMaps",
+	"photoServices": "photoServices",
+	"sotTime": "sotTime",
+	"test1_easy": "tes1.easy",
+	"test1_time": "test1.time"
+  },
+  virtuals: {
+    'sotMeanError': function(doc) {
+    	return doc.sotMeanError 
+    },
+    'sot_result': function(doc) {
+    	var sotString = ""
+    	for (i=0;i<doc.sot.length;i++) {
+    		sotString = sotString + " " + doc.sot[i]
+    		console.log("Sot_result: " + doc.sot.length + " " + doc.sot[i])
+    	}
+    	
+    	return sotString
+    }
+	}
+})
+
+
 entrySchema.set('toJSON', { virtuals: true });
 entrySchema.set('toObject', { virtuals: true });
 

@@ -287,7 +287,7 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="/">Task <%= test %></a> 
-          <a class="navbar-brand" id="cID"></a>
+          <a class="navbar-brand" id="cID" hidden></a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -350,25 +350,25 @@
               <div class="col-lg-8">
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="known1" value="0" style="text-align: left;">
+                    <input type="radio" name="known" id="known1" value="1" style="text-align: left;">
                     Yes, I know where it is and I could easily find this place on map.
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="known2" value="1" style="text-align: left;">
+                    <input type="radio" name="known" id="known2" value="2" style="text-align: left;">
                     I've seen this place and I probably could find it on map. 
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="known3" value="2" style="text-align: left;">
+                    <input type="radio" name="known" id="known3" value="3" style="text-align: left;">
                     This place looks familiar to me, but I'm not sure if I can find it on map.
                   </label>
                 </div>
                 <div class="radio">
                   <label>
-                    <input type="radio" name="known" id="known4" value="3" style="text-align: left;">
+                    <input type="radio" name="known" id="known4" value="4" style="text-align: left;">
                     No, I have no idea where it is. 
                   </label>
                 </div>
@@ -401,20 +401,24 @@
     countdown(1800,'cID')
 
     jQuery( "#known1" ).change(function() {
+      document.getElementById('knownModal').value = "1"
       jQuery('#saveKnown').removeAttr('disabled');
       jQuery('#saveKnown').prop('disabled', false);
     });
     jQuery( "#known2" ).change(function() {
+      document.getElementById('knownModal').value = "2"
       jQuery('#saveKnown').removeAttr('disabled');
       jQuery('#saveKnown').prop('disabled', false);
     });
     //G
     jQuery( "#known3" ).change(function() {
+      document.getElementById('knownModal').value = "3"
       jQuery('#saveKnown').removeAttr('disabled');
       jQuery('#saveKnown').prop('disabled', false);
     });
     //G
     jQuery( "#known4" ).change(function() {
+      document.getElementById('knownModal').value = "4"
       jQuery('#saveKnown').removeAttr('disabled');
       jQuery('#saveKnown').prop('disabled', false);
     });
