@@ -59,10 +59,9 @@ router.get('/survey/welcome', function(req, res) {
 
 router.get('/survey/:entryId?', function(req, res) {
   var names = [
-  126966710,
-    //126807950,
-    126910684,
-    126807944
+    126807950,
+    126807944,
+    126810619
   ]
   var x = Math.floor((Math.random() * 3));
 
@@ -164,7 +163,7 @@ router.post('/survey/next/:entryId?', function(req, res) {
   //calculate time needed for the test image
   var timeSplit = req.body.time.split(":")
   var time = 1800-(Number(timeSplit[2])+(Number(timeSplit[1])*60))
-  var demoDur = 100
+  var demoDur = 60
   if (req.body.demoClicked=="ja" && array.length==1) {
     time = time - demoDur
   } else if (req.body.demoClicked=="ja") {
@@ -175,19 +174,17 @@ router.post('/survey/next/:entryId?', function(req, res) {
     // define file names for each test
   if (req.body.test=="1") {
     names = [
-    //126807950, 
-    126966710, //USED FOR DEMOS ONLY
-    126910684,
-    126807944
+    126807950,
+    126807944,
+    126810619
     ]
     arrow = "arrow";
   } else if (req.body.test=="2") {
     console.log("Arrow: " + arrow)
      names = [
-      //125965583,
-      126966710, //USED FOR DEMOS ONLY
-      126810608,
-      126810619
+      126807950,
+    126807944,
+    126810619
     ]
     arrow = '"Point"'
     showBuilding = true
@@ -413,10 +410,10 @@ if (array.length==3 && req.body.test=="1") {
 router.get('/demo/:test?', function(req, res) {
   if (req.params.test=="1") {
     //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
-    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+    var url = "http://www.youtube.com/embed/pxbc_cLysWI?autoplay=0"
   } else if (req.params.test=="2") {
     //var url = "https://www.dropbox.com/s/ab72878kgaqs4f4/video1.mp4?dl=1"
-    var url = "http://www.youtube.com/embed/oSYHyz_kiNQ?autoplay=0"
+    var url = "http://www.youtube.com/embed/X8S7mzNeGD0?autoplay=0"
   } 
   res.render("demo.ejs", { 
     url: url
