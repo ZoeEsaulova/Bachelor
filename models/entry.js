@@ -33,7 +33,11 @@ var entrySchema = mongoose.Schema({
 		like: String,
 		dislike: String
 	},
-	temp: String
+	temp: String,
+	test1Time: Number,
+	test2Time: Number,
+	test1Result: Number,
+	test2Result: Number
 });
 
 entrySchema.virtual('sotMeanError').get(function () {
@@ -45,24 +49,42 @@ entrySchema.virtual('sotMeanError').get(function () {
   	return diffSum/this.sot.length
 })
 
-entrySchema.virtual('test1.time').get(function () {
+/*entrySchema.virtual('test1Time').get(function () {
 	var time = 0
-	for (i in this.test1.images) {
-		time = time + this.test1.images[i].time
+	// HIERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+	for (i=0;i<this.test1.images.length;i++) {
+		console.log("Image time: " + this.test1.images[i] + " " + this.test1.images[i].name )
+		time = time + Number(this.test1.images[i].time)
 	}
   	return time
 })
 
-entrySchema.virtual('test2.time').get(function () {
+entrySchema.virtual('test2Time').get(function () {
 	var time = 0
-	for (i in this.test2.images) {
+	for (i=0;i<this.test2.images.length;i++) {
 		time = time + this.test2.images[i].time
 	}
   	return time
 })
 
+entrySchema.virtual('test1Result').get(function () {
+	var result = 0
+	for (i in this.test1.images) {
+		result = result + (this.test1.images[i].GPSImgDirection-this.test1.images[i].directionFromUser)
+	}
+  	return result/this.test1.images.length
+})
+
+entrySchema.virtual('test2Result').get(function () {
+	var result = 0
+	for (i in this.test2.images) {
+		result = result + (this.test2.images[i].GPSImgDirection-this.test2.images[i].directionFromObject)
+	}
+  	return result/this.test2.images.length
+})
+*/
 entrySchema.plugin(mongooseToCsv, {
-  headers: 'sot_result Name Age Sex livingInMuenster howLong visitMuenster compSkills digitalMaps photoServices sotTime sotMeanError test1_easy test1_time',
+  headers: 'ID Name Age Sex livingInMuenster howLong visitMuenster compSkills digitalMaps photoServices sotTime sotMeanError sot_result test1_result test1_time test1_easy test1_quickly test1_difficult test1_comfortable test1_like test1_dislike test2_result test2_time test2_easy test2_quickly test2_difficult test2_comfortable test2_like test2_dislike',
   constraints: {
     'Name': 'name',
 	"Age": "age",
@@ -74,8 +96,10 @@ entrySchema.plugin(mongooseToCsv, {
 	"digitalMaps": "digitalMaps",
 	"photoServices": "photoServices",
 	"sotTime": "sotTime",
-	"test1_easy": "tes1.easy",
-	"test1_time": "test1.time"
+	"test1_time": "test1Time",
+	"test2_time": "test2Time",
+	"test1_result": "test1Result",
+	"test2_result": "test2Result"
   },
   virtuals: {
     'sotMeanError': function(doc) {
@@ -89,8 +113,47 @@ entrySchema.plugin(mongooseToCsv, {
     	}
     	
     	return sotString
+    },
+    'ID': function(doc) {
+		return doc._id	
+    },
+    'test1_easy': function(doc) {
+		return doc.test1.easy	
+    },
+    'test1_difficult': function(doc) {
+		return doc.test1.difficult
+    },
+    'test1_comfortable': function(doc) {
+		return doc.test1.comfortable	
+    },
+    'test1_like': function(doc) {
+		return doc.test1.like	
+    },
+    'test1_dislike': function(doc) {
+		return doc.test1.dislike
+    },
+    'test1_quickly': function(doc) {
+		return doc.test1.quickly
+    },
+    'test2_easy': function(doc) {
+		return doc.test2.easy	
+    },
+    'test2_difficult': function(doc) {
+		return doc.test2.difficult
+    },
+    'test2_comfortable': function(doc) {
+		return doc.test2.comfortable	
+    },
+    'test2_like': function(doc) {
+		return doc.test2.like	
+    },
+    'test2_dislike': function(doc) {
+		return doc.test2.dislike
+    },
+    'test2_quickly': function(doc) {
+		return doc.test2.quickly
     }
-	}
+}
 })
 
 

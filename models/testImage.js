@@ -21,12 +21,14 @@ var testImageSchema = mongoose.Schema({
 	directionFromObject: Number,
 	polygonCoords: [],
 	time: Number,
-	temp: String
+	temp: String,
+	entry: { type: mongoose.Schema.Types.ObjectId, ref: 'Entry' }
 });
 
 testImageSchema.plugin(mongooseToCsv, {
-  headers: 'Name test GPSLatitudeRef GPSLatitude GPSLongitudeRef GPSLongitude GPSImgDirection focalLength familiarPlace directionFromUser markedObjectId objectCoordsOnImage centerCoordsOnMap_x centerCoordsOnMap_y imageSize directionFromObject polygonCoords time',
+  headers: 'ID EntryId Name test GPSLatitudeRef GPSLatitude GPSLongitudeRef GPSLongitude GPSImgDirection focalLength familiarPlace directionFromUser markedObjectId objectCoordsOnImage centerCoordsOnMap_x centerCoordsOnMap_y imageSize directionFromObject polygonCoords time',
   constraints: {
+  	'EntryId': 'entry',
     'Name': 'name',
 	"test": "test",
 	"GPSLatitudeRef": "GPSLatitudeRef",
@@ -60,6 +62,9 @@ testImageSchema.plugin(mongooseToCsv, {
     	} else {
     		return undefined
     	}
+    },
+    'ID': function(doc) {
+		return doc._id	
     }
   }
 });

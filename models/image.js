@@ -13,11 +13,16 @@ var imageSchema = mongoose.Schema({
 });
 
 imageSchema.plugin(mongooseToCsv, {
-  headers: 'Name path direction',
+  headers: 'ID Name path direction',
   constraints: {
     'Name': 'name',
     'path': 'path',
     'direction': 'direction'
+  },
+    virtuals: {
+    'ID': function(doc) {
+		return doc._id	
+    }
   }
 });
 

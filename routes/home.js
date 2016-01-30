@@ -217,7 +217,8 @@ router.post('/survey/next/:entryId?', function(req, res) {
     focalLength: Number(result.tags.FocalLength),
     familiarPlace: Number(req.body.known),
     directionFromUser: 360-radToDegree(Number(req.body.mapRotation)),
-    time: time
+    time: time,
+    entry: req.params.entryId
 
   })
   testImage.save(function (err) {
@@ -250,7 +251,7 @@ if (req.body.test=="1") {
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
     entry.test1.images.push(imageId)
     entry.save()
-    console.log("JA! ------------ " + entry.test1.time)
+    console.log("JA! ------------ " + entry.test1Time)
   })
 } else {
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
@@ -268,23 +269,49 @@ if (array.length==3 && req.body.test=="1") {
     entry.test1.like = req.body.whatLike,
     entry.test1.dislike = req.body.whatDislike
     entry.save()
+    console.log("Entry test1 : " + entry.test1Result + " " + entry.test1Time)
   })
-} else if (array.length==3 && req.body.test=="2") {
-  Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
-    entry.test2.easy = Number(req.body.easy),
-    entry.test2.quickly = Number(req.body.quickly),
-    entry.test2.comfortable = Number(req.body.comfortable),
-    entry.test2.difficult = req.body.whatDifficult,
-    entry.test2.like = req.body.whatLike,
-    entry.test2.dislike = req.body.whatDislike
-    entry.save()
-  })
-}
+} 
 
   if (array.length==3 && req.body.test=="2") {
-    console.log("R E D I R E C T")
+     
 
+   Entry.findOne({ _id: req.params.entryId }).populate('testImage').exec(function(err, entry) {
+    MyTestImage.find({ entry: req.params.entryId }).populate('entry').exec(function(err, images) {
+        
+      var test1Time = 0
+      var test2Time = 0
+      var test1Result = 0
+      var test2Result = 0
+          console.log("Images length: " + images.length)
+      for (i=0;i<images.length;i++) {
+        if (images[i].test=="1") {
+          console.log("Images time " + images[i].time)
+          test1Time = test1Time + images[i].time
+          test1Result = test1Result + (images[i].GPSImgDirection-images[i].directionFromUser)
+        } else if (images[i].test=="2") {
+          test2Time = test2Time + images[i].time
+          test2Result = test2Result + (images[i].GPSImgDirection-images[i].directionFromObject)
+        }
+      }
+      entry.test2.easy = Number(req.body.easy),
+      entry.test2.quickly = Number(req.body.quickly),
+      entry.test2.comfortable = Number(req.body.comfortable),
+      entry.test2.difficult = req.body.whatDifficult,
+      entry.test2.like = req.body.whatLike,
+      entry.test2.dislike = req.body.whatDislike
+        entry.test1Time = Number(test1Time)
+        entry.test2Time = test2Time
+        entry.test1Result = Math.abs(test1Result/3)
+        entry.test2Result = Math.abs(test2Result/3)
+      entry.save()
+      console.log("R E D I R E C T")
     res.redirect("/thanks")
+  })
+  })
+
+
+    
   } else {
 
   var modal = false
@@ -892,6 +919,7 @@ router.post('/submitToDatabase', function(req, res) {
 /* GET home page */
 router.get('/', function(req, res) {
  // MyTestImage.findAndStreamCsv({}).pipe(fs.createWriteStream('test_images.csv'));
+
   Entry.findAndStreamCsv({}).pipe(fs.createWriteStream('entries.csv'));
   /*Entry.find({}).exec(function(err, entry) {
     console.log("Entry: " + entry.)

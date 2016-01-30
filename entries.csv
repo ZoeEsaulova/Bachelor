@@ -1,4 +1,2 @@
-sot_result,Name,Age,Sex,livingInMuenster,howLong,visitMuenster,compSkills,digitalMaps,photoServices,sotTime,sotMeanError,test1_easy,test1_time
- 0 156.545789476629 201.1521779441802,,,---,,,,,,,5,107.20212948918373,,
- 0 38.31613589296768 38.31613589296768,,,---,,,,,,,3,122.12257607135489,,
- 0 29.556409018785587 29.556409018785587,,,---,,,,,,,4,127.96239398747628,,
+ID,Name,Age,Sex,livingInMuenster,howLong,visitMuenster,compSkills,digitalMaps,photoServices,sotTime,sotMeanError,sot_result,test1_result,test1_time,test1_easy,test1_quickly,test1_difficult,test1_comfortable,test1_like,test1_dislike,test2_result,test2_time,test2_easy,test2_quickly,test2_difficult,test2_comfortable,test2_like,test2_dislike
+56ac95d42233f1dc2aa17eb7,,,---,,,,,,,2,147.66666666666666, 0 0 0,-147.5,6,2,2,,2,,,-106.49275970035313,9,2,2,ss,2,s,
