@@ -35,10 +35,12 @@ app.use('/survey/part2', express.static(__dirname + '/public'));
 app.use('/survey/next', express.static(__dirname + '/public'));
 app.use('/submitToDatabase', express.static(__dirname + '/public'));
 
-var routes = require('./routes/home');
+var home = require('./routes/home');
+var test = require('./routes/test');
 //var survey = require('./routes/survey');
 
-app.use('/', routes);
+app.use('/', home);
+app.use('/test', test);
 //app.use('/survey', survey);
 app.listen(port);
 console.log('The magic happens on port ' + port);

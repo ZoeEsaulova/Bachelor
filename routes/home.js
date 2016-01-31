@@ -25,25 +25,8 @@ var po = require('poly-overlap');
 var reproject = require('reproject-spherical-mercator');
 var merc = require('mercator-projection');
 var proj4 = require('proj4');
+var tools = require('./tools');
 
-
-/**
- * Checks if array contains a certain number
- * @param {Number} random
- * @param {[Number]} array
- * @return {boolean} is in array
- */
-function randomInArray(random, array) {
-
-  var result = false
-  for (index in array) {
-    if (random==array[index]) {
-      result = true
-      break
-    }  
-  }
-  return result
-}
 
 /*
 *
@@ -213,7 +196,7 @@ router.post('/survey/next/:entryId?', function(req, res) {
     GPSImgDirection: Number(result.tags.GPSImgDirection),
     focalLength: Number(result.tags.FocalLength),
     familiarPlace: Number(req.body.known),
-    directionFromUser: 360-radToDegree(Number(req.body.mapRotation)),
+    directionFromUser: 360-tools.radToDegree(Number(req.body.mapRotation)),
     time: time,
     entry: req.params.entryId
 
@@ -233,14 +216,14 @@ router.post('/survey/next/:entryId?', function(req, res) {
       var targetLat = Number(parsed[0].x)
       var targetLon = Number(parsed[0].y)
       console.log("22222222222222222 " + targetLat + " " + targetLon + " " + originLat + " " + originLon)
-      image.directionFromObject = Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon))
-      console.log("Rot: " + Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon)))
-      polygonCoords = findPolygonFromObject(fov, req.body.lat, req.body.lon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)[0]
+      image.directionFromObject = Number(tools.findRotationFromTarget(targetLat, targetLon, originLat, originLon))
+      console.log("Rot: " + Number(tools.findRotationFromTarget(targetLat, targetLon, originLat, originLon)))
+      polygonCoords = tools.findPolygonFromObject(fov, req.body.lat, req.body.lon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)[0]
       image.save()
   })
 } else {
   MyTestImage.findOne({ _id: testImage._id}).exec(function(err, image) {
-      polygonCoords = findPolygonFromRotation(fov, Number(req.body.mapRotation), req.body.lat, req.body.lon, focalLength)[0]
+      polygonCoords = tools.findPolygonFromRotation(fov, Number(req.body.mapRotation), req.body.lat, req.body.lon, focalLength)[0]
       image.save()
   })
 }
@@ -285,10 +268,18 @@ if (array.length==3 && req.body.test=="1") {
         if (images[i].test=="1") {
           console.log("Images time " + images[i].time)
           test1Time = test1Time + images[i].time
-          test1Result = test1Result + (images[i].GPSImgDirection-images[i].directionFromUser)
+          var diff = images[i].GPSImgDirection-images[i].directionFromUser
+          if (diff>180) {
+            diff = 360-diff
+          }
+          test1Result = test1Result + diff
         } else if (images[i].test=="2") {
           test2Time = test2Time + images[i].time
-          test2Result = test2Result + (images[i].GPSImgDirection-images[i].directionFromObject)
+          var diff = images[i].GPSImgDirection-images[i].directionFromObject
+          if (diff>180) {
+            diff = 360-diff
+          }
+          test2Result = test2Result + diff
         }
       }
       entry.test2.easy = Number(req.body.easy),
@@ -340,7 +331,7 @@ if (array.length==3 && req.body.test=="1") {
   }
   // define the next file name randomly
   var x = Math.floor((Math.random() * 3))
-  while (randomInArray(x, nextArray)) {
+  while (tools.randomInArray(x, nextArray)) {
     x = Math.floor((Math.random() * 3))
   }
   if (next!="") { 
@@ -427,228 +418,6 @@ router.get('/survey/part1/start/:entryId?', function(req, res) {
   });
 });
 
-
-/**
- * Finds target coordinates from rotation
- * @param {Number} rotation
- * @param {Number} tlat Latitude coordinate of the origin
- * @param {Number} tlon Longitude coordinate of the origin
- * @return {Number} distance Distance to the target
- */
-function targetFromRotation(rotation, tlat, tlon, distance) {
-  var alpha = 0
-  var lon = 0
-  var lat = 0
-  if (rotation<=1.5707963268) {
-    alpha = rotation
-    lon = -Math.sin(alpha)*distance
-    lat = -Math.cos(alpha)*distance
-  } else if (rotation>1.5707963268 && rotation<=3.1415926536) {
-    alpha = 3.1415926536-rotation
-    lon = -Math.sin(alpha)*distance
-    lat = Math.cos(alpha)*distance
-  } else if (rotation>3.1415926536 && rotation<=4.7123889804) {
-    alpha = rotation-3.1415926536
-    lon = Math.sin(alpha)*distance
-    lat = Math.cos(alpha)*distance
-  } else {
-    alpha = 6.2831853072-rotation
-    lon = Math.sin(alpha)*distance
-    lat = -Math.cos(alpha)*distance
-  }
-
-  var targetLat3857 = Number(tlat)+Number(lon)
-  var targetLon3857 = Number(tlon)+Number(-lat)
-
-  return [targetLat3857, targetLon3857]
-}
-
-/**
- * Finds polygon coordinates from rotation
- * @param {Number} rotation
- * @param {Number} tlat Latitude coordinate of the origin
- * @param {Number} tlon Longitude coordinate of the origin
- * @return {fov} fov Field of view
- */
-function findPolygonFromRotation(fov, rotation, tlat, tlon, focal) {
-  var distance = 16.0437156645*Number(focal) + 190.362376587
-  console.log("findPolygonFromRotation: " + fov + " " + rotation  + " " + tlat + " " + tlon + " " + focal)
-  var target = targetFromRotation(rotation, tlat, tlon, distance)
-  var targetLat3857 = target[0]
-  var targetLon3857 = target[1]
-
-  //rotate
-  var x = targetLat3857 - Number(tlat)
-  var y = targetLon3857 - Number(tlon)
-  var a = Number(fov)/2
-  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(tlat)
-  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(tlon)
-  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(tlat)
-  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(tlon)
-
-  var result1 = [{ 
-    originLat: tlat,
-    originLon: tlon, 
-    targetLat: targetLat3857,
-    targetLon: targetLon3857,
-    leftLat: xLeft,
-    leftLon: yLeft,
-    rightLat: xRight,
-    rightLon: yRight
-  }]
-  var newRotation = 360-radToDegree(Number(rotation))
-  return [ result1,  newRotation ]
-}
-
-/**
- * Finds rotation from target coordinates
- * @param {targetLat} tlat Latitude coordinate of the target
- * @param {targetLon} tlon Longitude coordinate of the target
- * @param {originLat} tlat Latitude coordinate of the origin
- * @param {originLon} tlon Longitude coordinate of the origin
- * @return {Number} distance Distance to the target
- */
-function findRotationFromTarget(targetLat, targetLon, originLat, originLon) {
-  var targetLon = Number(targetLon)
-  var targetLat = Number(targetLat)
-  var ix = Number(originLat)
-  var iy = Number(originLon)
-  var lat = targetLat-ix
-  var lon = targetLon-iy
-  var distance = Math.sqrt(Math.pow(lat,2)+Math.pow(lon,2))
-  if ((targetLat>=ix) && (targetLon<=iy)) {
-    var rad1 = Math.acos(lat/distance)
-    var rad2 = Math.asin(-lon/distance)
-    var rad = 3.1415926536-((rad1+rad2)/2)+1.5707963268
-    return 360-radToDegree(rad) 
-  } else if ((targetLat<=ix) && (targetLon<=iy)) {
-    var rad1 = Math.acos(-lat/distance)
-    var rad2 = Math.asin(-lon/distance)
-    var rad = ((rad1+rad2)/2)+1.5707963268
-    return 360-radToDegree(rad) 
-  } else if ((targetLat>=ix) && (targetLon>=iy)) {
-    var rad1 = Math.acos(lat/distance)
-    var rad2 = Math.asin(lon/distance)
-    var rad = 3.1415926536+((rad1+rad2)/2)+1.5707963268
-    return 360-radToDegree(rad) 
-  }  else if ((targetLat<=ix) && (targetLon>=iy)) {
-    var rad1 = Math.acos(-lat/distance)
-    var rad2 = Math.asin(lon/distance)
-    var rad = 6.2831853072-((rad1+rad2)/2) + 1.5707963268
-    return 360-radToDegree(rad) 
-  }
-
-}
-function radToDegree(rad) {
-        var degrees = Math.abs(rad)*(180/Math.PI)
-        if (degrees > 360) { 
-          degrees = degrees - (Math.floor(degrees / 360)*360) 
-        } 
-        if (rad<0) {
-          degrees = 360 - degrees
-        }
-        return degrees
-      }
-function targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
-  var parsed = JSON.parse(objectCoordsMap)
-  var targetLat = Number(parsed[0].x)
-  var targetLon = Number(parsed[0].y)
-  //first rotate (depending on the position on the image)
-  var x = targetLat - Number(lat)
-  var y = targetLon - Number(lon)
-  //define offset
-  var radInPixel = fov/Number(imageSize)
-  var splitOb = objectCoords.split(" ")
-  var selectionCenter = ((Number(splitOb[2])-Number(splitOb[0]))/2)+Number(splitOb[0])
-  // if object to the left of the center - positiv offset
-  var offset = (Number(imageSize)/2)-selectionCenter
-  var a = offset*radInPixel
-  targetLat = ((x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)) 
-  targetLon = ((y*Math.cos(a)) - (x*Math.sin(a))  + Number(lon)) 
-
-  return [targetLat, targetLon]
-}
-
-function distanceToObject(lat, lon, targetLat, targetLon) {
-  return Math.sqrt(Math.pow(targetLat-lat,2)+Math.pow(targetLon-lon,2))
-}
-/* define polygon nodes from matched object */
-function findPolygonFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) {
- 
-  var target = targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) 
-  var targetLat = target[0]
-  var targetLon = target[1]
-  var distance = distanceToObject(Number(lat), Number(lon), targetLat, targetLon)
-   var factor = 2.83477579755-(0.00522655115197*distance)
-   if (factor<1.2) {
-    factor = 1.2
-   }
-  //second rotate to calculate polygon coords
-  x = (targetLat - Number(lat)) * factor
-  y = (targetLon - Number(lon)) * factor
-  a = Number(fov)/2
-  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(lat)
-  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(lon)
-  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
-  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
-
-  var result = [{ 
-    originLat: lat,
-    originLon: lon, 
-    targetLat: targetLat,
-    targetLon: targetLon,
-    leftLat: xLeft,
-    leftLon: yLeft,
-    rightLat: xRight,
-    rightLon: yRight
-  }]
-  var rotation = findRotationFromTarget(targetLat, targetLon, lat, lon)
-  return [ result, rotation ]
-
-}
-
-function findPolygonFromRotationAndObject(fov, rotation, lat, lon, imageSize, objectCoords, objectCoordsMap) {
-  var targetO = targetFromObject(fov, lat, lon, imageSize, objectCoords, objectCoordsMap) 
-  var targetLatO = targetO[0]
-  var targetLonO = targetO[1]
-  var distance = distanceToObject(Number(lat), Number(lon), targetLatO, targetLonO)
-  var factor = 2.83477579755-(0.00522655115197*distance)
-   if (factor<1.2) {
-    factor = 1.2
-   }
-  var targetR = targetFromRotation(rotation, lat, lon, distance)
-  var targetLatR = targetR[0]
-  var targetLonR = targetR[1]
-
-  var targetLat = (targetLatO + targetLatR)/2
-  var targetLon = (targetLonO + targetLonR)/2
-
-  var rotationO = findRotationFromTarget(targetLatO, targetLonO, lat, lon)
-  var rotationResult = (Number(rotationO)  + (360-radToDegree(Number(rotation))))/2
-
-  x = (targetLat - Number(lat)) * factor
-  y = (targetLon - Number(lon)) * factor
-
-  a = Number(fov)/2
-  var xLeft = (x*Math.cos(a)) - (y*Math.sin(a)) + Number(lat)
-  var yLeft = (x*Math.sin(a)) + (y*Math.cos(a)) + Number(lon)
-  var xRight = (x*Math.cos(a)) + (y*Math.sin(a)) + Number(lat)
-  var yRight = (y*Math.cos(a)) - (x*Math.sin(a)) + Number(lon)
-
-  var result = [{ 
-    originLat: lat,
-    originLon: lon, 
-    targetLat: targetLat,
-    targetLon: targetLon,
-    leftLat: xLeft,
-    leftLon: yLeft,
-    rightLat: xRight,
-    rightLon: yRight
-  }]
-
-  return [ result, rotationResult ]
-
-}
 router.get('/survey/part1/next/:entryId?', function(req, res) {
   //save the result
   Entry.findOne({ _id: req.params.entryId }).exec(function(err, entry) {
@@ -734,7 +503,7 @@ router.get('/survey/part1/next/:entryId?', function(req, res) {
 */
 router.get('/showPolygon', function(req, res) {
   console.log("Im Server--------------------------") 
-  var r = 360-Number(radToDegree(req.query.mapRotation))
+  var r = 360-Number(tools.radToDegree(req.query.mapRotation))
   console.log("Rotation: " + r)
   var originLat = Number(JSON.parse(req.query.origin)[0])
   var originLon = Number(JSON.parse(req.query.origin)[1])
@@ -752,14 +521,14 @@ router.get('/showPolygon', function(req, res) {
   // only object(s)
   if (req.query.objectCoordsMap!="y" && req.query.modalCameraRotation=="t") {
     console.log("OBJEKT OHNE ROTATION")
-    var result = findPolygonFromObject(fov, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
+    var result = tools.findPolygonFromObject(fov, originLat, originLon, req.query.imageSize, req.query.objectCoords, req.query.objectCoordsMap)
     console.log("ROTATIONNNNNNNNNNNNNNNN: " + result[1])
    } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap=="y") {
      console.log("Rotation ohne objekt")
-    var result = findPolygonFromRotation(fov, req.query.mapRotation, originLat, originLon, focalLength)
+    var result = tools.findPolygonFromRotation(fov, req.query.mapRotation, originLat, originLon, focalLength)
    } else if (req.query.modalCameraRotation=="f" && req.query.objectCoordsMap!="y") {
     console.log("Rotation AND objekt")
-    var result = findPolygonFromRotationAndObject(
+    var result = tools.findPolygonFromRotationAndObject(
       fov, req.query.mapRotation, 
       originLat, originLon, req.query.imageSize, 
       req.query.objectCoords, req.query.objectCoordsMap)
@@ -774,7 +543,7 @@ router.post('/submitToDatabase', function(req, res) {
   console.log("RRRRRRRR: " + req.body.imagePath)
   var imageName = req.body.imagePath.split("/")[2]
   console.log("Im Server submitToDatabase") 
-  var r = 360-Number(radToDegree(req.body.mapRotation))
+  var r = 360-Number(tools.radToDegree(req.body.mapRotation))
   console.log("Rotation: " + r)
   var originLat = Number(JSON.parse(req.body.origin)[0])
   var originLon = Number(JSON.parse(req.body.origin)[1])
@@ -801,27 +570,27 @@ router.post('/submitToDatabase', function(req, res) {
   // only object(s)
   if (req.body.objectCoordsMap!="y" && req.body.modalCameraRotation=="t" && req.body.multipleObjects!="Yes" ) {
     console.log("OBJEKT(s) OHNE ROTATION")
-    var result = findPolygonFromObject(fov, originLat, originLon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)
+    var result = tools.findPolygonFromObject(fov, originLat, originLon, req.body.imageSize, req.body.objectCoords, req.body.objectCoordsMap)
    } else if (req.body.modalCameraRotation=="f" && req.body.objectCoordsMap=="y") {
      console.log("Rotation ohne objekt")
-    var result = findPolygonFromRotation(fov, req.body.mapRotation, originLat, originLon, focalLength)
+    var result = tools.findPolygonFromRotation(fov, req.body.mapRotation, originLat, originLon, focalLength)
    } else if (req.body.modalCameraRotation=="f" && req.body.objectCoordsMap!="y" && req.body.multipleObjects!="Yes") {
     console.log("Rotation AND objekt")
-    var result = findPolygonFromRotationAndObject(
+    var result = tools.findPolygonFromRotationAndObject(
       fov, req.body.mapRotation, 
       originLat, originLon, req.body.imageSize, 
       req.body.objectCoords, req.body.objectCoordsMap)
    } else if (req.body.multipleObjects=="Yes" && req.body.modalCameraRotation=="f") {
       console.log("Rotation AND objekts ")
       //Save to Database
-      console.log("Rotation: " + req.body.mapRotation + " " + radToDegree(Number(req.body.mapRotation)))
+      console.log("Rotation: " + req.body.mapRotation + " " + tools.radToDegree(Number(req.body.mapRotation)))
       /* WORKING*/
       //save image in db
       var image = new MyImage({ 
           name: imageName,
           path: 'C:/users/Zoe/Bachelor/public/db/images/' + imageName,
           coords: [ Number(originLat), Number(originLon) ],
-          direction: 360-radToDegree(Number(req.body.mapRotation)),
+          direction: 360-tools.radToDegree(Number(req.body.mapRotation)),
           buildings: JSON.parse(req.body.selectedBuildings)
       })
 
@@ -844,7 +613,7 @@ router.post('/submitToDatabase', function(req, res) {
           name: imageName,
           path: 'C:/users/Zoe/Bachelor/public/db/images/' + imageName,
           coords: [ Number(originLat), Number(originLon) ],
-          direction: Number(findRotationFromTarget(targetLat, targetLon, originLat, originLon)),
+          direction: Number(tools.findRotationFromTarget(targetLat, targetLon, originLat, originLon)),
           buildings: JSON.parse(req.body.selectedBuildings)
       })
 
@@ -888,7 +657,7 @@ router.post('/submitToDatabase', function(req, res) {
 
       var bodyString = body
       console.log("Polygon: " + polygon)
-      var buildings = findViewableBuildings(polygon, body, latlon)
+      var buildings = tools.findViewableBuildings(polygon, body, latlon)
 
       /* WORKING*/
       //save image in db
@@ -940,250 +709,6 @@ router.get('/', function(req, res) {
       
 });
 
-  function boundingBoxAroundPolyCoords (nodes) {
-
-          var building = ""
-          var coords = []
-          var lats = []
-          var lons = []
-          for (node in nodes) {
-                var lat = nodes[node].lat
-                var lon = nodes[node].lon
-                coords.push([ Number(lat), Number(lon) ])
-                lats.push(Number(lat))
-                lons.push(Number(lon))
-              }
-              var maximumLat = findMax(lats);
-              var maximumLon = findMax(lons);
-              var minimumLat = findMin(lats);
-              var minimumLon = findMin(lons);
-              var fromMaxLat = [maximumLat]
-              var fromMinLat = [minimumLat]
-              var fromMaxLon = []
-              var fromMinLon = []
-
-              for (i in coords) {
-                if (coords[i][0]==maximumLat) {
-                  // to do : there can be multiple nodes with the same lat/lon
-                 /* if (fromMaxLat.length==2) {
-                    if (fromMaxLat[1]<coords[i][1]) {
-                      fromMaxLat.pop()
-                      fromMaxLat.push(coords[i][1])
-                    } 
-                  } else {*/
-                    fromMaxLat.push(coords[i][1])
-                 // }           
-                } else if (coords[i][0]==minimumLat) {
-                 /* if (fromMinLat.length==2) {
-                    if (fromMinLat[1]<coords[i][1]) {
-                      fromMinLat.pop()
-                      fromMinLat.push(coords[i][1])
-                    }
-                  } else {*/
-                    fromMinLat.push(coords[i][1])
-                 // }                 
-                }
-                if (coords[i][1]==maximumLon) {   
-               /*   if (fromMaxLon.length==2) {
-                    if (fromMaxLon[0]>coords[i][0]) {
-                      fromMaxLon = [ coords[i][0], maximumLon ]
-                    }
-                  } else {*/
-                    fromMaxLon.push(coords[i][0])
-                    fromMaxLon.push(maximumLon)
-                 // }          
-                  
-                } else if (coords[i][1]==minimumLon) {
-                  /*if (fromMinLon.length==2) {
-                    if (fromMinLon[0]<coords[i][0]) {
-                      fromMinLon = [ coords[i][0], minimumLon]
-                    }
-                  } else {*/
-                    fromMinLon.push(coords[i][0])
-                    fromMinLon.push(minimumLon)
-                 // } 
-                }
-              }
-              //bounds = boundingBoxAroundPolyCoords([coords])
-              return [ fromMinLon, fromMinLat, fromMaxLon, fromMaxLat ]
-  }
-
-  function findMin( array ){
-    return Math.min.apply( Math, array );
-  };
-
-  function findMax( array ){
-    return Math.max.apply( Math, array );
-  };
-
-  function findViewableBuildings(polygon, body, latlon) {
-    var result = JSON.parse(body).elements
-    var buildings = []
-    var bodyString = body
-    var coords = []
-    var splitPolygon = polygon.split(" ")
-    var viewArea = turf.polygon([[
-      [Number(splitPolygon[1]), Number(splitPolygon[0])], 
-      [Number(splitPolygon[3]), Number(splitPolygon[2])], 
-      [Number(splitPolygon[5]), Number(splitPolygon[4])],
-      [Number(splitPolygon[1]), Number(splitPolygon[0])]
-    ]]) 
-    // find buildings in polygon
-    // for all buildings
-    for (element in result) {
-      //define origin coordinates
-      if (latlon!="") {
-        var split = latlon.split(",")
-        var lat = Number(split[0])
-        var lon = Number(split[1])
-      } else {
-        var split = polygon.split(" ")
-        var lat = Number(split[0])
-        var lon = Number(split[1])
-      }
-      var point = turf.point([lon, lat]); //origin
-      var poly1status = true
-      var poly2status = true
-      var poly3status = true
-      var poly4status = true
-      var poly5status = true
-      var add = true
-      var nodes = result[element].geometry //get all nodes of the building
-      var building = ""
-      var bounds = boundingBoxAroundPolyCoords(nodes)
-      var poly1 = turf.linestring([
-        [lon, lat], 
-        [bounds[0][1], bounds[0][0]]
-      ])
-      var poly2 = turf.linestring([ 
-        [lon, lat], 
-                      [bounds[1][1], bounds[1][0]] 
-                      ])
-            var poly3 = turf.linestring([
-                      [lon, lat], 
-                      [bounds[2][1], bounds[2][0]] 
-                      ])
-            var poly4= turf.linestring([ 
-                      [lon, lat], 
-                      [bounds[3][1], bounds[3][0]] 
-                      ])
-            var poly5 = turf.linestring([ 
-                      [lon, lat], 
-                      [(bounds[0][1]+bounds[2][1])/2, (bounds[1][0]+bounds[3][1])/2]
-                      ])
-
-            var bbPoint1 = turf.point([bounds[0][1], bounds[0][0]])
-            var bbPoint2 = turf.point([bounds[1][1], bounds[1][0]])
-            var bbPoint3 = turf.point([bounds[2][1], bounds[2][0]])
-            var bbPoint4 = turf.point([bounds[3][1], bounds[3][0]] )
-            var bbPoint5 = turf.point([(Number(bounds.minlon)+Number(bounds.maxlon))/2, (Number(bounds.minlat)+Number(bounds.maxlat))/2])
-
-            //check if lines intersect one of the found buildings
-            for (x in result) {
-
-              if (result[x].id != result[element].id) {
-                var boundsX = boundingBoxAroundPolyCoords(result[x].geometry)
-
-                var bbox = [
-                  Number(result[x].bounds.minlon), 
-                  Number(result[x].bounds.minlat), 
-                  Number(result[x].bounds.maxlon), 
-                  Number(result[x].bounds.maxlat)
-                ];
-           
-                var nodesX = result[x].geometry
-                
-                    var coordsX = []
-                    for (node in nodesX) {
-                      var lat = Number(nodesX[node].lat)
-                      var lon = Number(nodesX[node].lon)
-                      coordsX.push([lon,lat])               
-                    }
-                    coords.push(coords[0])
-                try { 
-                  var poly = turf.polygon([coordsX])
-                } catch(err) {
-                  console.log("TURF ERROR: " + err)
-                  break
-                }
-                if (poly1status) {
-                    var intersection1 = turf.intersect(poly1, poly)
-
-                    if (intersection1!=undefined) {
-                      if (intersection1.geometry.type!="Point") {
-                        poly1status = false
-                      }
-                  } else if (!(turf.inside(bbPoint1,viewArea))) {
-                    poly1status = false
-                  }
-
-                }
-                if (poly2status) {
-                   var intersection2 = turf.intersect(poly2, poly)
-                  if (intersection2!=undefined) {
-                       if (intersection2.geometry.type!="Point") {
-                        poly2status = false
-                      }
-                  } else if (!turf.inside(bbPoint2,viewArea)) {
-                    poly2status = false
-                  }
-                }
-                if (poly3status) {
-                  var intersection3 = turf.intersect(poly3, poly)
-                 if (intersection3!=undefined) {
-                     if (intersection3.geometry.type!="Point") {
-                        poly3status = false
-                      }
-                     
-                  } else if (!turf.inside(bbPoint3,viewArea)) {
-                    poly3status = false
-                  }
-                }
-                if (poly4status) {
-                   var intersection4 = turf.intersect(poly4, poly)
-                 if (intersection4!=undefined) {
-                     if (intersection4.geometry.type!="Point") {
-                        poly4status = false
-                      }
-                  } else if (!turf.inside(bbPoint4,viewArea)) {
-                    poly4status = false
-                  }
-                }
-                if (poly5status) {
-                  var intersection5 = turf.intersect(poly5, poly)
-                  if (intersection5!=undefined) {
-                     if (intersection5.geometry.type!="Point") {
-                        poly5status = false
-                      }
-                  } else if (!turf.inside(bbPoint5,viewArea)) {
-                    poly5status = false
-                  }
-                }
-
-                if ((poly1status==false) && (poly2status==false) && (poly3status==false) && (poly4status==false) && (poly5status==false)) {
-                  add = false
-                  break
-                } 
-                 
-              }
-            }
-            if (add) {
-              //console.log("I'm element " + result[element].id) sonne
-              var geometry = []
-              for (node in nodes) {
-                    var lat = Number(nodes[node].lat)
-                    var lon = Number(nodes[node].lon)
-                    var oneNode = proj4(proj4('EPSG:4326'), proj4('EPSG:3857'), [ lon, lat ])
-                    //building =  building + lat + " " + lon + ":"
-                    geometry.push(oneNode)
-              }
-                  buildings.push({ id: result[element].id, geometry: [geometry] }) 
-            }  
-          }
-
-          return buildings
-
-  }
 /* GET nodes, ways and relations inside a triangle polygon */
 router.post('/overpass', function(req, res) {
   console.log("Rotation in overpass: " + req.body.mapRotation)
@@ -1231,8 +756,8 @@ router.post('/overpass', function(req, res) {
               }
                   buildings.push({ id: result[element].id, geometry: [geometry] }) 
 
-              /*bounds = boundingBoxAroundPolyCoords([coords])
-              var bounds = boundingBoxAroundPolyCoords(nodes)
+              /*bounds = tools.boundingBoxAroundPolyCoords([coords])
+              var bounds = tools.boundingBoxAroundPolyCoords(nodes)
               //Display bounding boxen
               var building = ""
               for (i in bounds) {
@@ -1242,7 +767,7 @@ router.post('/overpass', function(req, res) {
 
         }
       } else {
-        buildings = findViewableBuildings(polygon, body, latlon)
+        buildings = tools.findViewableBuildings(polygon, body, latlon)
         //console.log(JSON.stringify(buildings))  
       }
 
