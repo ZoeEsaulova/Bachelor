@@ -13,7 +13,6 @@
     <!-- jQuery -->
     <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.min.js"></script>
     <script type="text/javascript" src="onlinefolio/layout/scripts/jquery.slidepanel.setup.js"></script>
-
     <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.min.js"></script>
     <script type="text/javascript" src="javascripts/jquery.imgareaselect-0.9.10/scripts/jquery.imgareaselect.pack.js"></script>
     <link rel="stylesheet" type="text/css" href="javascripts/jquery.imgareaselect-0.9.10/css/imgareaselect-default.css" />
@@ -28,7 +27,6 @@
     <script src="ol3-layerswitcher-master/examples/addlayer.js"></script>
     <title>Geotagged images</title>
     <style>
-
       img {
         width: 100%;
         margin: 0;
@@ -43,56 +41,48 @@
         right: 10px;
       }
       div.upload {
-          width: 157px;
-          height: 57px;
-          background: url(https://lh6.googleusercontent.com/-dqTIJRTqEAQ/UJaofTQm3hI/AAAAAAAABHo/w7ruR1SOIsA/s157/upload.png);
-          overflow: hidden;
-          white-space: nowrap;
+        width: 157px;
+        height: 57px;
+        background: url(https://lh6.googleusercontent.com/-dqTIJRTqEAQ/UJaofTQm3hI/AAAAAAAABHo/w7ruR1SOIsA/s157/upload.png);
+        overflow: hidden;
+        white-space: nowrap;
       }
-
       div.upload input {
-          display: block !important;
-          width: 157px !important;
-          height: 57px !important;
-          opacity: 0 !important;
-          overflow: hidden !important;
-          white-space: nowrap;
+        display: block !important;
+        width: 157px !important;
+        height: 57px !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap;
       }
-
       div.upload:hover {
-
         border-style: solid;
         border-color: rgba(238,233,233,0.1);
       }
-
     </style>
   </head>
-
   <body onload="showMarkers(<%= imageData %>)">
     <!-- Navigation bar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
-          <div class="container">
-            <div class="navbar-header">
-               <a class="navbar-brand" href="/">Geotagged images</a>
-            </div>
-            <div id="navbar" class="collapse navbar-collapse">
-              <ul class="nav navbar-nav">
-              <li>
-              <!-- Upload a new image -->
-                <div class="upload">
-                  <form id="uploadForm" action='/upload' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
-                    <input id="file" type="file" name="image" data-buttonText="Upload photo">
-                  </form>
-                </div>
-                </li>
-                <!--li><a href="/osm">test osm</a></li>
-                <li><a href="/rotation">test transform</a></li-->
-                <li><a href="/survey/welcome">Start Survey</a></li>
-              </ul>
-            </div>
-          </div>
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Geotagged images</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li>
+            <!-- Upload a new image -->
+              <div class="upload">
+                <form id="uploadForm" action='/upload' method='post' enctype="multipart/form-data" style="white-space: nowrap;">
+                  <input id="file" type="file" name="image" data-buttonText="Upload photo">
+                </form>
+              </div>
+            </li>
+            <li><a href="/survey/welcome">Start Survey</a></li>
+          </ul>
+        </div>
+      </div>
     </nav>
-
     <!-- Map placeholder -->
     <div class="row">
         <div class="col-lg-12">
@@ -102,182 +92,150 @@
 
     <!-- Upload image functionality -->
     <script type="text/javascript">
-
       $(function () {
         document.getElementById("file").onchange = function() {
-          document.getElementById("uploadForm").submit();
-        };
-      });
+          document.getElementById("uploadForm").submit()
+        }
+      })
     </script>
 
     <script type="text/javascript">
-
       /* Openlayers 3 */
-
       // create satellite layer
       var sourceBingMaps = new ol.source.BingMaps({
           key: 'Ag4eQzHgpn-LvpD_4Mx6Vsx7TslsxykxKc_cGyf2HDZtQqmg5oZEeX4mmwVOGtyz',
           imagerySet: 'Aerial',
       });
-
       // create interactions and controls
-        var mouseZoom = new ol.interaction.MouseWheelZoom();
-        var interaction = new ol.interaction.DragRotate();
-        var pan = new ol.interaction.DragPan();
-        var pinch = new ol.interaction.PinchRotate()
-        var rotateControl = new ol.control.Rotate();
-        var zoomControl = new ol.control.Zoom();
-        var layerSwitcher = new ol.control.LayerSwitcher();
-              var vectorLayer
+      var mouseZoom = new ol.interaction.MouseWheelZoom();
+      var interaction = new ol.interaction.DragRotate();
+      var pan = new ol.interaction.DragPan();
+      var pinch = new ol.interaction.PinchRotate()
+      var rotateControl = new ol.control.Rotate();
+      var zoomControl = new ol.control.Zoom();
+      var layerSwitcher = new ol.control.LayerSwitcher();
+      var vectorLayer
       var vectorLayer4
       var vectorLayer5
       var vectorSource2
       var vectorLayer2
       var vectorSource3
       var vectorLayer3
-
       // create map
-        var map = new ol.Map({
-            target: 'map',
-            controls: [rotateControl, zoomControl, layerSwitcher],
-            layers: [
-              new ol.layer.Tile({
-                title: 'OSM',
-                type: 'base',
-                visible: true,
-                source: new ol.source.OSM()
-              }),
-              new ol.layer.Tile({
-                title: 'Satellite',
-                type: 'base',
-                visible: false,
-                source: sourceBingMaps
-              })
-            ],
-            view: new ol.View({
-              center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
-              zoom: 13
-            }),
-            interactions: [ interaction, mouseZoom, pan, pinch]
-          });
+      var map = new ol.Map({
+        target: 'map',
+        controls: [rotateControl, zoomControl, layerSwitcher],
+        layers: [
+          new ol.layer.Tile({
+            title: 'OSM',
+            type: 'base',
+            visible: true,
+            source: new ol.source.OSM()
+          }),
+          new ol.layer.Tile({
+            title: 'Satellite',
+            type: 'base',
+            visible: false,
+            source: sourceBingMaps
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.transform([ 7.617449, 51.963416  ], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 13
+        }),
+        interactions: [ interaction, mouseZoom, pan, pinch]
+      })
 
-        /* add marker 
-        * @param properties: marker coordinates
-        */
-        function showMarkers(imageData) {
-          console.log("ImageData: " + imageData.length)
-          console.log("Markers coords: " + imageData[0].coords[0])
-
-          if (imageData!=undefined) {
-
-            var iconFeatures=[]
-            for (x in imageData) {
-              var lat = imageData[x].coords[1]
-              var lon = imageData[x].coords[0]
-              var iconFeature = new ol.Feature({
-                geometry: new ol.geom.Point([ lon, lat ]),
-                name: 'Muenster',
-                buildings: imageData[x].buildings,
-                format: imageData[x].format
-            });
+      /* add marker 
+      * @param properties: marker coordinates
+      */
+      function showMarkers(imageData) {
+        if (imageData!=undefined) {
+          var iconFeatures=[]
+          for (x in imageData) {
+            var lat = imageData[x].coords[1]
+            var lon = imageData[x].coords[0]
+            var iconFeature = new ol.Feature({
+              geometry: new ol.geom.Point([ lon, lat ]),
+              name: 'Muenster',
+              buildings: imageData[x].buildings,
+              format: imageData[x].format
+            })
               iconFeatures.push(iconFeature)
-            }
-            
-            
-            var vectorSource = new ol.source.Vector({
-              features: iconFeatures 
-            });
-            var iconStyle = new ol.style.Style({
-              image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+          }   
+          var vectorSource = new ol.source.Vector({
+            features: iconFeatures 
+          })
+          var iconStyle = new ol.style.Style({
+            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
               anchor: [ 0.5, 200],
               scale: 0.2,
               anchorXUnits: 'fraction',
               anchorYUnits: 'pixels',
               src: "http://i1230.photobucket.com/albums/ee488/PerfectlyDarkTails/Map-Marker-Flag-2-Right-Red-icon_zps4cea0902.png"
-              }))
-            });
-            var vectorLayer = new ol.layer.Vector({
-              source: vectorSource,
-              style: iconStyle
-            });
-
-            map.addLayer(vectorLayer)
-            var mySelectInteraction = new ol.interaction.Select({ layers: [vectorLayer]})
-            mySelectInteraction.getFeatures().on('add', function(e) {
-              if (vectorLayer4!=undefined) {
-                map.removeLayer(vectorLayer4)
-              }
-              var feature = e.element 
-              var buildings = feature.getProperties().buildings
-  
-              console.log("buildings: " + JSON.stringify(buildings))
-
-
-              var features = []
-
-                console.log("Format 3857")
-                  for (x in buildings) {
-                  console.log("type: " + typeof(buildings[x].geometry[0][0]))
-                 if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
-                  var feature = new ol.Feature({
-                    name: buildings[x].id,
-                    geometry: new ol.geom.Polygon(buildings[x].geometry)
-                  });
-                  features.push(feature) 
-                 }                
-                }
-
-
-              console.log("yeeee: " + features.length + " " + features[0]) 
-              //console.log("yeeee: " + JSON.stringify(features))
-              var vectorSource4 = new ol.source.Vector({
-                features: features
-              });
-              var myStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                  color: 'orange',
-                  width: 3
-                }),
-                fill: new ol.style.Fill({
-                  color: 'rgba(255, 153, 0, 0.5)'
+            }))
+          })
+          var vectorLayer = new ol.layer.Vector({
+            source: vectorSource,
+            style: iconStyle
+          })
+          map.addLayer(vectorLayer)
+          var mySelectInteraction = new ol.interaction.Select({ layers: [vectorLayer]})
+          mySelectInteraction.getFeatures().on('add', function(e) {
+            if (vectorLayer4!=undefined) {
+              map.removeLayer(vectorLayer4)
+            }
+            var feature = e.element 
+            var buildings = feature.getProperties().buildings
+            var features = []
+            for (x in buildings) {
+              if (typeof(buildings[x].geometry[0][0])!="number" && typeof(buildings[x].geometry[0][0])!="undefined") {
+                var feature = new ol.Feature({
+                  name: buildings[x].id,
+                  geometry: new ol.geom.Polygon(buildings[x].geometry)
                 })
-              })
-              vectorLayer4 = new ol.layer.Vector({
-                      source: vectorSource4,
-                      style: myStyle
-              })
-              
-              map.addLayer(vectorLayer4)
-              console.log()
+                features.push(feature) 
+              }                
+            }
+            var vectorSource4 = new ol.source.Vector({
+              features: features
             })
-            map.addInteraction(mySelectInteraction) 
-
-          }
+            var myStyle = new ol.style.Style({
+              stroke: new ol.style.Stroke({ color: 'orange', width: 3 }),
+              fill: new ol.style.Fill({ color: 'rgba(255, 153, 0, 0.5)' })
+            })
+            vectorLayer4 = new ol.layer.Vector({
+              source: vectorSource4,
+              style: myStyle
+            })              
+            map.addLayer(vectorLayer4)
+          })
+          map.addInteraction(mySelectInteraction) 
         }
+      }
 
-        /* convert radians to degrees 
-        * @param rad: angle in radians
-        * @return angle in degrees
-        */
-        function radToDegree(rad) {
-          var degrees = Math.abs(rad)*(180/Math.PI)
-          if (degrees > 360) { 
-            degrees = degrees - (Math.floor(degrees / 360)*360) 
-          } 
-          if (rad<0) {
-            degrees = 360 - degrees
-          }
-          return degrees
+      /* convert radians to degrees 
+      * @param rad: angle in radians
+      * @return angle in degrees
+      */
+      function radToDegree(rad) {
+        var degrees = Math.abs(rad)*(180/Math.PI)
+        if (degrees > 360) { 
+          degrees = degrees - (Math.floor(degrees / 360)*360) 
+        } 
+        if (rad<0) {
+          degrees = 360 - degrees
         }
+        return degrees
+      }
 
-        /* convert degrees to radian 
-        * @param rad: angle in degrees
-        * @return angle in radians
-        */
-        function DegreeToRad(degree) {
-          return degree*Math.PI/180
-        }
-
+      /* convert degrees to radian 
+      * @param rad: angle in degrees
+      * @return angle in radians
+      */
+      function DegreeToRad(degree) {
+        return degree*Math.PI/180
+      }
     </script>
   </body>
 </html>

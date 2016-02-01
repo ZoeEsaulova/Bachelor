@@ -1,4 +1,4 @@
-/* Database schema for datasets*/
+/* Database schema for surevy results*/
 
 var mongoose = require('mongoose');
 var mongooseToCsv = require('mongoose-to-csv');
@@ -49,7 +49,6 @@ testImageSchema.plugin(mongooseToCsv, {
   virtuals: {
     'centerCoordsOnMap_x': function(doc) {
     	if (doc.centerCoordsOnMap!=undefined) {
-    		console.log("dddddddddddddddddddddddddddddddddddd " )
     		return JSON.parse(doc.centerCoordsOnMap)[0].x
     	} else {
     		return undefined
@@ -69,5 +68,4 @@ testImageSchema.plugin(mongooseToCsv, {
   }
 });
 
-// create the model for datasets and expose it to our app
 module.exports = mongoose.model('TestImage', testImageSchema);

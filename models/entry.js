@@ -1,4 +1,4 @@
-/* Database schema for datasets*/
+/* Database schema for survey results*/
 
 var mongoose = require('mongoose');
 var mongooseToCsv = require('mongoose-to-csv');
@@ -44,45 +44,16 @@ entrySchema.virtual('sotMeanError').get(function () {
 	var result = [ 123, 237, 83, 156, 319, 235, 333, 260, 280, 48, 26, 150 ]
 	var diffSum = 0
 	for (j = 0; j<this.sot.length; j++) {
-        diffSum = diffSum + Math.abs(this.sot[j]-result[j])
+		var diff = Math.abs(this.sot[j]-result[j])
+		if (diff>180) {
+            diff = 360-diff
+        }
+        diffSum = diffSum + diff
      }
   	return diffSum/this.sot.length
 })
 
-/*entrySchema.virtual('test1Time').get(function () {
-	var time = 0
-	// HIERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-	for (i=0;i<this.test1.images.length;i++) {
-		console.log("Image time: " + this.test1.images[i] + " " + this.test1.images[i].name )
-		time = time + Number(this.test1.images[i].time)
-	}
-  	return time
-})
-
-entrySchema.virtual('test2Time').get(function () {
-	var time = 0
-	for (i=0;i<this.test2.images.length;i++) {
-		time = time + this.test2.images[i].time
-	}
-  	return time
-})
-
-entrySchema.virtual('test1Result').get(function () {
-	var result = 0
-	for (i in this.test1.images) {
-		result = result + (this.test1.images[i].GPSImgDirection-this.test1.images[i].directionFromUser)
-	}
-  	return result/this.test1.images.length
-})
-
-entrySchema.virtual('test2Result').get(function () {
-	var result = 0
-	for (i in this.test2.images) {
-		result = result + (this.test2.images[i].GPSImgDirection-this.test2.images[i].directionFromObject)
-	}
-  	return result/this.test2.images.length
-})
-*/
+// save all data in a .csv file
 entrySchema.plugin(mongooseToCsv, {
   headers: 'ID Name Age Sex livingInMuenster howLong visitMuenster compSkills digitalMaps photoServices sotTime sotMeanError sot_result test1_result test1_time test1_easy test1_quickly test1_difficult test1_comfortable test1_like test1_dislike test2_result test2_time test2_easy test2_quickly test2_difficult test2_comfortable test2_like test2_dislike',
   constraints: {
@@ -109,7 +80,6 @@ entrySchema.plugin(mongooseToCsv, {
     	var sotString = ""
     	for (i=0;i<doc.sot.length;i++) {
     		sotString = sotString + " " + doc.sot[i]
-    		console.log("Sot_result: " + doc.sot.length + " " + doc.sot[i])
     	}
     	
     	return sotString
@@ -160,6 +130,4 @@ entrySchema.plugin(mongooseToCsv, {
 entrySchema.set('toJSON', { virtuals: true });
 entrySchema.set('toObject', { virtuals: true });
 
-
-// create the model for datasets and expose it to our app
 module.exports = mongoose.model('Entry', entrySchema);

@@ -16,30 +16,27 @@
     </style>
   </head>
   <body>
-  <script>
-  	jQuery(document).ready(function() {
-  		
-  		jQuery('#visitMuenster').hide();
-	   jQuery('input[type="radio"]').click(function() {
-	       if(jQuery(this).attr('id') == 'muensterYes') {
-	            jQuery('#howLong').show();           
-	       }
-
-	       else {
-	            jQuery('#howLong').hide();   
-	       }
-	   });
-	   jQuery('input[type="radio"]').click(function() {
-	       if(jQuery(this).attr('id') == 'muensterNo') {
-	            jQuery('#visitMuenster').show();           
-	       }
-
-	       else {
-	            jQuery('#visitMuenster').hide();   
-	       }
-	   });
-	});
-  </script>
+    <script>
+    	jQuery(document).ready(function() {
+    		jQuery('#visitMuenster').hide();
+  	    jQuery('input[type="radio"]').click(function() {
+  	      if(jQuery(this).attr('id') == 'muensterYes') {
+  	        jQuery('#howLong').show();           
+  	      }
+  	      else {
+  	        jQuery('#howLong').hide();   
+  	      }
+  	    });
+  	    jQuery('input[type="radio"]').click(function() {
+  	      if(jQuery(this).attr('id') == 'muensterNo') {
+  	        jQuery('#visitMuenster').show();           
+  	      }
+  	      else {
+  	        jQuery('#visitMuenster').hide();   
+  	      }
+  	   });
+  	  });
+    </script>
     <!-- Navigation bar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -59,31 +56,27 @@
 
     <div class="row">
       <div class="col-lg-12">
-      <div class="panel panel-default" style="margin: 5px; background-color: rgba(188,243,245,1);">
-			  <div class="panel-body">
-			    
-<p><b>Instruction:</b> On each of the following pages you will see a picture of some objects and a circle with a movable green point. You should imagine that you are standing at one object (which will be named in the center of the circle) and facing another object (named at the top of the circle). Your task is to move the green point in a way, so that it points at the third object.</p>
+        <div class="panel panel-default" style="margin: 5px; background-color: rgba(188,243,245,1);">
+			    <div class="panel-body">	    
+            <p><b>Instruction:</b> On each of the following pages you will see a picture of some objects and a circle with a movable green point. You should imagine that you are standing at one object (which will be named in the center of the circle) and facing another object (named at the top of the circle). Your task is to move the green point in a way, so that it points at the third object.</p>
 
-<p>Look at the example below. You are asked to imagine that you are standing at the <b>flower</b>, which is named in the center of the circle, and facing the <b>tree</b>, which is named at the top of the circle. The task is to place the green point in a way so that it points at the <b>cat</b>. In this example you can already see the solution. In the test items, it will be your task to place the green point correctly.</p>
+            <p>Look at the example below. You are asked to imagine that you are standing at the <b>flower</b>, which is named in the center of the circle, and facing the <b>tree</b>, which is named at the top of the circle. The task is to place the green point in a way so that it points at the <b>cat</b>. In this example you can already see the solution. In the test items, it will be your task to place the green point correctly.</p>
 
-<p>There are 12 items in this test, one on each page. For each item, the array of objects is shown on the left of the page and the circle is shown on the right. Try to mark the correct directions but do not spend too much time on each single question.
-You will have 5 minutes for this test (25 seconds for each test item). In the top right corner you can see the time left.</p>
+            <p>There are 12 items in this test, one on each page. For each item, the array of objects is shown on the left of the page and the circle is shown on the right. Try to mark the correct directions but do not spend too much time on each single question.
+            You will have 5 minutes for this test (25 seconds for each test item). In the top right corner you can see the time left.</p>
 
-<p>If you have not finished the test when 5 minutes have past, just continue with the Part 2. </p>
+            <p>If you have not finished the test when 5 minutes have past, just continue with the Part 2. </p>
 
-<p>Please press "Start" button to start the test</p>
+            <p>Please press "Start" button to start the test</p>
+			    </div>
 			  </div>
-			</div>
-      	
-
       </div>
     </div>
+
     <div class="row">
       <div class="col-lg-12">
       	<img style="width: 100%;" src="http://i.imgur.com/y2sZi8E.png" />
       </div>
     </div>
-    	
-    
   </body>
 </html>

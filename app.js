@@ -5,12 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var port = process.env.PORT || 4444;
-
 var mongoose = require('mongoose');
 var configDB = require('./database.js');
 var multer = require('multer');
 
-// configuration ===============================================================
+// configuration ===========================
 mongoose.connect(configDB.url);
 var app = express();
 
@@ -32,16 +31,18 @@ app.use('/survey', express.static(__dirname + '/public'));
 app.use('/survey/part1', express.static(__dirname + '/public'));
 app.use('/survey/part1/start', express.static(__dirname + '/public'));
 app.use('/survey/part2', express.static(__dirname + '/public'));
+app.use('/survey/part2/first', express.static(__dirname + '/public'));
+app.use('/survey/part2/first', express.static(__dirname + '/public'));
 app.use('/survey/next', express.static(__dirname + '/public'));
+app.use('/test', express.static(__dirname + '/public'));
+app.use('/test/next', express.static(__dirname + '/public'));
 app.use('/submitToDatabase', express.static(__dirname + '/public'));
 
 var home = require('./routes/home');
-var test = require('./routes/test');
-//var survey = require('./routes/survey');
+var survey = require('./routes/survey');
 
 app.use('/', home);
-app.use('/test', test);
-//app.use('/survey', survey);
+app.use('/survey', survey);
 app.listen(port);
 console.log('The magic happens on port ' + port);
 

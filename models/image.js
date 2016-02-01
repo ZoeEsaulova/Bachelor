@@ -1,4 +1,4 @@
-/* Database schema for datasets*/
+/* Database schema for uploaded images*/
 
 var mongoose = require('mongoose');
 var mongooseToCsv = require('mongoose-to-csv');
@@ -26,5 +26,4 @@ imageSchema.plugin(mongooseToCsv, {
   }
 });
 
-// create the model for datasets and expose it to our app
 module.exports = mongoose.model('Image', imageSchema);
